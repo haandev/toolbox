@@ -103,15 +103,16 @@ Panel baş aşağı ya da içi dışına takılırsa yan kilit dil–oluğu yer 
 - Taban: oluk yukarı. Tavan: aynı parça ters çevrilmiş, oluk aşağı.
 - Çok hücreli kutularda karolar yan yana birleşir. Kenar ek yerleri kıskaç altına düşer; kıskaç vidası iki karo kenarını birlikte tutar.
 
-### 5.4a Dikey istif: erkek–dişi (taban ≠ tavan)
-Dikeyde her zaman alttaki kutunun tavanı üstteki kutunun tabanıyla buluşur; bu yüzden cinsiyetsizlik
-yalnızca **yan yüzlerde** gereklidir. Dikeyde Gridfinity benzeri erkek–dişi oturma kullanılır:
-- **Tavan karo (erkek):** kilit yüzünden `ERKEK_H = 5` mm taşan, içi boş kare bilezik; dış ölçü `160 − 2·FIT`, üst dış kenarda `ERKEK_PAH` giriş pahı.
-- **Taban karo (dişi):** alt cep dişi yuvadır; kaburga uçları bilezik bandında `ERKEK_H + FIT` kısaltılır.
-- Izgara adımı 100 mm kalır; tavan bileziği gövdenin üstüne taşar ve istifte üstteki tabana girer. Üstteki kutu her node'da kendiliğinden ortalanır, kaydırılmış istif de oturur.
-- Bileziğin içi, ileride takılacak **gömme kulp** için ayrılmış hacimdir (≈155 × 155 × `ERKEK_H` + cep derinliği). Daha derin kulp gerekirse `ERKEK_H` ve taban cep derinliği birlikte artırılır.
-- Bu karar, 5.4'teki "taban = tavan tek parça" kararını değiştirir: taban ve tavan iki ayrı kalıp.
-- Dikey çekme kilidi (üstteki kutudan tutunca alttakinin de kalkması) erkek–dişi oturmadan ayrı bir mandal ister; kilit spec'inde ele alınacak.
+### 5.4a Dikey istif ve tavan (tek parça, gömme kulplu)
+Dikeyde her zaman alttaki kutunun tavanı üstteki kutunun tabanıyla buluşur; cinsiyetsizlik yalnızca
+**yan yüzlerde** gerekir. Dikeyde erkek–dişi oturma kullanılır.
+- **Taban:** node karoları (modüler). Alt cep dişi yuvadır; kaburga uçları tutucu bandında `ERKEK_H + FIT` kısaltılır.
+- **Tavan:** kutu boyuna göre **tek parça** (`tavan(nx, ny)`: 1×1, 2×1, 3×1, 2×2 …). Her node'un 4 köşesinde **L tutucu** kilit yüzünden `ERKEK_H = 5` mm taşar ve üstteki tabanın dişi yuvasına `FIT` ile oturur.
+- **Gömme kulp:** 1×, 2×, 3× (kutunun x'teki node sayısı, en çok 3). Kutunun tam ortasında; tavanın içinde, **kilit yüzünün altındaki** oyukta katlı yatar. Oyuk kutunun içine `WALL` kabuklu bir tekne olarak sarkar (~15 mm). Mafsal ekseni kulp boyunca; açılınca tutma yeri merkezden `KULP_KOL = 40` mm kayık.
+- Kulp istif arayüzüne girmediği için üstteki kutu (karo tabanı ve ek yerleriyle) her boyutta çakışmadan oturur (1×1, 2×1, 3×1, 2×2 testli).
+- L tutucular tam bilezik yerine seçildi: kulp açılırken süpürdüğü bölge tutucu kollarından kırpılır.
+- **Neden tavan karo değil:** Karo tavan + istif arayüzüne gömülü kulp, üstteki kutunun karo tabanındaki ek yeri çerçeveleriyle çakışıyor (modelde 4693 mm³). Tavanı tek parça yapmak bunu çözüyor; bedeli kutu boyu başına bir tavan kalıbı.
+- Dikey çekme kilidi (üstteki kutudan tutunca alttakinin de kalkması) ayrı bir mandal ister; sıradaki iş.
 
 ### 5.4c Yan kilit (deneme — `YAN_KILIT`)
 Dikey istif kutuları zaten kilitlediği için yan kilit isteğe bağlıdır; `YAN_KILIT = False` ile tamamen kalkar.
@@ -127,7 +128,7 @@ Kat aralarında karo çifti (ara raf) yok; bunun yerine yatayda kullanılan mant
 - **Köşe düğümü** — köşe kesitinin 20 mm boyu; kule yerine vida geçiş deliği.
 - **Kıskaç düğümü** — kıskaç kesitinin 20 mm boyu; iki vida geçiş deliği.
 - Köşe ve dikey kıskaç her yükseklikte 80 mm kalır; her kutu yüksekliği aynı parçalardan kurulur (yeni kalıp yok).
-- Parça sayısı: panel, köşe, kıskaç, taban, tavan + yatay kıskaç, köşe düğümü, kıskaç düğümü = **8 parça tipi**.
+- Parça sayısı: panel, köşe, kıskaç, taban, yatay kıskaç, köşe düğümü, kıskaç düğümü (7 modüler parça) + boya göre tavan ve 1×/2×/3× kulp.
 
 ### 5.5 Kurulum sırası
 1. Köşe ve kıskaçlar tabana oturur.

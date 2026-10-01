@@ -85,7 +85,7 @@ def test_panel_kanalda_fit_boslugu(k111):
 
 def test_kare_olmayan_kutu_2x1():
     k = kutu(2, 1, 1)
-    assert _sayim(k) == {"taban": 2, "tavan": 2, "kose": 4, "panel": 6, "kiskac": 2}
+    assert _sayim(k) == {"taban": 2, "tavan": 1, "kose": 4, "panel": 6, "kiskac": 2}
     b = _dis_kutu(k)
     assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY) + _yan_tasma())
     assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
@@ -121,7 +121,7 @@ def test_2x1x2_kiskac_dugumu():
 
 def test_2x2_sayim_ve_olcu():
     k = kutu(2, 2, 1)
-    assert _sayim(k) == {"taban": 4, "tavan": 4, "kose": 4, "panel": 8, "kiskac": 4}
+    assert _sayim(k) == {"taban": 4, "tavan": 1, "kose": 4, "panel": 8, "kiskac": 4}
     b = _dis_kutu(k)
     assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY) + _yan_tasma())
     assert b.size.Y == pytest.approx(p.kutu_dis(2, p.P_XY) + _yan_tasma())

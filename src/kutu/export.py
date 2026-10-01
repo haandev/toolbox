@@ -9,18 +9,24 @@ from kutu import params as p
 from kutu.kalip import egimsiz_yuz_sayisi
 from kutu.lib.kilit_yeri import kilit_noktalari
 from kutu.montaj import kutu
-from kutu.parts.karo import karo_taban, karo_tavan
+from kutu.parts.karo import karo_taban
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
+from kutu.parts.kulp import kulp
 from kutu.parts.panel import panel
+from kutu.parts.tavan import tavan
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
-TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "taban": karo_taban, "tavan": karo_tavan,
+TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "taban": karo_taban,
+          "tavan": lambda: tavan(1, 1), "tavan_2x1": lambda: tavan(2, 1),
+          "tavan_3x1": lambda: tavan(3, 1), "tavan_2x2": lambda: tavan(2, 2),
+          "kulp_1x": lambda: kulp(1), "kulp_2x": lambda: kulp(2), "kulp_3x": lambda: kulp(3),
           "yatay_kiskac": yatay_kiskac, "kose_dugumu": kose_dugumu, "kiskac_dugumu": kiskac_dugumu}
-CEKME = {"panel": (0, 1, 0), "kose": (0, 0, 1), "kiskac": (0, 0, 1), "taban": (0, 0, 1), "tavan": (0, 0, 1),
-         "yatay_kiskac": (0, 1, 0), "kose_dugumu": (0, 0, 1), "kiskac_dugumu": (0, 0, 1)}
-RENKLER = {"taban": "#5b6270", "tavan": "#7a8394", "kose": "#f39c3d", "kiskac": "#f1c40f", "panel": "#9fb3c8",
-           "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400", "kiskac_dugumu": "#b7950b"}
+_Z = (0, 0, 1)
+CEKME = {"panel": (0, 1, 0), "yatay_kiskac": (0, 1, 0)}   # diğerleri Z
+RENKLER = {"taban": "#5b6270", "tavan": "#7a8394", "kose": "#f39c3d", "kiskac": "#f1c40f",
+           "panel": "#9fb3c8", "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400",
+           "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c"}
 
 
 def disa_aktar(cikti: Path, nx: int, ny: int, nz: int) -> dict:
@@ -31,13 +37,13 @@ def disa_aktar(cikti: Path, nx: int, ny: int, nz: int) -> dict:
         parca = fn()
         export_step(parca, str(cikti / "step" / f"{tur}.step"))
         export_stl(parca, str(cikti / "stl" / f"{tur}.stl"))
-        print(f"{tur:7s} eğimsiz yüz: {egimsiz_yuz_sayisi(parca, CEKME[tur])}")
+        print(f"{tur:7s} eğimsiz yüz: {egimsiz_yuz_sayisi(parca, CEKME.get(tur, _Z))}")
 
     onizleme = cikti / "preview"
     for eski in onizleme.glob("*.stl"):
         eski.unlink()
     parcalar = []
-    for y in kutu(nx, ny, nz):
+    for y in kutu(nx, ny, nz, kulp=True):
         dosya = f"{y.ad}.stl"
         export_stl(y.parca, str(onizleme / dosya))
         parcalar.append({"ad": y.ad, "tur": y.tur, "dosya": dosya,
@@ -77,8 +83,8 @@ def sahne_aktar(cikti: Path, ad: str, gruplar, sinir: tuple[float, float, float]
 def istif_aktar(cikti: Path) -> dict:
     """40×20 kutunun üstünde 200 mm kaydırılmış 20×20 kutu: erkek–dişi istif önizlemesi."""
     return sahne_aktar(cikti, "istif", [
-        ("alt", kutu(2, 1, 1), Pos(0, 0, 0), 0),
-        ("ust", kutu(1, 1, 1), Pos(p.P_XY, 0, p.P_Z), 2),
+        ("alt", kutu(2, 1, 1, kulp=True), Pos(0, 0, 0), 0),
+        ("ust", kutu(1, 1, 1, kulp=True), Pos(p.P_XY, 0, p.P_Z), 2),
     ], (2 * p.P_XY, p.P_XY, 2 * p.P_Z))
 
 
@@ -93,6 +99,16 @@ def yan_yana_aktar(cikti: Path) -> dict:
     ], (3 * p.P_XY, p.P_XY, 2 * p.P_Z))
 
 
+def kulp_sahnesi_aktar(cikti: Path) -> dict:
+    """1×1 (açık kulp), 2×1 (katlı), 3×1 (açık) ve 2×2 (açık) kutular yan yana."""
+    return sahne_aktar(cikti, "kulp", [
+        ("a", kutu(1, 1, 1, kulp=True, kulp_acik=True), Pos(0, 0, 0), 0),
+        ("b", kutu(2, 1, 1, kulp=True), Pos(0, 300, 0), 0),
+        ("c", kutu(3, 1, 1, kulp=True, kulp_acik=True), Pos(0, 600, 0), 0),
+        ("d", kutu(2, 2, 1, kulp=True, kulp_acik=True), Pos(700, 0, 0), 0),
+    ], (1100, 800, 2 * p.P_Z))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Modüler kutu çıktıları")
     ap.add_argument("--nx", type=int, default=1)
@@ -101,7 +117,11 @@ def main() -> None:
     ap.add_argument("--cikti", type=Path, default=Path("out"))
     ap.add_argument("--istif", action="store_true", help="istif önizlemesi (out/istif)")
     ap.add_argument("--yan", action="store_true", help="yan kilit önizlemesi (out/yan)")
+    ap.add_argument("--kulp", action="store_true", help="kulp önizlemesi (out/kulp)")
     a = ap.parse_args()
+    if a.kulp:
+        print(len(kulp_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/kulp/manifest.json")
+        return
     if a.istif or a.yan:
         if a.istif:
             print(len(istif_aktar(a.cikti)["parcalar"]), "parça → out/istif/manifest.json")

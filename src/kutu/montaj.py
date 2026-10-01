@@ -4,10 +4,12 @@ from dataclasses import dataclass
 from build123d import Part, Pos, Rot
 
 from kutu import params as p
-from kutu.parts.karo import karo_taban, karo_tavan
+from kutu.parts.karo import karo_taban
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
+from kutu.parts.kulp import acik, kulp as kulp_parcasi
 from kutu.parts.panel import panel
+from kutu.parts.tavan import kulp_boyu, kulp_yeri, tavan
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
 
@@ -35,13 +37,13 @@ def kesisim_hacmi(a: Part, b: Part) -> float:
     return float(k.volume) if k is not None else 0.0
 
 
-def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
+def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False) -> list[Yerlesim]:
     W, D = nx * p.P_XY, ny * p.P_XY
     out: list[Yerlesim] = []
 
     def ekle(ad: str, tur: str, parca: Part, zb: float) -> None:
         c = parca.bounding_box().center()
-        if tur in ("taban", "tavan"):
+        if tur in ("taban", "tavan", "kulp"):
             yon = (0, 0, _isaret(c.Z - (zb + p.P_Z / 2)))
         else:
             yon = (_isaret(c.X - W / 2), _isaret(c.Y - D / 2), 0)
@@ -51,8 +53,7 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
         for j in range(ny):
             x0, y0 = i * p.P_XY, j * p.P_XY
             ekle(f"taban_{i}{j}", "taban", Pos(x0, y0, 0) * karo_taban(), 0)
-            ekle(f"tavan_{i}{j}", "tavan",
-                 Pos(x0, y0 + p.P_XY, nz * p.P_Z) * Rot(180, 0, 0) * karo_tavan(), (nz - 1) * p.P_Z)
+    ekle(f"tavan_{nx}x{ny}", "tavan", Pos(0, 0, nz * p.P_Z) * tavan(nx, ny), (nz - 1) * p.P_Z)
 
     for kat in range(nz):
         zb = kat * p.P_Z
@@ -90,4 +91,10 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
             duvar("kiskac_dugumu", kiskac_dugumu(),
                   [i * p.P_XY for i in range(1, nx)],
                   [j * p.P_XY for j in range(1, ny)])
+    if kulp:
+        xs, yc = kulp_yeri(nx, ny)
+        parca = kulp_parcasi(kulp_boyu(nx))
+        if kulp_acik:
+            parca = acik(parca)
+        ekle(f"kulp_{kulp_boyu(nx)}x", "kulp", Pos(xs, yc, nz * p.P_Z - p.GAP) * parca, (nz - 1) * p.P_Z)
     return out

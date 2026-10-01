@@ -1,13 +1,12 @@
 """Karo: 1 node'luk taban ve tavan plakaları.
 
 Ortak gövde: oluk yüzü +z, kilit yüzü z = GAP (alttan oyuk, kaburgalı).
-Dikey istif erkek–dişi: tavan kilit yüzünden ERKEK_H taşan içi boş bilezik (erkek);
-taban alt cebi dişi yuvadır, kaburga uçları bilezik bandında kısaltılır.
-Tavan montajda ters çevrilir (kilit yüzü yukarı).
+Dikey istif erkek–dişi: tavanın (parts/tavan.py) köşe tutucuları erkek; taban alt cebi dişi
+yuvadır, kaburga uçları tutucu bandında kısaltılır.
 """
 from functools import cache
 
-from build123d import Align, Axis, Box, Cylinder, Part, Pos, Rot
+from build123d import Align, Box, Cylinder, Part, Pos, Rot
 
 from kutu import params as p
 from kutu.lib import MIN3
@@ -87,44 +86,15 @@ def karo_taban() -> Part:
     for aci in (0, 90, 180, 270):
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
     if p.YAN_KILIT:
-        taban -= _yan_centikler(tavan=False)
+        taban -= _yan_centikler()
     return taban
 
 
-@cache
-def karo_tavan() -> Part:
-    g = p.GAP
-    dis_l = _IC - 2 * p.FIT
-    ic_l = dis_l - 2 * p.WALL
-    boy = (p.T - g - p.WALL) + p.ERKEK_H          # güverte altından kilit yüzünü aşarak
-    z0 = g - p.ERKEK_H
-    a = p.K + p.FIT
-    bilezik = Pos(a, a, z0) * Box(dis_l, dis_l, boy, align=MIN3)
-    bilezik -= Pos(a + p.WALL, a + p.WALL, z0) * Box(ic_l, ic_l, boy, align=MIN3)
-    # giriş pahı: taşan uçtaki dış kenarlar
-    kenarlar = bilezik.edges().filter_by_position(Axis.Z, z0 - 1e-3, z0 + 1e-3)
-    dis_kenarlar = [e for e in kenarlar
-                    if min(abs(e.center().X - a), abs(e.center().X - a - dis_l),
-                           abs(e.center().Y - a), abs(e.center().Y - a - dis_l)) < 1e-3]
-    bilezik = bilezik.chamfer(p.ERKEK_PAH, None, dis_kenarlar)
-    tavan = _govde(None) + bilezik
-    if p.YAN_KILIT:
-        tavan -= _yan_centikler(tavan=True)
-    return tavan
-
-
-def _yan_centikler(tavan: bool) -> Part:
-    """Duvar oluklarının hizasında, komşu dilin geçeceği çentikler (karo yerel çerçevesi).
-
-    Çentikler önce montajdaki dünya konumunda (1 node) kurulur, sonra karonun yerleşim
-    dönüşümünün tersiyle yerel çerçeveye taşınır. Taban yerleşimi kimlik; tavan yerleşimi
-    Pos(0, P_XY, P_Z) · Rot(180, 0, 0), tersi Rot(180, 0, 0) · Pos(0, −P_XY, −P_Z).
-    """
-    z0, z1 = (p.T + p.H, p.P_Z + p.ERKEK_H) if tavan else (0, p.T)
-    oluk = Pos(_C, 0, 0) * yan_oluk(z0, z1)   # güney duvar
+def _yan_centikler() -> Part:
+    """Duvar oluklarının hizasında, komşu dilin geçeceği çentikler (taban yerel = dünya çerçevesi)."""
+    oluk = Pos(_C, 0, 0) * yan_oluk(0, p.T)   # güney duvar
     tum = None
     for aci in (0, 90, 180, 270):
-        dunya = Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * oluk
-        yerel = Rot(180, 0, 0) * Pos(0, -p.P_XY, -p.P_Z) * dunya if tavan else dunya
-        tum = yerel if tum is None else tum + yerel
+        c = Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * oluk
+        tum = c if tum is None else tum + c
     return tum
