@@ -101,10 +101,11 @@ def _kulp_bolgeleri(nx: int, ny: int):
     kilit = -p.GAP
     taban = kilit + KULP_Z0 - 1
     ey = yc + EKSEN_Y
+    ey0 = ey - max(p.MAFSAL_W, p.KULP_H) / 2 - 1      # açılırken kolun mafsal altına inen ucu dahil
     oyuk = (_kutu(x0 - 1, x1 + 1, yc - p.KULP_W / 2 - 1, yc + p.KULP_W / 2 + 1, taban, kilit + 1)
-            + _kutu(bx0, x0 + p.KOL_T + 1, ey - p.MAFSAL_W / 2 - 1, yc, taban, kilit + 1)
-            + _kutu(x1 - p.KOL_T - 1, bx1, ey - p.MAFSAL_W / 2 - 1, yc, taban, kilit + 1))
-    zarf = _kutu(x0 - 1, x1 + 1, ey - p.KULP_W / 2 - 2, yc + p.KULP_W / 2 + 2, kilit, p.KILAVUZ_H + 1)
+            + _kutu(bx0, x0 + p.KOL_T + 1, ey0, yc, taban, kilit + 1)
+            + _kutu(x1 - p.KOL_T - 1, bx1, ey0, yc, taban, kilit + 1))
+    zarf = _kutu(x0 - 1, x1 + 1, min(ey0, ey - p.KULP_W / 2 - 2), yc + p.KULP_W / 2 + 2, kilit, p.T_BAS_Z1 + 1)
     mz = kilit + MAFSAL_Z
     bloklar = None
     for bx in (bx0, x1 + p.FIT):

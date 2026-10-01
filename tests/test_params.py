@@ -6,9 +6,9 @@ from kutu.kalip import egimsiz_yuz_sayisi
 
 def test_turetilen_degerler():
     assert p.K == 20
-    assert p.T == 10
+    assert p.T == 12   # H = 76: kalın karo
     assert p.PANEL_L == 172
-    assert p.PANEL_H == 88   # alt/üst dil DIL_V = 4
+    assert p.PANEL_H == 84   # H 76 + alt/üst dil DIL_V = 4
     assert p.DIL_V < p.DIL
 
 

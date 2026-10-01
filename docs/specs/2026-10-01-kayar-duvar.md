@@ -112,3 +112,9 @@ Kutulardan kurulan bir duvarda (yan yana ve üst üste) **herhangi bir kutu çek
 - Panelin alt/üst dili `DIL_V = 4` mm'ye indi (yan diller `DIL = 6` kaldı); taban/tavan/yatay kıskaç olukları `DIL_V + FIT`. Taban oluğunun altında 5.8 mm malzeme kaldı.
 - T kanal: tutma çıkıntısı 0.9 → 1.7 mm (`T_BOYUN_Z1 = 2.2`), kanca başı 1.4 → 2.8 mm (`2.4 … 5.2`), kanal/geçit tavanı 5.4.
 - `kanca_kapasitesi()`: konsol eğilme modeli, PP σ_izin = 10 MPa (sünme) → kanca başına ~29 N'den **~103 N**'ye (node başına iki kanca ≈ 21 kg). Akma sınırına göre anlık ~2.5 katı. Prototip çekme testiyle doğrulanacak.
+
+## 12. Kalın karo (2026-10-02)
+
+- `H = 80 → 76`, böylece `T = 10 → 12` (ızgara adımı aynı). Kutu iç yüksekliği 4 mm azaldı.
+- Kazanılan 2 mm: T kanal tutma çıkıntısı 1.7 → 2.5 mm, kanca başı 2.8 → 3.8 mm (kanal tavanı 7.2, taban oluğu 7.8'de) → `kanca_kapasitesi()` ≈ **222 N/kanca**; kulp kesiti 12 → 14 mm, tavan kalınlaştığı için iç hacimden yemeden.
+- Kulp oyuğunun mafsal tarafı kulp kalınlığına göre genişletildi (açılırken kol ucu oyuk duvarına değiyordu).

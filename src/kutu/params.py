@@ -4,7 +4,7 @@
 P_XY = 200.0   # yatay node adımı
 P_Z = 100.0    # dikey node adımı
 U = 160.0      # panel adımı (görünür açıklık)
-H = 80.0       # panel yüksekliği (görünür açıklık)
+H = 76.0       # panel yüksekliği (görünür açıklık)
 GAP = 0.5      # komşu kutular arası taraf başı boşluk
 
 # --- Türetilen ---
@@ -52,7 +52,7 @@ KILAVUZ_PAH = 1.5  # kılavuz ray ön/arka uç pahı (kayarak giriş)
 
 # --- Gömme kulp (tek parça tavanın içinde, kilit yüzünün altında) ---
 KULP_W = 24.0          # tutma yeri genişliği
-KULP_H = 12.0          # kulp kesit yüksekliği
+KULP_H = 14.0          # kulp kesit yüksekliği (kalın tavan: iç hacimden yemeden +2 mm)
 KULP_KOL = 40.0        # mafsal ekseni ile katlı tutma yeri arası
 KOL_T = 8.0            # kulp kolu kalınlığı (eksen boyunca)
 MAFSAL_L = 8.0         # mafsal bloğu eksen boyu
@@ -69,10 +69,10 @@ T_KANCA_X = -35.0    # kanca merkezi, node kenar ortasından (güney kenar)
 T_KANCA_Y0, T_KANCA_Y1 = 2.0, 18.0   # kanca, tavan kenar çerçevesinin içinde
 T_BOYUN_W = 6.0
 T_BAS_W = 12.0
-T_BOYUN_Z1 = 2.2     # taban yerel z: kanalın boyun bölgesi GAP … 2.2 (tutma çıkıntısı 1.7 mm)
-T_BAS_Z0 = 2.4       # kanca başı (kutu üstünden, = üst taban yerel z)
-T_BAS_Z1 = 5.2       # kanca başı 2.8 mm
-T_KANAL_Z1 = 5.4     # kanal/geçit tavanı; taban panel oluğunun (T − DIL_V − FIT = 5.8) altında
+T_BOYUN_Z1 = 3.0     # taban yerel z: kanalın boyun bölgesi GAP … 3.0 (tutma çıkıntısı 2.5 mm)
+T_BAS_Z0 = 3.2       # kanca başı (kutu üstünden, = üst taban yerel z)
+T_BAS_Z1 = 7.0       # kanca başı 3.8 mm
+T_KANAL_Z1 = 7.2     # kanal/geçit tavanı; taban panel oluğunun (T − DIL_V − FIT = 7.8) altında
 T_SIGMA_IZIN = 10e6  # PP uzun süreli (sünme) izin verilen eğilme gerilmesi, Pa
 
 # --- Çekmece ---

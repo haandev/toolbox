@@ -82,9 +82,9 @@ def test_dondurulmus_ust_kutu_da_kilitlenir(aci):
     assert _carpisma(alt, _ust(yer=Pos(0, 0, 1) * yer)) > 1
 
 
-def test_kanca_kapasitesi_en_az_100N():
+def test_kanca_kapasitesi_en_az_200N():
     from kutu.parts.t_kanal import kanca_kapasitesi
-    assert kanca_kapasitesi() >= 100.0
+    assert kanca_kapasitesi() >= 200.0
 
 
 def test_kanal_panel_olugunun_altinda():

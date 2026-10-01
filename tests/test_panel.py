@@ -28,9 +28,10 @@ def test_dis_olculer(pnl):
 def test_deri_kalinligi_wall(pnl):
     y0, y1 = panel_y()
     # kilit bölgesinin altında, kaburgasız bir noktada yalnızca deri var
-    sonda = Pos(-5, y0 - 1, p.T + 2) * Box(10, p.WALL + p.RIB_D + 2, 10, align=MIN3)
+    h = (p.RAY_V1 - p.RAY_H / 2 - p.FIT - p.WALL) - (p.T + 2) - 0.5   # alt ray şeridinin altında
+    sonda = Pos(-5, y0 - 1, p.T + 2) * Box(10, p.WALL + p.RIB_D + 2, h, align=MIN3)
     kesit = pnl & sonda
-    assert kesit.volume == pytest.approx(10 * 10 * p.WALL, rel=1e-3)
+    assert kesit.volume == pytest.approx(10 * h * p.WALL, rel=1e-3)
 
 
 def test_kilit_bolgesinde_kaburga_yok(monkeypatch):

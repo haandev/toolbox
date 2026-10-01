@@ -54,3 +54,7 @@ def test_kulplu_kutunun_ustune_istif(nx, ny):
         for b in ust:
             if a.tur in ("kulp", "tavan"):
                 assert kesisim_hacmi(a.parca, b.parca) < 1e-3, f"{a.ad} / {b.ad}"
+
+
+def test_kulp_kesiti_14mm():
+    assert kulp(2).bounding_box().size.Z == pytest.approx(14.0)
