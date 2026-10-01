@@ -27,7 +27,18 @@ def panel() -> Part:
     govde = deri + kaburga + anahtar(p.T - p.DIL_V, p.T)
     if p.YAN_KILIT:
         govde = _yan_kilit(govde)
-    return govde
+    return _tutma_girintisi(govde)
+
+
+def _tutma_girintisi(govde: Part) -> Part:
+    """Parmak açıklığı + deri arkasında yukarı uzanan cep; parmaklar derinin arkasına takılır."""
+    _, y_ic = panel_y()
+    w, z0 = p.TUTMA_W / 2, p.TUTMA_Z0
+    kabuk = Pos(-w - p.WALL, y_ic, z0 - p.WALL) * Box(
+        p.TUTMA_W + 2 * p.WALL, p.TUTMA_DERIN + p.WALL, p.TUTMA_H + 2 * p.WALL, align=MIN3)
+    cep = Pos(-w, y_ic, z0) * Box(p.TUTMA_W, p.TUTMA_DERIN, p.TUTMA_H, align=MIN3)
+    acik = Pos(-w, p.GAP - 0.01, z0) * Box(p.TUTMA_W, y_ic - p.GAP + 0.02, p.TUTMA_ACIK_H, align=MIN3)
+    return govde + kabuk - cep - acik
 
 
 def _yan_kilit(govde: Part) -> Part:

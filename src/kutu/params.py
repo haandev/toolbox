@@ -96,6 +96,13 @@ RAY_T = 3.0          # dil rayın şerit yüzünden taşması
 RAY_V1 = T + H / 2 - RAY_D   # dil (normal panel), kat tabanından
 RAY_V2 = T + H / 2 + RAY_D   # oluk (normal panel)
 
+# --- Tutma girintisi (panelde, iki rayın arasında; kutu öne çekilir) ---
+TUTMA_W = 60.0
+TUTMA_Z0 = T + H / 2 - 10.0    # parmak açıklığının alt kenarı (kat tabanından)
+TUTMA_ACIK_H = 10.0            # dış yüzdeki açıklık
+TUTMA_H = 20.0                 # deri arkasındaki cep yüksekliği (açıklıktan yukarı)
+TUTMA_DERIN = 8.0              # cep derinliği (deri iç yüzünden içe)
+
 # --- Kilit bölgeleri (bu fazda boş bırakılan hacim) ---
 KILIT_W = 60.0     # panel üzerinde yatay
 KILIT_H = 50.0     # panel üzerinde dikey
