@@ -94,3 +94,15 @@ Kutulardan kurulan bir duvarda (yan yana ve üst üste) **herhangi bir kutu çek
 2. **Batı/kuzey panelin normal takılması** anahtarla yakalanmıyor (bkz. 4).
 3. **Kenar sütun:** duvarın en kenarındaki kutu tek yanından asılı kalır; ray burulması prototipte görülmeli.
 4. **Tek sütun:** kayar duvar en az iki sütun gerektirir (bkz. 5.3).
+
+## 10. Uygulama notları (2026-10-02)
+
+- Uygulandı: yatay yan raylar (`lib/yan_ray.py`), batı/kuzey baş aşağı kuralı, köşe/kıskaç dış olukları, kılavuz raylar, T kanal (`parts/t_kanal.py`), duvar önizlemesi (`kutu.export --duvar`, `?m=duvar`). Kayar mandal kaldırıldı.
+- **Spec'ten sapmalar:**
+  - Panel oluğu arkasındaki destek şeridi gerekmedi: komşu dili yüzden yalnızca `RAY_T − 2·GAP + FIT = 2.2` mm girer, deride 1.8 mm kalır.
+  - Panel oluğu, köşe kanalına giren yan diller dahil panelin tam boyunca (±86 mm); aksi hâlde komşu dili kanal içindeki deriye sürtüyor.
+  - Taban karosunda her kenarda T kanalın yanında **karşı kenarın kancası için düz geçit** (`−T_KANCA_X`) gerekti: kutu önden sürülürken ön kanca üst tabanın arka çerçevesinden geçer.
+  - T kanal ölçüleri: boyun `GAP … 1.4`, kanca başı `1.6 … 3.0`, kanal tavanı 3.2 (panel oluğunun 0.6 mm altında). Tutma çıkıntısı 0.9 mm.
+  - Kılavuz raylar kilit yüzünün 1 mm altından başlar (çerçeve ve kaburgaların üstüne oturur); cep üstünde kaburga kesişimlerinde taşınır.
+  - Kanca başındaki konum tutucu tümsek modellenmedi (açık madde).
+- Testler: `test_yan_ray`, `test_yan_kilit`, `test_t_kanal`, `test_duvar` (+ mevcut kulp, çekmece, istif testleri) — toplam 216 test geçiyor.

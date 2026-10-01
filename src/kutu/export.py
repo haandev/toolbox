@@ -124,6 +124,16 @@ def cekmece_sahnesi_aktar(cikti: Path) -> dict:
     ], (700, p.P_XY, 2 * p.P_Z))
 
 
+def duvar_sahnesi_aktar(cikti: Path) -> dict:
+    """Kayar duvar: 3 sütun × 2 kat 1×1 kutu; alt orta kutu öne çekilmiş, üstündeki komşu raylarında asılı."""
+    gruplar = []
+    for i in range(3):
+        for k in range(2):
+            dy = -110 if (i, k) == (1, 0) else 0
+            gruplar.append((f"{i}{k}", kutu(1, 1, 1, kulp=True), Pos(i * p.P_XY, dy, k * p.P_Z), 0))
+    return sahne_aktar(cikti, "duvar", gruplar, (3 * p.P_XY, p.P_XY, 2 * p.P_Z))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Modüler kutu çıktıları")
     ap.add_argument("--nx", type=int, default=1)
@@ -134,7 +144,11 @@ def main() -> None:
     ap.add_argument("--yan", action="store_true", help="yan kilit önizlemesi (out/yan)")
     ap.add_argument("--kulp", action="store_true", help="kulp önizlemesi (out/kulp)")
     ap.add_argument("--cekmece", action="store_true", help="çekmece önizlemesi (out/cekmece)")
+    ap.add_argument("--duvar", action="store_true", help="kayar duvar önizlemesi (out/duvar)")
     a = ap.parse_args()
+    if a.duvar:
+        print(len(duvar_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/duvar/manifest.json")
+        return
     if a.cekmece:
         print(len(cekmece_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/cekmece/manifest.json")
         return

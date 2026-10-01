@@ -37,3 +37,9 @@ def test_yan_yana_aktar(tmp_path):
     from kutu.export import yan_yana_aktar
     m = yan_yana_aktar(tmp_path)
     assert len(m["parcalar"]) == 10 + 10 + 26
+
+
+def test_duvar_sahnesi(tmp_path):
+    from kutu.export import duvar_sahnesi_aktar
+    m = duvar_sahnesi_aktar(tmp_path)
+    assert len(m["parcalar"]) == 6 * 11

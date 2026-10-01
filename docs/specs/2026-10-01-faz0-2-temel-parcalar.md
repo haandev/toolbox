@@ -81,6 +81,8 @@ Kopolimer PP. Yalnızca klips esneme hesabını etkiler; tek parametre ile deği
 - Vidasız; kanal ve oluklar tarafından tutulur.
 
 ### 5.1a Hata önleyici anahtar
+> **Değişti:** Bu bölüm `docs/specs/2026-10-01-kayar-duvar.md` ile değiştirildi (kayar duvar). Önceki hal git etiketi `dikey-centik`'te.
+
 Panel baş aşağı ya da içi dışına takılırsa yan kilit dil–oluğu yer değiştirir ve kutular kilitlenmez. Panel simetrik yapılamaz (boydan boya dil–oluk 180° çevrilince birbirinin yerine geçer), bu yüzden tek bir anahtar kullanılır:
 - Panelin **yalnız alt dilinde**, merkezden `ANAHTAR_X = +40` mm'de, içe doğru `ANAHTAR_T = 2` mm çıkıntı (`ANAHTAR_W = 10`).
 - **Taban** oluğunda ve **yatay kıskacın üst** oluğunda karşılık gelen cep; tavan ve yatay kıskacın alt oluğunda cep yok.
@@ -104,6 +106,8 @@ Panel baş aşağı ya da içi dışına takılırsa yan kilit dil–oluğu yer 
 - Çok hücreli kutularda karolar yan yana birleşir. Kenar ek yerleri kıskaç altına düşer; kıskaç vidası iki karo kenarını birlikte tutar.
 
 ### 5.4a Dikey istif ve tavan (tek parça, gömme kulplu)
+> **Değişti:** Bu bölüm `docs/specs/2026-10-01-kayar-duvar.md` ile değiştirildi (kayar duvar). Önceki hal git etiketi `dikey-centik`'te.
+
 Dikeyde her zaman alttaki kutunun tavanı üstteki kutunun tabanıyla buluşur; cinsiyetsizlik yalnızca
 **yan yüzlerde** gerekir. Dikeyde erkek–dişi oturma kullanılır.
 - **Taban:** node karoları (modüler). Alt cep dişi yuvadır; kaburga uçları tutucu bandında `ERKEK_H + FIT` kısaltılır.
@@ -115,6 +119,8 @@ Dikeyde her zaman alttaki kutunun tavanı üstteki kutunun tabanıyla buluşur; 
 - Dikey çekme kilidi (üstteki kutudan tutunca alttakinin de kalkması) ayrı bir mandal ister; sıradaki iş.
 
 ### 5.4d Dikey çekme mandalı
+> **Değişti:** Bu bölüm `docs/specs/2026-10-01-kayar-duvar.md` ile değiştirildi (kayar duvar). Önceki hal git etiketi `dikey-centik`'te.
+
 Erkek–dişi oturma kutuları hizalar ama birbirine bağlamaz; üstteki kutudan tutunca alttakinin de kalkması için mandal.
 - Dış yüzde yer yok (panel dış yüzü ile kutu yüzü arası 1.5 mm; dışa taşan mandal komşu kutuya çarpar), bu yüzden **kayar kanca**:
 - **Tavanda:** kenar çerçevesinin iç kısmında (y 7–17 mm) sürgü cebi. Sürgüden yukarı çıkan kanca kilit yüzünü geçer. Sürgüye bağlı dil, panel oluğunun üstünden kutu yüzüne uzanır; dışarıdan parmakla itilir (`MANDAL_YOL = 10` mm).
@@ -135,6 +141,8 @@ Erkek–dişi oturma kutuları hizalar ama birbirine bağlamaz; üstteki kutudan
 - **Raf sehimi:** raf altında 18 mm derin kaburga ızgarası (yatay kıskaçların iç yüzünden içeride, alt çekmecenin 2 mm üstünde). 5 kg yayılı yükte hesaplanan sehim: 1×1 0.17 mm, 2×1 0.07 mm, 3×1 0.05 mm, 2×2 0.84 mm (kaburgasız 2.5 mm plaka: 2.8–49 mm). Model: kısa açıklık boyunca basit mesnetli T kesitli kaburgalar, PP E = 1.3 GPa (`raf_sehimi()`).
 
 ### 5.4c Yan kilit (deneme — `YAN_KILIT`)
+> **Değişti:** Bu bölüm `docs/specs/2026-10-01-kayar-duvar.md` ile değiştirildi (kayar duvar). Önceki hal git etiketi `dikey-centik`'te.
+
 Dikey istif kutuları zaten kilitlediği için yan kilit isteğe bağlıdır; `YAN_KILIT = False` ile tamamen kalkar.
 - Yatay pim kullanılamaz: kutu komşusunun yanına yukarıdan indirilir (alttaki tavana oturmak için), yandan taşan pim bunu engeller.
 - Panel kilit bölgesinde dış yüze ped; ped üzerinde **dikey dil** (−x, `YAN_KILIT_X = 15`) ve **dikey oluk** (+x). 180° çevrilen komşunun dili bu oluğa denk gelir (cinsiyetsiz).
