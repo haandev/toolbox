@@ -4,7 +4,7 @@
 P_XY = 200.0   # yatay node adımı
 P_Z = 100.0    # dikey node adımı
 U = 160.0      # panel adımı (görünür açıklık)
-H = 76.0       # panel yüksekliği (görünür açıklık)
+H = 70.0       # panel yüksekliği (görünür açıklık)
 GAP = 0.5      # komşu kutular arası taraf başı boşluk
 
 # --- Türetilen ---
@@ -48,7 +48,7 @@ KISKAC_KULE_X = KISKAC_CEP_YARI - KULE_OD / 2 - 0.5   # kıskaç kuleleri ±x
 KARO_RIB_ARALIK = 40.0
 
 # --- Açılır kapak (çerçeve + menteşeli kapak) ---
-KAPAK_H = 5.3          # kapak kalınlığı (kilit yüzünün altında); çerçeve T − KAPAK_H − GAP
+KAPAK_H = 8.0          # kapak kalınlığı (kilit yüzünün altında); çerçeve T − KAPAK_H − GAP
 MENTESE_R = 3.0        # menteşe boğum yarıçapı; eksen arka üst kenardan R içeride
 MENTESE_PIM_R = 1.5
 MENTESE_BOGUM = 20.0   # yaklaşık boğum boyu (çerçeve ve kapak sırayla)
