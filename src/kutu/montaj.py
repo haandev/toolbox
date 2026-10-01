@@ -11,7 +11,7 @@ from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.kulp import acik, kulp as kulp_parcasi
 from kutu.parts.panel import panel
 from kutu.parts.kapak_mandal import acik_mandal as kapak_acik_mandal, mandal as kapak_mandal
-from kutu.parts.tavan import cerceve, kapak, kulp_boyu, kulp_yeri, mentese_ekseni
+from kutu.parts.tavan import cerceve, kapak, kulp_boyu, kulp_yeri, mentese_ekseni, tavan_modulleri
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
 
@@ -65,11 +65,19 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
             ekle(f"taban_{i}{j}", "taban", Pos(x0, y0, 0) * karo_taban(), 0)
     ust = Pos(0, 0, nz * p.P_Z)
     zu = (nz - 1) * p.P_Z
-    ekle(f"cerceve_{nx}x{ny}", "cerceve", ust * cerceve(nx, ny), zu)
-    ekle(f"kapak_{nx}x{ny}", "kapak", ust * kapak(nx, ny), zu)
-    m = kapak_acik_mandal() if kapak_mandal_acik else kapak_mandal()
-    for i in range(nx):
-        ekle(f"kapak_mandal_{i}", "kapak_mandal", ust * Pos(i * p.P_XY, 0, 0) * m, zu)
+    mandal_parca = kapak_acik_mandal() if kapak_mandal_acik else kapak_mandal()
+    for m, (i0, j0, mx, my) in enumerate(tavan_modulleri(nx, ny)):   # tavan modülleri
+        o = ust * Pos(i0 * p.P_XY, j0 * p.P_XY, 0)
+        ekle(f"m{m}_cerceve_{mx}x{my}", "cerceve", o * cerceve(mx, my), zu)
+        ekle(f"m{m}_kapak_{mx}x{my}", "kapak", o * kapak(mx, my), zu)
+        for i in range(mx):
+            ekle(f"m{m}_kapak_mandal_{i}", "kapak_mandal", o * Pos(i * p.P_XY, 0, 0) * mandal_parca, zu)
+        if kulp:
+            xs, yc = kulp_yeri(mx, my)
+            parca = kulp_parcasi(kulp_boyu(mx))
+            if kulp_acik:
+                parca = acik(parca)
+            ekle(f"m{m}_kulp_{kulp_boyu(mx)}x", "kulp", o * Pos(xs, yc, -p.GAP) * parca, zu)
 
     for kat in range(nz):
         zb = kat * p.P_Z
@@ -119,18 +127,15 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
             duvar("kiskac_dugumu", kiskac_dugumu(),
                   [i * p.P_XY for i in range(1, nx)],
                   [j * p.P_XY for j in range(1, ny)])
-    if kulp:
-        xs, yc = kulp_yeri(nx, ny)
-        parca = kulp_parcasi(kulp_boyu(nx))
-        if kulp_acik:
-            parca = acik(parca)
-        ekle(f"kulp_{kulp_boyu(nx)}x", "kulp", Pos(xs, yc, nz * p.P_Z - p.GAP) * parca, (nz - 1) * p.P_Z)
     return out
 
 
-def kapak_ac(liste: list[Yerlesim], nx: int, ny: int, nz: int, aci: float) -> list[Yerlesim]:
-    """Kapak grubunu (kapak, mandallar, kulp) menteşe ekseni etrafında aci derece açar."""
-    ya, za = mentese_ekseni(ny)
-    z = nz * p.P_Z + za
-    don = Pos(0, ya, z) * Rot(-aci, 0, 0) * Pos(0, -ya, -z)
-    return [Yerlesim(y.ad, y.tur, don * y.parca, y.patlat) for y in liste]
+def kapak_ac(liste: list[Yerlesim], my: int, nz: int, aci: float, y0: float = 0.0) -> list[Yerlesim]:
+    """Bir tavan modülünün kapak grubunu (kapak, mandallar, kulp) menteşe ekseni etrafında açar.
+
+    my: modülün derinliği (node), y0: modülün kutu içindeki y başlangıcı.
+    """
+    ya, za = mentese_ekseni(my)
+    y, z = y0 + ya, nz * p.P_Z + za
+    don = Pos(0, y, z) * Rot(-aci, 0, 0) * Pos(0, -y, -z)
+    return [Yerlesim(e.ad, e.tur, don * e.parca, e.patlat) for e in liste]

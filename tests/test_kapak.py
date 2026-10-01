@@ -43,14 +43,14 @@ def test_kilitliyken_kapak_kalkmaz(nx):
 def test_mandal_acikken_kapak_acilir(nx, ny, aci):
     k = kutu(nx, ny, 1, kulp=True, kapak_mandal_acik=True)
     ust, govde = _gruplar(k)
-    acik = kapak_ac(ust, nx, ny, 1, aci)
+    acik = kapak_ac(ust, ny, 1, aci)
     assert _cakisma(acik, govde) < 1e-3
 
 
 def test_90_derece_acik_kapak_arkaya_ray_yuksekligi_kadar_tasar():
     k = kutu(1, 1, 1, kulp=True, kapak_mandal_acik=True)
     ust, _ = _gruplar(k)
-    kapak = next(y for y in kapak_ac(ust, 1, 1, 1, 90) if y.tur == "kapak")
+    kapak = next(y for y in kapak_ac(ust, 1, 1, 90) if y.tur == "kapak")
     assert kapak.parca.bounding_box().max.Y <= p.P_XY + p.T_BAS_Z1 + 0.01
 
 
@@ -59,5 +59,5 @@ def test_mandal_kapaliyken_kapak_acilmaz(aci):
     # çakışma testi sürekli hareketi değil konumu sınar: ilk derecede kanca çıkıntıya dayanır
     k = kutu(1, 1, 1, kulp=True)
     ust, govde = _gruplar(k)
-    acik = kapak_ac(ust, 1, 1, 1, aci)
+    acik = kapak_ac(ust, 1, 1, aci)
     assert _cakisma(acik, govde) > 1

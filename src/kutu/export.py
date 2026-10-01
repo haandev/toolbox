@@ -22,10 +22,9 @@ from kutu.parts.yatay_kiskac import yatay_kiskac
 TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "taban": karo_taban,
           "cerceve": lambda: cerceve(1, 1), "kapak": lambda: kapak(1, 1), "kapak_mandal": kapak_mandal,
           "cerceve_2x1": lambda: cerceve(2, 1), "kapak_2x1": lambda: kapak(2, 1),
-          "cerceve_3x1": lambda: cerceve(3, 1), "kapak_3x1": lambda: kapak(3, 1),
           "cerceve_2x2": lambda: cerceve(2, 2), "kapak_2x2": lambda: kapak(2, 2),
                     "cekmece": lambda: cekmece(p.T + p.FIT, p.T + p.H - p.FIT, p.T + p.FIT, p.P_Z - p.TEKNE_ALT - p.FIT),
-          "raf_1x1": lambda: raf(1, 1, 0), "kulp_1x": lambda: kulp(1), "kulp_2x": lambda: kulp(2), "kulp_3x": lambda: kulp(3),
+          "raf_1x1": lambda: raf(1, 1, 0), "kulp_1x": lambda: kulp(1), "kulp_2x": lambda: kulp(2),
           "yatay_kiskac": yatay_kiskac, "kose_dugumu": kose_dugumu, "kiskac_dugumu": kiskac_dugumu}
 _Z = (0, 0, 1)
 CEKME = {"panel": (0, 1, 0), "yatay_kiskac": (0, 1, 0)}   # diğerleri Z
@@ -168,7 +167,7 @@ def kapak_sahnesi_aktar(cikti: Path) -> dict:
     def acik(nx, ny, aci):
         k = kutu(nx, ny, 1, kulp=True, kapak_mandal_acik=True)
         ust = [y for y in k if y.tur in ("kapak", "kapak_mandal", "kulp")]
-        return [y for y in k if y not in ust] + kapak_ac(ust, nx, ny, 1, aci)
+        return [y for y in k if y not in ust] + kapak_ac(ust, ny, 1, aci)
     return sahne_aktar(cikti, "kapak", [
         ("a", acik(1, 1, 90), Pos(0, 0, 0), 0),
         ("b", acik(2, 1, 60), Pos(300, 0, 0), 0),

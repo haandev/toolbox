@@ -1,4 +1,4 @@
-"""Tavan: kutu boyuna göre üst çerçeve + menteşeli kapak (nx × ny node).
+"""Tavan modülü (1×1, 2×1, 2×2): üst çerçeve + menteşeli kapak; kutular bu modüllerle döşenir.
 
 Yerel çerçeve: x, y kutu ızgarası (0 … nx·P_XY), z = 0 kutunun nominal üstü.
 Çerçeve (z −T … −KAPAK_H−GAP): kenar halkası, altta panel oluğu, köşe/kıskaç vida delikleri,
@@ -15,13 +15,34 @@ from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.parts.karo import delik_noktalari
-from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, kulp_x0
+from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, TUTMA_Y, kulp_x0
 from kutu.parts.kapak_mandal import cerceve_yuvasi, kapak_cebi
 from kutu.parts.t_kanal import RAY_XLER, ray
 
 
 def kulp_boyu(nx: int) -> int:
-    return min(nx, 3)
+    """Modülün kulp boyu: 1×1 → 1×, 2×1 ve 2×2 → 2×."""
+    return min(nx, 2)
+
+
+def tavan_modulleri(nx: int, ny: int) -> list[tuple[int, int, int, int]]:
+    """Kutunun tavanını 2×2, 2×1, 1×1 modüllerle döşer: [(i0, j0, mx, my)].
+
+    Satır satır, önce 2×2, sonra 2×1 (genişlik yönünde), kalan yerlere 1×1.
+    """
+    dolu: set[tuple[int, int]] = set()
+    out = []
+    for j in range(ny):
+        for i in range(nx):
+            if (i, j) in dolu:
+                continue
+            for mx, my in ((2, 2), (2, 1), (1, 1)):
+                hucre = {(i + a, j + b) for a in range(mx) for b in range(my)}
+                if i + mx <= nx and j + my <= ny and not (hucre & dolu):
+                    dolu |= hucre
+                    out.append((i, j, mx, my))
+                    break
+    return out
 
 
 def kulp_yeri(nx: int, ny: int) -> tuple[float, float]:
@@ -142,12 +163,13 @@ def _kulp_bolgeleri(nx: int, ny: int):
     bx0, bx1 = x0 - p.FIT - p.MAFSAL_L, x1 + p.FIT + p.MAFSAL_L
     kilit = -p.GAP
     taban = kilit + KULP_Z0 - 1
-    ey = yc + EKSEN_Y
+    ey = yc + EKSEN_Y                                   # mafsal ekseni: modül orta çizgisi
+    gy = yc + TUTMA_Y                                   # katlı tutma yeri
     ey0 = ey - max(p.MAFSAL_W, p.KULP_H) / 2 - 1      # açılırken kolun mafsal altına inen ucu dahil
-    oyuk = (_kutu(x0 - 1, x1 + 1, yc - p.KULP_W / 2 - 1, yc + p.KULP_W / 2 + 1, taban, kilit + 1)
-            + _kutu(bx0, x0 + p.KOL_T + 1, ey0, yc, taban, kilit + 1)
-            + _kutu(x1 - p.KOL_T - 1, bx1, ey0, yc, taban, kilit + 1))
-    zarf = _kutu(x0 - 1, x1 + 1, min(ey0, ey - p.KULP_W / 2 - 2), yc + p.KULP_W / 2 + 2, kilit, p.T_BAS_Z1 + 1)
+    oyuk = (_kutu(x0 - 1, x1 + 1, gy - p.KULP_W / 2 - 1, gy + p.KULP_W / 2 + 1, taban, kilit + 1)
+            + _kutu(bx0, x0 + p.KOL_T + 1, ey0, gy, taban, kilit + 1)
+            + _kutu(x1 - p.KOL_T - 1, bx1, ey0, gy, taban, kilit + 1))
+    zarf = _kutu(x0 - 1, x1 + 1, min(ey0, ey - p.KULP_W / 2 - 2), gy + p.KULP_W / 2 + 2, kilit, p.T_BAS_Z1 + 1)
     mz = kilit + MAFSAL_Z
     bloklar = None
     for bx in (bx0, x1 + p.FIT):

@@ -29,7 +29,10 @@ def test_tavanda_boydan_boya_t_raylar(ny):
     z = (p.T_BAS_Z0 + p.T_BAS_Z1) / 2
     for hx in (_C - p.T_RAY_X, _C + p.T_RAY_X):
         # kulbun süpürme bölgesi dışında, önden ve arkadan birer uzun bölüm
-        for y0, y1 in ((p.GAP + 1, 40.0), (D - 60.0, D - p.GAP - 1)):
+        # önde: kenardan mafsala kadar; arkada: katlı kulbun arkasından menteşeye kadar
+        arka0 = D / 2 + p.KULP_KOL + p.KULP_W / 2 + 3
+        arka1 = D - p.GAP - 2 * p.MENTESE_R - 1
+        for y0, y1 in ((p.GAP + 1, 40.0), (arka0, arka1)):
             bas = Pos(hx - p.T_BAS_W / 2 + 0.5, y0, z - 0.5) * Box(p.T_BAS_W - 1, y1 - y0, 1, align=MIN3)
             assert hacim(t & bas) == pytest.approx((p.T_BAS_W - 1) * (y1 - y0) * 1, rel=1e-3)
 

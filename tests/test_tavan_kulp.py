@@ -1,4 +1,4 @@
-"""Tek parça tavan + içine gömülü 1×/2×/3× kulp."""
+"""Tavan modülüne gömülü 1× / 2× kulp."""
 import itertools
 
 import pytest
@@ -8,16 +8,16 @@ from kutu.montaj import kesisim_hacmi, kutu
 from kutu.parts.kulp import kulp
 
 
-@pytest.mark.parametrize("n", [1, 2, 3])
+@pytest.mark.parametrize("n", [1, 2])
 def test_kulp_gecerli(n):
     assert kulp(n).is_valid
 
 
-@pytest.mark.parametrize("nx,ny,n", [(1, 1, 1), (2, 1, 2), (3, 1, 3), (2, 2, 2), (4, 1, 3)])
+@pytest.mark.parametrize("nx,ny,n", [(1, 1, 1), (2, 1, 2), (2, 2, 2)])
 def test_kulplu_kutu_cakismaz(nx, ny, n):
     k = kutu(nx, ny, 1, kulp=True)
     kp = [y for y in k if y.tur == "kulp"]
-    assert len(kp) == 1 and kp[0].ad == f"kulp_{n}x"
+    assert len(kp) == 1 and kp[0].ad.endswith(f"kulp_{n}x")
     for a, b in itertools.combinations(k, 2):
         assert kesisim_hacmi(a.parca, b.parca) < 1e-3, f"{a.ad} / {b.ad}"
 
@@ -58,3 +58,19 @@ def test_kulplu_kutunun_ustune_istif(nx, ny):
 
 def test_kulp_kesiti_14mm():
     assert kulp(2).bounding_box().size.Z == pytest.approx(14.0)
+
+
+@pytest.mark.parametrize("nx,ny", [(1, 1), (2, 1), (2, 2), (1, 2)])
+def test_acik_kulp_agirlik_merkezinin_ustunde(nx, ny):
+    # kutu kulptan asılınca yamuk durmasın: tutma yeri ve mafsal ekseni modül merkezinin üstünde
+    from kutu.parts.tavan import tavan_modulleri
+    k = kutu(nx, ny, 1, kulp=True, kulp_acik=True)
+    for m, (i0, j0, mx, my) in enumerate(tavan_modulleri(nx, ny)):
+        kp = next(y for y in k if y.ad.startswith(f"m{m}_kulp"))
+        b = kp.parca.bounding_box()
+        ust = b.max.Z
+        tutma = kp.parca & Pos(b.min.X, b.min.Y, ust - 2) * __import__("build123d").Box(
+            b.size.X, b.size.Y, 2, align=__import__("kutu.lib", fromlist=["MIN3"]).MIN3)
+        c = tutma.bounding_box().center()
+        assert c.Y == pytest.approx((j0 + my / 2) * p.P_XY, abs=0.5)
+        assert c.X == pytest.approx((i0 + mx / 2) * p.P_XY, abs=0.5)

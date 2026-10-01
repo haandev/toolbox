@@ -67,3 +67,11 @@ Tavan (`tavan(nx, ny)`) yatayda ikiye ayrılır. Yerel çerçeve aynı: z = 0 ku
 - Mandal yuvasının penceresi öne doğru 0.7 mm geniş: kapak açılırken kanca ilk derecelerde hafif öne kayar.
 - Test notu: çakışma testleri sürekli hareketi değil konumu sınar; "kilitliyken açılmaz" ilk 0.5–1°'de doğrulanır.
 - Eski `tavan(nx, ny)` çerçeve + kapak birleşimi olarak kaldı (geriye uyumluluk).
+
+## 10. Tavan modülleri ve dengeli kulp (2026-10-02)
+
+- Tavan yalnız üç modülden: **1×1** (1× kulp), **2×1** (2× kulp), **2×2** (2× kulp). Büyük kutular satır satır önce 2×2, sonra 2×1, kalan yerlere 1×1 ile döşenir (`tavan_modulleri()`); ör. 3×1 = 2×1 + 1×1, 3×2 = 2×2 + 2·1×1. Her modülün kendi çerçevesi, kapağı, menteşesi, mandalları ve kulbu var. Modül sınırları çevre duvarlardaki kıskaçlara denk gelir; kıskacın iki vidası iki yandaki modülün çerçevesini tutar.
+- 3× kulp kaldırıldı.
+- **Kulp ağırlık merkezinde:** mafsal ekseni modülün orta çizgisinde; katlıyken tutma yeri eksenden `KULP_KOL` geride, açılınca tam merkezin üstünde (kutu kulptan dengeli asılır; testli).
+- Arka modülün mandalı, ön modülün kapağı açılınca erişilir.
+- **Baskı notu:** 1×1 modül (~199 mm) 256 mm tablaya sığar; 2×1 ve 2×2 modüller ve 2× kulp baskı için bölünmeli ve kolay birleşmeli (ayrı tasarım).
