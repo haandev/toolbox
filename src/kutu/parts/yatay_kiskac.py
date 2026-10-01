@@ -9,7 +9,7 @@ from build123d import Box, Part, Pos
 
 from kutu import params as p
 from kutu.lib import MIN3
-from kutu.lib.kanal import panel_y, yuva
+from kutu.lib.kanal import anahtar_cebi, panel_y, yuva
 from kutu.lib.kilit_yeri import yan_oluk
 
 
@@ -22,6 +22,7 @@ def yatay_kiskac() -> Part:
     # alt oluk (alttaki panelin üst dili) ve üst oluk (üstteki panelin alt dili)
     govde -= yuva(-x_yari, x_yari, z0, z0 + p.DIL + p.FIT)
     govde -= yuva(-x_yari, x_yari, z0 + h - p.DIL - p.FIT, z0 + h)
+    govde -= anahtar_cebi(z0 + h - p.DIL - p.FIT, z0 + h)   # üstteki panelin anahtarı
 
     # içten oyuk: cep +y'ye açık, aralarda kaburga
     cep_x = x_yari - p.WALL

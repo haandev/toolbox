@@ -48,6 +48,11 @@ KARO_RIB_ARALIK = 40.0
 ERKEK_H = 5.0      # tavan bileziğinin kilit yüzünden taşma yüksekliği (taban cebine girer)
 ERKEK_PAH = 1.5    # bilezik üst dış kenar giriş pahı
 
+# --- Hata önleyici anahtar (panel yalnız doğru yönde takılır) ---
+ANAHTAR_X = 40.0     # panel alt dilinde, merkezden +x
+ANAHTAR_W = 10.0
+ANAHTAR_T = 2.0      # dilin iç yüzünden içe çıkıntı
+
 # --- Yan kilit (deneme; YAN_KILIT=False ile kalkar) ---
 YAN_KILIT = True
 YAN_KILIT_X = 15.0   # dil -x'te, oluk +x'te (panel merkezine göre)

@@ -11,7 +11,7 @@ from build123d import Align, Axis, Box, Cylinder, Part, Pos, Rot
 
 from kutu import params as p
 from kutu.lib import MIN3
-from kutu.lib.kanal import yuva
+from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.lib.kilit_yeri import karo_bolgesi, yan_oluk
 
 _C = p.P_XY / 2
@@ -83,6 +83,9 @@ def _bilezik_bandi() -> Part:
 @cache
 def karo_taban() -> Part:
     taban = _govde(_bilezik_bandi())
+    cep = Pos(_C, 0, 0) * anahtar_cebi(p.T - p.DIL - p.FIT, p.T)   # güney duvar
+    for aci in (0, 90, 180, 270):
+        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
     if p.YAN_KILIT:
         taban -= _yan_centikler(tavan=False)
     return taban

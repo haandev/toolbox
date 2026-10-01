@@ -80,6 +80,12 @@ Kopolimer PP. Yalnızca klips esneme hesabını etkiler; tek parametre ile deği
 - Kalıp çekiliş yönü: panel yüzüne dik. Ayrım çizgisi boncuk ortasından; undercut yok.
 - Vidasız; kanal ve oluklar tarafından tutulur.
 
+### 5.1a Hata önleyici anahtar
+Panel baş aşağı ya da içi dışına takılırsa yan kilit dil–oluğu yer değiştirir ve kutular kilitlenmez. Panel simetrik yapılamaz (boydan boya dil–oluk 180° çevrilince birbirinin yerine geçer), bu yüzden tek bir anahtar kullanılır:
+- Panelin **yalnız alt dilinde**, merkezden `ANAHTAR_X = +40` mm'de, içe doğru `ANAHTAR_T = 2` mm çıkıntı (`ANAHTAR_W = 10`).
+- **Taban** oluğunda ve **yatay kıskacın üst** oluğunda karşılık gelen cep; tavan ve yatay kıskacın alt oluğunda cep yok.
+- Baş aşağı takılan panelin anahtarı üste geçer, tavan kapanmaz; içi dışına takılanın anahtarı dışa geçer, taban oluğunun dış dudağına çarpar.
+
 ### 5.2 Kıskaç — 40 × 80, dikey profil
 - İki yanında panel kanalı. İçi oyuk, kaburgalı.
 - Alt ve üst uçta birer vida kulesi.

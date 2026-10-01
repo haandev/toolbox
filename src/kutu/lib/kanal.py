@@ -21,3 +21,16 @@ def yuva_y() -> tuple[float, float]:
 def yuva(x0: float, x1: float, z0: float, z1: float) -> Part:
     y0, y1 = yuva_y()
     return Pos(x0, y0, z0) * Box(x1 - x0, y1 - y0, z1 - z0, align=MIN3)
+
+
+def anahtar(z0: float, z1: float) -> Part:
+    """Panel alt dilindeki hata önleyici çıkıntı (panel çerçevesi)."""
+    _, y1 = panel_y()
+    return Pos(p.ANAHTAR_X - p.ANAHTAR_W / 2, y1, z0) * Box(p.ANAHTAR_W, p.ANAHTAR_T, z1 - z0, align=MIN3)
+
+
+def anahtar_cebi(z0: float, z1: float) -> Part:
+    """Anahtarın oturduğu cep (panel çerçevesi); oluğun iç duvarına açılır."""
+    _, y1 = panel_y()
+    w = p.ANAHTAR_W + 2 * p.FIT
+    return Pos(p.ANAHTAR_X - w / 2, y1, z0) * Box(w, p.ANAHTAR_T + p.FIT, z1 - z0, align=MIN3)

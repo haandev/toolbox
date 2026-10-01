@@ -5,7 +5,7 @@ from build123d import Box, Part, Pos
 
 from kutu import params as p
 from kutu.lib import MIN3
-from kutu.lib.kanal import panel_y
+from kutu.lib.kanal import anahtar, panel_y
 from kutu.lib.kilit_yeri import panel_bolgesi, yan_oluk
 
 
@@ -22,7 +22,8 @@ def panel() -> Part:
         kaburga += Pos(x - p.RIB / 2, y_ic, z0) * Box(p.RIB, p.RIB_D, z1 - z0, align=MIN3)
     kaburga -= panel_bolgesi()
 
-    govde = deri + kaburga
+    # hata önleyici anahtar yalnız alt dilde: baş aşağı ya da içi dışına takılamaz
+    govde = deri + kaburga + anahtar(p.T - p.DIL, p.T)
     if p.YAN_KILIT:
         govde = _yan_kilit(govde)
     return govde
