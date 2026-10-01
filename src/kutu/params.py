@@ -55,11 +55,19 @@ MENTESE_BOGUM = 20.0   # yaklaşık boğum boyu (çerçeve ve kapak sırayla)
 KAPAK_MANDAL_YOL = 10.0
 
 # --- Papyon kam (modüller arası ve baskı parçaları arası bağlantı) ---
-YUVA_U = (30.0, 170.0)   # her node kenarında kam konumları (kenar boyunca)
+YUVA_U = (40.0, 160.0)   # her node kenarında yuva konumları (kenar boyunca)
+YUVA_ORTA = 100.0        # yalnız çerçevede: kenar ortası kam yuvası (grup sınırlarında süreklilik)
 PAPYON_A = 10.0          # papyon boynu (ek yerinde)
 PAPYON_B = 18.0          # papyon uç genişliği
 PAPYON_L = 12.0          # papyonun parçaya giriş boyu (ek yeri boşluğu hariç)
 PAPYON_H = 3.0           # yuva derinliği (kam yüksekliği PAPYON_H − FIT)
+
+# --- Evrensel tavan ---
+KAPAK_ICERI = GAP + MENTESE_R    # kapak hücresi her kenardan bu kadar içeride (menteşe her kenarda olabilir)
+KANAL_W = 26.0                   # kaldırmalı kulp tutma çubuğu kanalı (25 mm yassı çubuk)
+KANAL_D = 5.5                    # kanal derinliği (5 mm çubuk)
+KANAT_W = 16.0                   # menteşe boğumu boyu (x)
+MANDAL_GERI = 3.5                # mandal ekinin açılırken öne esneme payı
 
 # --- Gömme kulp (tek parça tavanın içinde, kilit yüzünün altında) ---
 KULP_W = 24.0          # tutma yeri genişliği
