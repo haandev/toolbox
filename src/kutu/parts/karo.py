@@ -1,8 +1,8 @@
 """Karo: 1 node'luk taban ve tavan plakaları.
 
 Ortak gövde: oluk yüzü +z, kilit yüzü z = GAP (alttan oyuk, kaburgalı).
-Dikey istif: tavanın (parts/tavan.py) kılavuz rayları taban alt cebine girer; kaburga uçları
-ray bandında kısaltılır, çerçevenin dört kenarında rayların geçtiği çentikler (öne kayan istif).
+Dikey istif: tavanın (parts/tavan.py) T rayları taban karosunun iki yönlü T kanallarına girer
+(öne kayan istif, dikey kilit, yan hizalama).
 """
 from functools import cache
 
@@ -13,7 +13,7 @@ from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.lib.kilit_yeri import karo_bolgesi
 from kutu.parts.cekmece import durdurucu
-from kutu.parts.t_kanal import taban_kanali
+from kutu.parts.t_kanal import kanal_duvarlari, kanal_kesimi
 
 _C = p.P_XY / 2
 
@@ -72,30 +72,17 @@ def _govde(kaburga_kes: Part | None) -> Part:
 _IC = p.P_XY - 2 * p.K
 
 
-def _bilezik_bandi() -> Part:
-    """Kilit yüzünden KILAVUZ_H+FIT derinlikte, çerçeve iç kenarı boyunca halka bant (taban)."""
-    bant = p.WALL + 2 * p.FIT
-    derin = p.KILAVUZ_H + p.FIT
-    dis = Pos(p.K, p.K, p.GAP) * Box(_IC, _IC, derin, align=MIN3)
-    ic = Pos(p.K + bant, p.K + bant, p.GAP) * Box(_IC - 2 * bant, _IC - 2 * bant, derin, align=MIN3)
-    return dis - ic
-
-
 @cache
 def karo_taban() -> Part:
-    taban = _govde(_bilezik_bandi())
+    taban = _govde(None)
     cep = Pos(_C, 0, 0) * anahtar_cebi(p.T - p.DIL_V - p.FIT, p.T)   # güney duvar
     for aci in (0, 90, 180, 270):
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
-    for aci in (0, 90, 180, 270):                      # T kanal + geçit her kenarda (döndürülmüş istif)
-        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * taban_kanali()
-    g = p.WALL + 2 * p.FIT                             # kılavuz rayların çerçevenin altından geçtiği çentikler
-    centik = None
-    for x in (p.K, p.P_XY - p.K - g):
-        c = Pos(x, p.GAP - 0.01, p.GAP - 0.01) * Box(g, p.K - p.GAP + 0.02, p.KILAVUZ_H + p.FIT + 0.01, align=MIN3)
-        centik = c if centik is None else centik + c
-    for aci in (0, 90, 180, 270):
-        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * centik
+    for aci in (0, 90):                                # T kanallar iki yönde (döndürülmüş istif)
+        yer = Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0)
+        taban += yer * kanal_duvarlari()
+    for aci in (0, 90):
+        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * kanal_kesimi()
     for aci in (0, 90, 180, 270):                      # çekmece durdurucusu her kenarda (çerçeve üstünde)
         taban += Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * durdurucu(_C, p.T)
     return taban

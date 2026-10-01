@@ -15,8 +15,8 @@ def _sayim(liste):
 
 
 def _ust_tasma():
-    """Tavanın kilit yüzünden en yüksek çıkıntısı (kılavuz ray ya da T kanca başı), kutu üstünden."""
-    return max(p.KILAVUZ_H - p.GAP, p.T_BAS_Z1) + p.GAP
+    """Tavanın en yüksek çıkıntısı (T ray başı), kutu üstünden + GAP."""
+    return p.T_BAS_Z1 + p.GAP
 
 
 def _yan_tasma():
@@ -68,7 +68,7 @@ def test_tek_node_dis_olcu(k111):
     b = _dis_kutu(k111)
     assert b.size.X == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
     assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
-    # tavan kılavuz rayları gövdenin KILAVUZ_H üstüne taşar; istifte üstteki tabana girer
+    # tavan T rayları gövdenin üstüne taşar; istifte üstteki tabanın kanallarına girer
     assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + _ust_tasma())
     assert b.min.X == pytest.approx(p.GAP - _yan_tasma() / 2)
 

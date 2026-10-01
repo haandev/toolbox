@@ -3,7 +3,6 @@ from build123d import Align, Box, Cylinder, Pos, Rot
 from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import yuva_y
-from kutu.lib.kilit_yeri import karo_bolgesi
 from kutu.parts.karo import delik_noktalari, karo_taban
 
 from conftest import hacim
@@ -30,10 +29,6 @@ def test_guverte_wall_kalinliginda(kr):
     c = p.P_XY / 2
     sonda = Pos(c - 5, c - 5, 0) * Box(10, 10, p.T, align=MIN3)
     assert hacim(kr & sonda) == pytest.approx(10 * 10 * p.WALL, rel=1e-3)
-
-
-def test_kilit_bolgesinde_kaburga_yok(kr):
-    assert hacim(kr & karo_bolgesi()) == pytest.approx(0, abs=1e-6)
 
 
 @pytest.mark.parametrize("aci", [0, 90, 180, 270])

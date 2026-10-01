@@ -18,34 +18,7 @@ def test_tavan_tek_parca_olculer(nx, ny):
     assert b.size.X == pytest.approx(p.kutu_dis(nx, p.P_XY))
     assert b.size.Y == pytest.approx(p.kutu_dis(ny, p.P_XY))
     # yerel z = 0 kutunun nominal üstü; en yüksek çıkıntı kılavuz ray ya da T kanca başı
-    assert b.max.Z == pytest.approx(max(p.KILAVUZ_H - p.GAP, p.T_BAS_Z1))
-
-
-@pytest.mark.parametrize("ny", [1, 2])
-def test_kilavuz_raylar_onden_arkaya(ny):
-    t = tavan(1, ny)
-    a, h = p.K + p.FIT, p.KILAVUZ_H - p.GAP - 0.1
-    D = ny * p.P_XY
-    for x in (a, p.P_XY - a - p.WALL):
-        ray = Pos(x, 2 * p.KILAVUZ_H, 0) * Box(p.WALL, D - 4 * p.KILAVUZ_H, h, align=MIN3)
-        assert hacim(t & ray) == pytest.approx(p.WALL * (D - 4 * p.KILAVUZ_H) * h, rel=1e-3)
-    # node ortasında kilit yüzünün üstü boş (eski tutucu yok)
-    orta = Pos(p.K + 10, p.K + 10, 0) * Box(_IC - 20, 30, p.KILAVUZ_H, align=MIN3)
-    assert hacim(t & orta) == pytest.approx(0, abs=1e-6)
-
-
-def test_taban_kenarlarinda_kilavuz_centigi():
-    g, h = p.WALL + 2 * p.FIT, p.KILAVUZ_H + p.FIT
-    for x in (p.K, p.P_XY - p.K - g):
-        sonda = Pos(x, p.GAP, p.GAP) * Box(g, p.K - p.GAP, h - 0.01, align=MIN3)
-        assert hacim(karo_taban() & sonda) == pytest.approx(0, abs=1e-6)
-
-
-def test_taban_kaburgalari_bilezik_bandinda_kisa():
-    bant = p.WALL + 2 * p.FIT
-    derin = p.KILAVUZ_H + p.FIT
-    sonda = Pos(p.K, p.K, p.GAP) * Box(_IC, bant, derin, align=MIN3)
-    assert hacim(karo_taban() & sonda) == pytest.approx(0, abs=1e-6)
+    assert b.max.Z == pytest.approx(p.T_BAS_Z1)
 
 
 def test_taban_kilit_yuzunden_tasmaz():

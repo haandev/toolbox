@@ -46,9 +46,6 @@ KISKAC_KULE_X = KISKAC_CEP_YARI - KULE_OD / 2 - 0.5   # kıskaç kuleleri ±x
 
 # --- Karo ---
 KARO_RIB_ARALIK = 40.0
-KILAVUZ_H = 3.0    # tavan kılavuz raylarının kilit yüzünden yüksekliği (taban cebine girer; panel oluğunun altında)
-KILAVUZ_A = K + FIT  # kılavuz rayın dış yüzü (node kenarından)
-KILAVUZ_PAH = 1.5  # kılavuz ray ön/arka uç pahı (kayarak giriş)
 
 # --- Gömme kulp (tek parça tavanın içinde, kilit yüzünün altında) ---
 KULP_W = 24.0          # tutma yeri genişliği
@@ -64,9 +61,8 @@ ANAHTAR_X = 40.0     # panel alt dilinde, merkezden +x
 ANAHTAR_W = 10.0
 ANAHTAR_T = 2.0      # dilin iç yüzünden içe çıkıntı
 
-# --- T kanal (dikey kilit; kutu öne kayarak takılır/çıkar) ---
-T_KANCA_X = -35.0    # kanca merkezi, node kenar ortasından (güney kenar)
-T_KANCA_Y0, T_KANCA_Y1 = 2.0, 18.0   # kanca, tavan kenar çerçevesinin içinde
+# --- T ray (dikey kilit + yan hizalama; kutu öne kayarak takılır/çıkar) ---
+T_RAY_X = 35.0       # raylar node merkezinden ±T_RAY_X (tavanda ön–arka boyunca, tabanda iki yönde kanal)
 T_BOYUN_W = 6.0
 T_BAS_W = 12.0
 T_BOYUN_Z1 = 3.0     # taban yerel z: kanalın boyun bölgesi GAP … 3.0 (tutma çıkıntısı 2.5 mm)

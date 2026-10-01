@@ -118,3 +118,11 @@ Kutulardan kurulan bir duvarda (yan yana ve üst üste) **herhangi bir kutu çek
 - `H = 80 → 76`, böylece `T = 10 → 12` (ızgara adımı aynı). Kutu iç yüksekliği 4 mm azaldı.
 - Kazanılan 2 mm: T kanal tutma çıkıntısı 1.7 → 2.5 mm, kanca başı 2.8 → 3.8 mm (kanal tavanı 7.2, taban oluğu 7.8'de) → `kanca_kapasitesi()` ≈ **222 N/kanca**; kulp kesiti 12 → 14 mm, tavan kalınlaştığı için iç hacimden yemeden.
 - Kulp oyuğunun mafsal tarafı kulp kalınlığına göre genişletildi (açılırken kol ucu oyuk duvarına değiyordu).
+
+## 13. Boydan boya T ray (2026-10-02)
+
+- Kısa T kancalar, geçitler ve kılavuz raylar kaldırıldı. Tavanda her node sütununda node merkezinden ±35 mm'de ön–arka boyunca **tam boy T ray**; taban karosunda aynı konumlarda **iki yönde tam boy T kanal** (çerçevede oyuk, iç cepte güverteden sarkan kanal duvarları). Rayın boynu yan hizalamayı da sağlar.
+- Raylar yalnızca kulbun süpürme bölgesinde kesik.
+- `node_kapasitesi()`: ~1950 N/node (kısa kancalarla ~444 N). Gerekirse profil küçültülerek karo yüksekliği geri kazanılabilir.
+- Kalıp: T profil alttan kesmedir; iki ucu açık olduğu için ön–arka yönünde çekilen yan maça ile kalıplanır (kalıp maliyeti artar).
+- Karo ortasındaki eski "kilit bölgesi" artık yok (kanal duvarları geçiyor).

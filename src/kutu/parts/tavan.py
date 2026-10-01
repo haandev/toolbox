@@ -2,8 +2,8 @@
 
 Yerel çerçeve: x, y kutu ızgarası (0 … nx·P_XY), z = 0 kutunun nominal üstü.
 Gövde: kenar çerçevesi (altta panel oluğu), altta güverte, üstte kaburgalı cep, kilit yüzü
-z = −GAP. Her node sütununda ön–arka boyunca iki kılavuz ray kilit yüzünden KILAVUZ_H taşar;
-üstteki kutunun taban cebine x'te FIT ile oturur, y'de serbest (kutu öne kayarak çıkar). Ortada gömme kulp oyuğu (kilit yüzünün altında,
+z = −GAP. Her node sütununda ön–arka boyunca iki tam boy T ray; üstteki kutunun taban
+karosundaki T kanallara girer (dikey kilit, yan hizalama, öne kayarak takma/çıkarma). Ortada gömme kulp oyuğu (kilit yüzünün altında,
 kutunun içine sarkan tekne) ve mafsal blokları.
 """
 from functools import cache
@@ -15,7 +15,7 @@ from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.parts.karo import delik_noktalari
 from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, kulp_x0
-from kutu.parts.t_kanal import kanca
+from kutu.parts.t_kanal import RAY_XLER, ray
 
 
 def kulp_boyu(nx: int) -> int:
@@ -75,19 +75,13 @@ def _govde(nx: int, ny: int) -> Part:
     return t
 
 
-def _kilavuzlar(nx: int, ny: int) -> Part:
-    a, w = p.KILAVUZ_A, p.WALL
+def _t_raylar(nx: int, ny: int) -> Part:
     D = ny * p.P_XY
-    z0, z1 = -p.GAP - 1.0, p.KILAVUZ_H - p.GAP   # çerçeve ve kaburgaların üstüne oturur, panel oluğuna inmez
-    pah = p.KILAVUZ_PAH
     tum = None
     for i in range(nx):
-        for x in (i * p.P_XY + a, (i + 1) * p.P_XY - a - w):
-            ray = _kutu(x, x + w, p.GAP, D - p.GAP, z0, z1)
-            # ön ve arka uçta üst kenar pahı (kayarak giriş)
-            for y0, y1 in ((p.GAP, p.GAP + pah), (D - p.GAP - pah, D - p.GAP)):
-                ray -= _kutu(x - 1, x + w + 1, y0 - 0.01, y1 + 0.01, z1 - pah, z1 + 1)
-            tum = ray if tum is None else tum + ray
+        for hx in RAY_XLER:
+            r = ray(i * p.P_XY + hx, p.GAP, D - p.GAP)
+            tum = r if tum is None else tum + r
     return tum
 
 
@@ -127,16 +121,5 @@ def tavan(nx: int, ny: int) -> Part:
                       b.min.Z - p.WALL, -p.GAP)
         tekne = kabuk if tekne is None else tekne + kabuk
     t = _govde(nx, ny) + tekne - oyuk + bloklar
-    t += _kilavuzlar(nx, ny) - zarf      # oyuktan sonra: ray kenarı oyuk ağzından kesilmez
-    for yer in kanca_yerleri(nx, ny):
-        t += yer * kanca()
+    t += _t_raylar(nx, ny) - zarf - oyuk    # raylar kulbun süpürme bölgesinde kesik
     return t
-
-
-def kanca_yerleri(nx: int, ny: int):
-    """Her node'un ön (güney) ve arka (kuzey) kenarındaki T kanca dönüşümleri."""
-    c = p.P_XY / 2
-    W, D = nx * p.P_XY, ny * p.P_XY
-    for i in range(nx):
-        yield Pos(i * p.P_XY, 0, 0)
-        yield Pos(i * p.P_XY, D - p.P_XY, 0) * Pos(c, c, 0) * Rot(0, 0, 180) * Pos(-c, -c, 0)
