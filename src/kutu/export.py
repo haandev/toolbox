@@ -8,6 +8,7 @@ from build123d import Pos, Rot, export_step, export_stl
 from kutu import params as p
 from kutu.kalip import egimsiz_yuz_sayisi
 from kutu.lib.kilit_yeri import kilit_noktalari
+from kutu.baski import kulp_baski_parcalari, modul_baski_parcalari
 from kutu.montaj import kapak_ac, kutu
 from kutu.parts.karo import karo_taban
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
@@ -30,7 +31,8 @@ _Z = (0, 0, 1)
 CEKME = {"panel": (0, 1, 0), "yatay_kiskac": (0, 1, 0)}   # diğerleri Z
 RENKLER = {"taban": "#5b6270", "cerceve": "#4a5060", "kapak": "#8a94a6", "kapak_mandal": "#8e44ad", "kose": "#f39c3d", "kiskac": "#f1c40f",
            "panel": "#9fb3c8", "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400",
-           "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c",
+           "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c", "papyon_kapak": "#e67e22",
+           "kulp_ucu": "#e74c3c", "kulp_cubugu": "#bdc3c7",
            "cekmece": "#5dade2", "raf": "#95a5a6"}
 
 
@@ -175,6 +177,38 @@ def kapak_sahnesi_aktar(cikti: Path) -> dict:
     ], (1000, p.P_XY, 2 * p.P_Z))
 
 
+def baski_aktar(cikti: Path) -> list[Path]:
+    """Baskı STL'leri: her tavan modülünün node parçaları ve kamları, 2× kulp parçaları (out/baski)."""
+    klasor = cikti / "baski"
+    klasor.mkdir(parents=True, exist_ok=True)
+    dosyalar = []
+    for mx, my in ((1, 1), (2, 1), (1, 2), (2, 2)):
+        for ad, _, parca in modul_baski_parcalari(mx, my):
+            d = klasor / f"tavan_{mx}x{my}_{ad}.stl"
+            export_stl(parca, str(d))
+            dosyalar.append(d)
+    for ad, _, parca in kulp_baski_parcalari(2):
+        d = klasor / f"kulp_2x_{ad}.stl"
+        export_stl(parca, str(d))
+        dosyalar.append(d)
+    return dosyalar
+
+
+def baski_sahnesi_aktar(cikti: Path) -> dict:
+    """2×2 tavan modülünün baskı parçaları açılmış hâlde (patlatma ile)."""
+    from kutu.montaj import Yerlesim
+    liste = []
+    for ad, tur, parca in modul_baski_parcalari(2, 2):
+        c = parca.bounding_box().center()
+        yon = (1 if c.X > p.P_XY else -1, 1 if c.Y > p.P_XY else -1, 1 if tur == "papyon_kapak" else 0)
+        if tur == "cerceve":
+            yon = (yon[0], yon[1], -1)
+        liste.append(Yerlesim(ad, tur, parca, yon))
+    for ad, tur, parca in kulp_baski_parcalari(2):
+        liste.append(Yerlesim(ad, tur, Pos(0, p.P_XY, -p.GAP) * parca, (0, 0, 2)))
+    return sahne_aktar(cikti, "baski_onizleme", [("m", liste, Pos(0, 0, 0), 0)], (2 * p.P_XY, 2 * p.P_XY, 40))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Modüler kutu çıktıları")
     ap.add_argument("--nx", type=int, default=1)
@@ -188,7 +222,12 @@ def main() -> None:
     ap.add_argument("--duvar", action="store_true", help="kayar duvar önizlemesi (out/duvar)")
     ap.add_argument("--karma", action="store_true", help="karma istif önizlemesi (out/karma)")
     ap.add_argument("--kapak", action="store_true", help="açık kapak önizlemesi (out/kapak)")
+    ap.add_argument("--baski", action="store_true", help="baskı STL'leri (out/baski) + önizleme (?m=baski_onizleme)")
     a = ap.parse_args()
+    if a.baski:
+        print(len(baski_aktar(a.cikti)), "STL → out/baski/")
+        print(len(baski_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/baski_onizleme/manifest.json")
+        return
     if a.kapak:
         print(len(kapak_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/kapak/manifest.json")
         return

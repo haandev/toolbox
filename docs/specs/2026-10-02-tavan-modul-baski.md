@@ -29,3 +29,13 @@ Hücreli tavanda her node sınırında çerçeve kenarı vardı; birden çok nod
 1. 1×2 modül: kulp merkezde, kapak açılır (mevcut modül testleri genişletilir).
 2. 4×4 kutu: dört 2×2 modül; modüller arası kamlar; çakışma yok.
 3. Mevcut istif, duvar, kapak, kulp testleri geçer.
+
+## 6. Uygulama notları (2026-10-02)
+
+- Uygulandı: 1×2 modül ve döşeme sırası; `lib/papyon.py`; modüller arası kamlar (`papyon_cerceve`, alttan takılır — üstte menteşe boğumları var); `baski.py` (`modul_baski_parcalari`, `kulp_baski_parcalari`); `kutu.export --baski` → `out/baski/*.stl` + `?m=baski_onizleme`.
+- Kam konumları her node kenarında ±70 mm (`YUVA_U = 30, 170`).
+- **Çerçeve parçaları kesimde kamsız:** kesimler node köşelerindeki vida deliklerine denk gelir; çevrede kıskaç vidaları, içeride modüller arası kamlar tutar.
+- **Kapak kamları** kesim boyunca, yuvanın ≥%60'ı malzemeye denk gelen aday konumlarda (önce ±70, olmazsa kenara yakın ±88); 2×1/1×2'de 2, 2×2'de 5 kam.
+- **2×2 kapağın ön–arka kesimi** kulp kanalının ortasından geçer: iki yarı kanalın dışındaki uç kamlarla ve kulp mafsal pimiyle tutunur — diğer ek yerlerinden zayıf (prototip).
+- 2× kulp baskıda: iki kulp ucu (kol + mafsal pimi + Ø10 çubuk yuvalı göbek) + Ø10 çubuk.
+- Çevre kenarlardaki modül kam yuvaları panel oluğu bandına açılır; panel üst dili orada yan desteğini yerel olarak kaybeder.
