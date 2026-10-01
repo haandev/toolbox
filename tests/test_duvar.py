@@ -72,3 +72,10 @@ def test_2h_kutu_yaninda_iki_1h_kutu():
 def test_cekmeceli_kutu_duvarda():
     d = duvar(3, 2, ozel={(1, 0): kutu(1, 1, 1, kulp=True, cekmece=True)})
     _kutular_arasi_cakisma_yok(d)
+
+
+def test_karma_istif_cakismaz():
+    from kutu.export import karma_gruplar
+    kutular = {a: [type(e)(f"{a}/{e.ad}", e.tur, yer * e.parca, e.patlat) for e in liste]
+               for a, liste, yer in karma_gruplar()}
+    _kutular_arasi_cakisma_yok(kutular)

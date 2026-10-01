@@ -134,6 +134,32 @@ def duvar_sahnesi_aktar(cikti: Path) -> dict:
     return sahne_aktar(cikti, "duvar", gruplar, (3 * p.P_XY, p.P_XY, 2 * p.P_Z))
 
 
+def karma_gruplar():
+    """Karma istif: farklı boyutlar, kutusu çekmece gibi çekilmiş kutu, iç çekmeceli kutu.
+
+    (ön ek, yerleşim listesi, Location) üçlüleri.
+    """
+    P, Z = p.P_XY, p.P_Z
+
+    def ac(liste, ad, dy):
+        return [type(y)(y.ad, y.tur, Pos(0, dy, 0) * y.parca, y.patlat) if y.ad == ad else y for y in liste]
+
+    return [
+        ("A_2x1", kutu(2, 1, 1, kulp=True), Pos(0, 0, 0)),
+        ("B_cekmeceli", ac(kutu(1, 1, 1, kulp=True, cekmece=True), "k0_cekmece_0", -90), Pos(2 * P, 0, 0)),
+        ("C", kutu(1, 1, 1, kulp=True), Pos(0, 0, Z)),
+        ("D_cekilmis", kutu(1, 1, 1, kulp=True), Pos(P, -110, Z)),
+        ("E", kutu(1, 1, 1, kulp=True), Pos(2 * P, 0, Z)),
+        ("F_3x1", kutu(3, 1, 1, kulp=True), Pos(0, 0, 2 * Z)),
+        ("G_2h", kutu(1, 1, 2, kulp=True), Pos(3 * P, 0, 0)),
+    ]
+
+
+def karma_sahnesi_aktar(cikti: Path) -> dict:
+    return sahne_aktar(cikti, "karma", [(a, l, yer, 0) for a, l, yer in karma_gruplar()],
+                       (4 * p.P_XY, p.P_XY, 3 * p.P_Z))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Modüler kutu çıktıları")
     ap.add_argument("--nx", type=int, default=1)
@@ -145,7 +171,11 @@ def main() -> None:
     ap.add_argument("--kulp", action="store_true", help="kulp önizlemesi (out/kulp)")
     ap.add_argument("--cekmece", action="store_true", help="çekmece önizlemesi (out/cekmece)")
     ap.add_argument("--duvar", action="store_true", help="kayar duvar önizlemesi (out/duvar)")
+    ap.add_argument("--karma", action="store_true", help="karma istif önizlemesi (out/karma)")
     a = ap.parse_args()
+    if a.karma:
+        print(len(karma_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/karma/manifest.json")
+        return
     if a.duvar:
         print(len(duvar_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/duvar/manifest.json")
         return

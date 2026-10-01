@@ -126,3 +126,8 @@ Kutulardan kurulan bir duvarda (yan yana ve üst üste) **herhangi bir kutu çek
 - `node_kapasitesi()`: ~1950 N/node (kısa kancalarla ~444 N). Gerekirse profil küçültülerek karo yüksekliği geri kazanılabilir.
 - Kalıp: T profil alttan kesmedir; iki ucu açık olduğu için ön–arka yönünde çekilen yan maça ile kalıplanır (kalıp maliyeti artar).
 - Karo ortasındaki eski "kilit bölgesi" artık yok (kanal duvarları geçiyor).
+
+## 14. Tutma girintisi ve karma istif (2026-10-02)
+
+- Panelde iki rayın arasında tutma girintisi: dış yüzde 60×10 mm parmak açıklığı, arkasında yukarı uzanan 60×20×8 mm cep; parmaklar derinin arkasına takılır, kutu duvardan öne çekilir. Kabuk içe 15 mm (çekmece tepsisine değmez). Panel tek parça: girinti her yüzde; baş aşağı panellerde ters yönde.
+- Karma istif örneği (`kutu.export --karma`, `?m=karma`): 2×1, iç çekmeceli 1×1 (çekmecesi açık), üç 1×1 (ortadaki kutusu ile öne çekilmiş), üstte 3×1, yanda 2H — çakışmasız (testli).
