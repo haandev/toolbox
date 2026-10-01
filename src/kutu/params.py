@@ -81,6 +81,16 @@ TEKNE_ALT = GAP + 1 + KULP_H + 1 + WALL   # tavan kulp teknesinin kutu üstünde
 CEKMECE_TUTAMAK_W = 60.0
 CEKMECE_TUTAMAK_H = 15.0
 RAF_KENAR = GAP + LIP + WALL + RIB_D + FIT   # raf kenarı: üst kat panel kaburgalarının içinde
+RAF_RIB_D = 18.0     # raf altı kaburga derinliği (kat arası bantta, alt çekmecenin üstünde)
+CEKMECE_YOL = 120.0  # durdurucuya kadar çekme boyu
+DURDURUCU_Y0 = 12.0  # taban/raf üstündeki durdurucu çıkıntısı (kenardan içe)
+DURDURUCU_L = 4.0
+DURDURUCU_W = 8.0
+DURDURUCU_H = 2.0
+TUTUCU_TUMSEK = 0.6  # kapalı tutucu: oluk tavanındaki tümsek
+
+# --- Malzeme (PP kopolimer) ---
+MALZEME_E = 1.3e9    # Pa
 
 # --- Yan kilit (deneme; YAN_KILIT=False ile kalkar) ---
 YAN_KILIT = True

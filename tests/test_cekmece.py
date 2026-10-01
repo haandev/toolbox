@@ -43,7 +43,7 @@ def test_cekmece_disari_cekilebilir(nz):
     cekmeceler = [y for y in k if y.tur == "cekmece"]
     digerleri = [y for y in k if y.tur != "cekmece"]
     for c in cekmeceler:
-        for dy in (10, 40, 80, 120, 180):
+        for dy in (10, 40, 80, p.CEKMECE_YOL - 5):
             cekilmis = Pos(0, -dy, 0) * c.parca
             for d in digerleri:
                 assert kesisim_hacmi(cekilmis, d.parca) < 1e-3, f"{c.ad} -{dy} / {d.ad}"
@@ -61,3 +61,55 @@ def test_raf_yatay_kiskaclara_oturur():
     raf = next(y for y in k if y.tur == "raf")
     yataylar = [y for y in k if y.tur == "yatay_kiskac"]
     assert min(raf.parca.distance_to(y.parca) for y in yataylar) == pytest.approx(0, abs=1e-6)
+
+
+def _cekmece_ve_digerleri(nz=1, kat=0):
+    k = kutu(1, 1, nz, kulp=True, mandal=True, cekmece=True)
+    c = next(y for y in k if y.ad == f"k{kat}_cekmece_0")
+    return c, [y for y in k if y is not c]
+
+
+def _carpisma(c, digerleri, dy):
+    cekilmis = Pos(0, -dy, 0) * c.parca
+    return sum(kesisim_hacmi(cekilmis, d.parca) for d in digerleri)
+
+
+@pytest.mark.parametrize("nz,kat", [(1, 0), (2, 0), (2, 1)])
+def test_durdurucu_cekmeceyi_tutar(nz, kat):
+    c, digerleri = _cekmece_ve_digerleri(nz, kat)
+    assert _carpisma(c, digerleri, p.CEKMECE_YOL - 5) < 1e-3
+    assert _carpisma(c, digerleri, p.CEKMECE_YOL + 5) > 1
+
+
+@pytest.mark.parametrize("nz,kat", [(1, 0), (2, 1)])
+def test_kapali_tutucu_hafifce_direnir(nz, kat):
+    c, digerleri = _cekmece_ve_digerleri(nz, kat)
+    assert _carpisma(c, digerleri, 0) < 1e-3          # kapalı: serbest
+    v = _carpisma(c, digerleri, 1.0)                    # 1 mm: tümseğe dayanır
+    assert 0.1 < v < 20
+    assert _carpisma(c, digerleri, 10) < 1e-3          # tümseği aştıktan sonra serbest
+
+
+def test_durdurucu_cikintilari_tabanin_dort_kenarinda():
+    from build123d import Box
+    from kutu.lib import MIN3
+    from kutu.parts.karo import karo_taban
+    from conftest import hacim
+    c = p.P_XY / 2
+    w, y0, L = p.DURDURUCU_W, p.DURDURUCU_Y0, p.DURDURUCU_L
+    for x0, y0_, sx, sy in ((c - w / 2, y0, w, L), (c - w / 2, p.P_XY - y0 - L, w, L),
+                            (y0, c - w / 2, L, w), (p.P_XY - y0 - L, c - w / 2, L, w)):
+        sonda = Pos(x0, y0_, p.T) * Box(sx, sy, p.DURDURUCU_H, align=MIN3)
+        assert hacim(karo_taban() & sonda) == pytest.approx(sx * sy * p.DURDURUCU_H, rel=1e-3)
+
+
+@pytest.mark.parametrize("nx,ny", [(1, 1), (2, 1), (2, 2), (3, 1)])
+def test_raf_sehimi_5kg_altinda_1mm(nx, ny):
+    from kutu.parts.cekmece import raf_sehimi
+    assert raf_sehimi(5.0, nx, ny) < 1.0
+
+
+def test_kaburgasiz_raf_cok_eger():
+    # kaburgaların gerçekten gerekli olduğunu gösterir: aynı hesap düz plaka için
+    from kutu.parts.cekmece import raf_sehimi
+    assert raf_sehimi(5.0, 1, 1, kaburga=False) > 2.0

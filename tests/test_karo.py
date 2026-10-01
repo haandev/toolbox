@@ -23,7 +23,7 @@ def test_dis_olculer(kr):
     assert b.size.X == pytest.approx(p.P_XY - 2 * p.GAP)
     assert b.size.Y == pytest.approx(p.P_XY - 2 * p.GAP)
     assert b.min.Z == pytest.approx(p.GAP)
-    assert b.max.Z == pytest.approx(p.T)
+    assert b.max.Z == pytest.approx(p.T + p.DURDURUCU_H)   # çerçeve üstünde çekmece durdurucusu
 
 
 def test_guverte_wall_kalinliginda(kr):

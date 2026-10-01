@@ -130,7 +130,9 @@ Erkek–dişi oturma kutuları hizalar ama birbirine bağlamaz; üstteki kutudan
 - **Raf (2H ve üstü):** kat arasında yatay kıskaçların iç çıkıntılarına oturan `WALL` kalınlığında plaka; üst kat panel kaburgalarının içinde kalır (`RAF_KENAR`), köşe ve kıskaç izlerinde çentikli. Kutu boyuna göre tek parça.
 - Ön yüzdeki yatay kıskaç kalır; çekmeceler arasında ayırıcıdır.
 - Testli: kapalıyken çakışma yok (1×1, 2×1, 1×1×2, 2×1×2), çekmece 180 mm'ye kadar çekilirken yolu açık, üst çekmece rafa `FIT` ile oturur, raf yatay kıskaçlara değer.
-- Açık konuda: çekmece durdurucusu (tamamen çıkmasın), kapalı tutucu (kendiliğinden açılmasın), ağır yükte raf sehimi.
+- **Durdurucu (kaldır-çıkar):** taban karosunun çerçevesi üstünde her kenar ortasında 8×4×2 mm çıkıntı (tek kalıp; tepsinin dışında kalır), üst katlarda rafın üstünde. Tepsi altındaki önden açık oluğun içinde kayar; oluk bitince çekmece `CEKMECE_YOL = 120` mm'de durur. Takıp çıkarmak için çekmecenin önü kaldırılır; esnek parça yok.
+- **Kapalı tutucu:** oluk tavanında, kapalıyken çıkıntının hemen önünde 0.6 mm tümsek; çıkıntı tümseği aşmadan çekmece açılmaz (1 mm'de direnç, 10 mm'de serbest — testli).
+- **Raf sehimi:** raf altında 18 mm derin kaburga ızgarası (yatay kıskaçların iç yüzünden içeride, alt çekmecenin 2 mm üstünde). 5 kg yayılı yükte hesaplanan sehim: 1×1 0.17 mm, 2×1 0.07 mm, 3×1 0.05 mm, 2×2 0.84 mm (kaburgasız 2.5 mm plaka: 2.8–49 mm). Model: kısa açıklık boyunca basit mesnetli T kesitli kaburgalar, PP E = 1.3 GPa (`raf_sehimi()`).
 
 ### 5.4c Yan kilit (deneme — `YAN_KILIT`)
 Dikey istif kutuları zaten kilitlediği için yan kilit isteğe bağlıdır; `YAN_KILIT = False` ile tamamen kalkar.
