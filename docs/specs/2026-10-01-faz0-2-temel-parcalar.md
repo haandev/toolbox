@@ -73,7 +73,9 @@ Kopolimer PP. Yalnızca klips esneme hesabını etkiler; tek parametre ile deği
 ### 5.1 Duvar paneli — 160 × 80
 - Dış yüz: 2.5 mm düz deri. İç yüz: 1.5 mm kaburga ızgarası.
 - Merkezde ~60 × 50 mm kilit bölgesi; kaburgalar bu bölgenin yükünü kenarlara taşır.
-- Yan kenarlarda kenar boncuğu (~5 mm, profil `lib/kanal.py`'den); kıskaç/köşe kanalına yukarıdan kayar.
+- Panel parça boyu `U + 2·DIL = 172`, yüksekliği `H + 2·DIL = 92`; dört kenardaki diller kanal ve oluğa `DIL = 6` mm girer (kesit `lib/kanal.py`).
+- Dil kalınlığı `WALL`; ayrı boncuk yok (panel her yönden sarıldığı için gerekmedi).
+- Panel dış yüzü kanal dudağı (`LIP = 1.5`) kadar gömük; dudak olmadan panel dışarı düşer.
 - Alt ve üst kenarda dil; karo oluğuna oturur.
 - Kalıp çekiliş yönü: panel yüzüne dik. Ayrım çizgisi boncuk ortasından; undercut yok.
 - Vidasız; kanal ve oluklar tarafından tutulur.
@@ -114,7 +116,7 @@ Rijitliğin ana kaynağı, panellerin dört kenardan sıkıştığı alt ve üst
 
 - `out/step/` — kalıpçı için STEP (her parça tipi).
 - `out/stl/` — prototip baskı için STL.
-- `out/glb/` + `out/manifest.json` — önizleme için (parça adı, renk, konum, patlatma vektörü).
+- `out/preview/` — konumlu STL'ler + `manifest.json` (parça adı, tür, renk, patlatma yönü, kilit noktaları).
 - `out/` git'e girmez.
 
 ## 8. Önizleme (`preview/index.html`)
@@ -132,7 +134,7 @@ Three.js tabanlı, uygulamanın tarayıcı panelinde açılır. Özellikler:
 - **Montaj:** parçalar arası kesişim hacmi ≈ 0; boncuk–kanal arası `FIT` boşluğu.
 - **Kalıp eğimi (deneysel, uyarı):** çekiliş yönüne paralel yüzlerde eğim kontrolü.
 
-## 10. Prototip parçaları (`prototip/`)
+## 10. Prototip parçaları (`src/kutu/prototip.py` → `out/prototip/`)
 
 - Boncuk–kanal test kuponu, `FIT` ∈ {0.1, 0.2, 0.3, 0.4}.
 - Insert kulesi test parçası.
@@ -144,9 +146,8 @@ Three.js tabanlı, uygulamanın tarayıcı panelinde açılır. Özellikler:
 toolbox/
 ├── pyproject.toml
 ├── docs/
-├── src/kutu/{params.py, lib/, parts/, montaj.py, export.py}
+├── src/kutu/{params.py, kalip.py, lib/, parts/, montaj.py, export.py, prototip.py}
 ├── tests/
-├── prototip/
 ├── preview/index.html
 └── out/        (gitignore)
 ```
@@ -172,3 +173,5 @@ toolbox/
 3. **Malzeme:** PP varsayımı; yük kapasitesi hedefi (kutu başına kg) henüz yok.
 4. **Gridfinity uyumu:** 1 hücre iç ölçüsü ~190 mm; 4×42 = 168 mm sığar ama boşluk kalır. Karar ertelendi.
 5. **Lisans / ticari koruma:** Ürün satışı hedeflendiği için açık lisans yerine tasarım tescili değerlendirilebilir; karar ertelendi.
+6. **Kalıp eğimi:** Bu fazda geometriye uygulanmadı; `kalip.py` eğimsiz yüzleri raporluyor (panel 44, köşe 20, kıskaç 20, karo 104). Kalıp hazırlık fazında uygulanacak.
+7. **Karo çerçevesi kalın kesit:** Kenar çerçevesi K × T dolu; çökme izi (sink) riski. Kalıp hazırlıkta alttan oyulacak.

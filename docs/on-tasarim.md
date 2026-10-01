@@ -217,12 +217,12 @@ moduler-kutu/
 
 ## 10. Açık Sorular
 
-1. **Köşe katkısı:** Kenar başına kesin ölçü ne? 20x34 ve 34x34 ölçüleri formülle nasıl uyuşacak?
-2. **Yazıcı:** Kullanıcının yazıcı modeli ve tabla boyutu nedir?
-3. **Insert boyutu:** M3 mü, M4 mü?
+1. **Köşe katkısı:** Kenar başına kesin ölçü ne? 20x34 ve 34x34 ölçüleri formülle nasıl uyuşacak? → Çözüldü, bkz. `docs/specs/2026-10-01-faz0-2-temel-parcalar.md`.
+2. **Yazıcı:** Kullanıcının yazıcı modeli ve tabla boyutu nedir? → Çözüldü, bkz. `docs/specs/2026-10-01-faz0-2-temel-parcalar.md`.
+3. **Insert boyutu:** M3 mü, M4 mü? → Çözüldü, bkz. `docs/specs/2026-10-01-faz0-2-temel-parcalar.md`.
 4. **Cinsiyetsiz kilit:** Hangi geometri seçilecek? (Bölüm 5.2)
-5. **Taban ve tavan:** 160x160 modüllerden mi birleşecek, yoksa her kutu boyutu için tek parça mı? (Tabla boyutu sınırlayıcı.)
-6. **Panel-taban bağlantısı:** Duvarın alt kenarı tabana köşe parçasıyla mı, ayrı bir kenar profiliyle mi bağlanacak?
+5. **Taban ve tavan:** 160x160 modüllerden mi birleşecek, yoksa her kutu boyutu için tek parça mı? (Tabla boyutu sınırlayıcı.) → Karo (200×200, taban = tavan); çok node'lu tabanlar karo birleşimi.
+6. **Panel-taban bağlantısı:** Duvarın alt kenarı tabana köşe parçasıyla mı, ayrı bir kenar profiliyle mi bağlanacak? → Çözüldü, bkz. `docs/specs/2026-10-01-faz0-2-temel-parcalar.md`.
 7. **Gridfinity uyumu:** 160 mm, Gridfinity'nin 42 mm ızgarasına tam bölünmüyor. İç düzende Gridfinity desteği isteniyor mu? İstenirse iç ölçü nasıl ayarlanacak?
 8. **Yük kapasitesi:** Kutu başına hedeflenen maksimum ağırlık nedir?
 9. **Lisans:** Proje paylaşılacaksa hangi lisansla (örneğin CC BY-SA, açık kaynak)?
