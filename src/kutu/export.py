@@ -14,6 +14,7 @@ from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.kulp import kulp
 from kutu.parts.mandal import mandal
+from kutu.parts.cekmece import cekmece, raf
 from kutu.parts.panel import panel
 from kutu.parts.tavan import tavan
 from kutu.parts.yatay_kiskac import yatay_kiskac
@@ -21,13 +22,16 @@ from kutu.parts.yatay_kiskac import yatay_kiskac
 TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "taban": karo_taban,
           "tavan": lambda: tavan(1, 1), "tavan_2x1": lambda: tavan(2, 1),
           "tavan_3x1": lambda: tavan(3, 1), "tavan_2x2": lambda: tavan(2, 2),
-          "mandal": mandal, "kulp_1x": lambda: kulp(1), "kulp_2x": lambda: kulp(2), "kulp_3x": lambda: kulp(3),
+          "mandal": mandal,
+          "cekmece": lambda: cekmece(p.T + p.FIT, p.T + p.H - p.FIT, p.T + p.FIT, p.P_Z - p.TEKNE_ALT - p.FIT),
+          "raf_1x1": lambda: raf(1, 1, 0), "kulp_1x": lambda: kulp(1), "kulp_2x": lambda: kulp(2), "kulp_3x": lambda: kulp(3),
           "yatay_kiskac": yatay_kiskac, "kose_dugumu": kose_dugumu, "kiskac_dugumu": kiskac_dugumu}
 _Z = (0, 0, 1)
 CEKME = {"panel": (0, 1, 0), "yatay_kiskac": (0, 1, 0)}   # diğerleri Z
 RENKLER = {"taban": "#5b6270", "tavan": "#7a8394", "kose": "#f39c3d", "kiskac": "#f1c40f",
            "panel": "#9fb3c8", "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400",
-           "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c", "mandal": "#8e44ad"}
+           "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c", "mandal": "#8e44ad",
+           "cekmece": "#5dade2", "raf": "#95a5a6"}
 
 
 def disa_aktar(cikti: Path, nx: int, ny: int, nz: int) -> dict:
@@ -118,6 +122,18 @@ def mandal_sahnesi_aktar(cikti: Path) -> dict:
     ], (2 * p.P_XY, p.P_XY, 2 * p.P_Z))
 
 
+def cekmece_sahnesi_aktar(cikti: Path) -> dict:
+    """Çekmeceli kutular: 1×1 (çekmece yarı açık), 2×1×2 (alt sol açık), istifli."""
+    def ac(liste, adlar, dy):
+        return [type(y)(y.ad, y.tur, Pos(0, -dy, 0) * y.parca, y.patlat) if y.ad in adlar else y for y in liste]
+    a = ac(kutu(1, 1, 1, kulp=True, mandal=True, cekmece=True), {"k0_cekmece_0"}, 100)
+    b = ac(kutu(2, 1, 2, kulp=True, mandal=True, cekmece=True), {"k0_cekmece_0", "k1_cekmece_1"}, 120)
+    return sahne_aktar(cikti, "cekmece", [
+        ("a", a, Pos(0, 0, 0), 0),
+        ("b", b, Pos(300, 0, 0), 0),
+    ], (700, p.P_XY, 2 * p.P_Z))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Modüler kutu çıktıları")
     ap.add_argument("--nx", type=int, default=1)
@@ -128,7 +144,11 @@ def main() -> None:
     ap.add_argument("--yan", action="store_true", help="yan kilit önizlemesi (out/yan)")
     ap.add_argument("--kulp", action="store_true", help="kulp önizlemesi (out/kulp)")
     ap.add_argument("--mandal", action="store_true", help="mandal önizlemesi (out/mandal)")
+    ap.add_argument("--cekmece", action="store_true", help="çekmece önizlemesi (out/cekmece)")
     a = ap.parse_args()
+    if a.cekmece:
+        print(len(cekmece_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/cekmece/manifest.json")
+        return
     if a.mandal:
         print(len(mandal_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/mandal/manifest.json")
         return

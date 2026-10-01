@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from build123d import Part, Pos, Rot
 
 from kutu import params as p
+from kutu.parts.cekmece import cekmece as cekmece_parcasi, raf
 from kutu.parts.karo import karo_taban
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
@@ -39,7 +40,7 @@ def kesisim_hacmi(a: Part, b: Part) -> float:
 
 
 def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False,
-         mandal: bool = False, mandal_acik: bool = False) -> list[Yerlesim]:
+         mandal: bool = False, mandal_acik: bool = False, cekmece: bool = False) -> list[Yerlesim]:
     W, D = nx * p.P_XY, ny * p.P_XY
     out: list[Yerlesim] = []
 
@@ -47,6 +48,10 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
         c = parca.bounding_box().center()
         if tur in ("taban", "tavan", "kulp"):
             yon = (0, 0, _isaret(c.Z - (zb + p.P_Z / 2)))
+        elif tur == "cekmece":
+            yon = (0, -1, 0)
+        elif tur == "raf":
+            yon = (0, 0, 0)
         else:
             yon = (_isaret(c.X - W / 2), _isaret(c.Y - D / 2), 0)
         out.append(Yerlesim(ad, tur, parca, yon))
@@ -71,9 +76,10 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
             if ara:
                 ekle(f"k{kat}_kose_dugumu_{ad}", "kose_dugumu", yer * kose_dugumu(), zb)
 
-        def duvar(tur: str, parca: Part, x_listesi, y_listesi) -> None:
+        def duvar(tur: str, parca: Part, x_listesi, y_listesi, on: bool = True) -> None:
             for x in x_listesi:
-                ekle(f"k{kat}_{tur}_g{x:g}", tur, Pos(x, 0, zb) * parca, zb)
+                if on:
+                    ekle(f"k{kat}_{tur}_g{x:g}", tur, Pos(x, 0, zb) * parca, zb)
                 ekle(f"k{kat}_{tur}_k{x:g}", tur, Pos(x, D, zb) * Rot(0, 0, 180) * parca, zb)
             for y in y_listesi:
                 ekle(f"k{kat}_{tur}_b{y:g}", tur, Pos(0, y, zb) * Rot(0, 0, -90) * parca, zb)
@@ -82,7 +88,16 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
         orta = p.P_XY / 2
         duvar("panel", panel(),
               [orta + i * p.P_XY for i in range(nx)],
-              [orta + j * p.P_XY for j in range(ny)])
+              [orta + j * p.P_XY for j in range(ny)], on=not cekmece)
+        if cekmece:
+            alt = zb + p.T + (p.WALL if kat > 0 else 0)        # taban ya da raf üstü
+            ust_plaka = zb + p.T + p.H - p.FIT
+            ust_tepsi = ust_plaka if ara else (nz * p.P_Z - p.TEKNE_ALT - p.FIT)
+            parca = cekmece_parcasi(zb + p.T + p.FIT, ust_plaka, alt + p.FIT, ust_tepsi)
+            for i in range(nx):
+                ekle(f"k{kat}_cekmece_{i}", "cekmece", Pos(i * p.P_XY, 0, 0) * parca, zb)
+            if ara:
+                ekle(f"k{kat}_raf", "raf", raf(nx, ny, kat), zb)
         duvar("kiskac", kiskac(),
               [i * p.P_XY for i in range(1, nx)],
               [j * p.P_XY for j in range(1, ny)])

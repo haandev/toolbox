@@ -75,6 +75,13 @@ KANCA_BAS = 12.0     # kanca başı boyu (x)
 CIKINTI_H = 3.0      # üst tabandaki tutma çıkıntısının üst yüzü (taban yerel z)
 KANCA_BAS_H = 2.8    # kanca başı kalınlığı
 
+# --- Çekmece ---
+CEKMECE_B = 0.5      # çekmece ile köşe/kıskaç yüzleri arası yan boşluk
+TEKNE_ALT = GAP + 1 + KULP_H + 1 + WALL   # tavan kulp teknesinin kutu üstünden sarkması
+CEKMECE_TUTAMAK_W = 60.0
+CEKMECE_TUTAMAK_H = 15.0
+RAF_KENAR = GAP + LIP + WALL + RIB_D + FIT   # raf kenarı: üst kat panel kaburgalarının içinde
+
 # --- Yan kilit (deneme; YAN_KILIT=False ile kalkar) ---
 YAN_KILIT = True
 YAN_KILIT_X = 15.0   # dil -x'te, oluk +x'te (panel merkezine göre)

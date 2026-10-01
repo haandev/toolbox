@@ -123,6 +123,15 @@ Erkek–dişi oturma kutuları hizalar ama birbirine bağlamaz; üstteki kutudan
 - Kilitliyken kanca başı çıkıntının `FIT` üstünde; üstteki kutu 1 mm kalkınca takılır (testli). Açıkken serbest kalkar.
 - Açık konuda: sürgünün yaylı tutucusu (kendiliğinden açılmasın diye detent) ve dilin parmak girintisi henüz modellenmedi.
 
+### 5.4e Çekmece ve raf
+- `kutu(..., cekmece=True)`: ön (güney) yüzde panel yerine her node ve her kat için bir çekmece. Gövdenin geri kalanı aynı modüler parçalar.
+- **Çekmece:** ön plaka panel dış yüzüyle aynı hizada, köşe/kıskaç arasında `CEKMECE_B = 0.5` yan boşlukla; üst ortada 60×15 parmak girintisi. Arkasında `WALL` kalınlığında tepsi, arka panel kaburgalarının `FIT` önünde biter. Tabanın (ya da rafın) üstünde `FIT` boşlukla kayar; köşeler ve kıskaçlar yanlardan hizalar.
+- Tepsi yüksekliği: alt katlarda yatay kıskacın altına, en üst katta tavanın kulp teknesinin (`TEKNE_ALT = 17` mm) altına kadar.
+- **Raf (2H ve üstü):** kat arasında yatay kıskaçların iç çıkıntılarına oturan `WALL` kalınlığında plaka; üst kat panel kaburgalarının içinde kalır (`RAF_KENAR`), köşe ve kıskaç izlerinde çentikli. Kutu boyuna göre tek parça.
+- Ön yüzdeki yatay kıskaç kalır; çekmeceler arasında ayırıcıdır.
+- Testli: kapalıyken çakışma yok (1×1, 2×1, 1×1×2, 2×1×2), çekmece 180 mm'ye kadar çekilirken yolu açık, üst çekmece rafa `FIT` ile oturur, raf yatay kıskaçlara değer.
+- Açık konuda: çekmece durdurucusu (tamamen çıkmasın), kapalı tutucu (kendiliğinden açılmasın), ağır yükte raf sehimi.
+
 ### 5.4c Yan kilit (deneme — `YAN_KILIT`)
 Dikey istif kutuları zaten kilitlediği için yan kilit isteğe bağlıdır; `YAN_KILIT = False` ile tamamen kalkar.
 - Yatay pim kullanılamaz: kutu komşusunun yanına yukarıdan indirilir (alttaki tavana oturmak için), yandan taşan pim bunu engeller.
