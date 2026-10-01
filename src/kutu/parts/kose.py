@@ -1,7 +1,11 @@
-"""Köşe: iki duvar kanalı, alt/üst cep ve vida kuleleri olan dikey profil."""
+"""Köşe ve köşe düğümü: iki duvar kanalı olan dikey profil.
+
+Köşe (H boyunda) alt/üst cep ve vida kulesi taşır; düğüm (2T boyunda, iki kat arası)
+yalnızca vida geçiş deliği taşır.
+"""
 from functools import cache
 
-from build123d import Axis, Box, Part, Pos, Rot, Vector
+from build123d import Align, Axis, Box, Cylinder, Part, Pos, Rot, Vector
 
 from kutu import params as p
 from kutu.lib import MIN3
@@ -9,23 +13,23 @@ from kutu.lib.kanal import yuva, yuva_y
 from kutu.lib.kule import kule
 
 
-def _bati_kanal() -> Part:
-    """Güney kanalının x↔y yansıması: batı duvarının dili +y yönünde girer."""
+def _profil(z0: float, h: float) -> Part:
+    g = p.GAP
+    govde = Pos(g, g, z0) * Box(p.K - g, p.K - g, h, align=MIN3)
+    dis_kenar = govde.edges().filter_by(Axis.Z).sort_by_distance(Vector(g, g, z0))[0]
+    govde = govde.fillet(p.KOSE_R, [dis_kenar])
+
+    # güney kanalı (dil +x yönünde girer) ve batı kanalı (dil +y yönünde girer)
     y0, y1 = yuva_y()
     x0 = p.K - p.DIL - p.FIT
-    return Pos(y0, x0, p.T) * Box(y1 - y0, p.K - x0, p.H, align=MIN3)
+    govde -= yuva(x0, p.K, z0, z0 + h)
+    govde -= Pos(y0, x0, z0) * Box(y1 - y0, p.K - x0, h, align=MIN3)
+    return govde
 
 
 @cache
 def kose() -> Part:
-    g = p.GAP
-    govde = Pos(g, g, p.T) * Box(p.K - g, p.K - g, p.H, align=MIN3)
-    dis_kenar = govde.edges().filter_by(Axis.Z).sort_by_distance(Vector(g, g, p.T))[0]
-    govde = govde.fillet(p.KOSE_R, [dis_kenar])
-
-    # güney kanalı (dil +x yönünde girer) ve batı kanalı (dil +y yönünde girer)
-    govde -= yuva(p.K - p.DIL - p.FIT, p.K, p.T, p.T + p.H)
-    govde -= _bati_kanal()
+    govde = _profil(p.T, p.H)
 
     # alt ve üst cepler, ortada WALL kalınlığında ara duvar
     c0, c1 = p.CEP_IC, p.K - p.WALL
@@ -37,3 +41,14 @@ def kose() -> Part:
     govde += Pos(m, m, p.T) * kule(p.CEP_BOY)
     govde += Pos(m, m, p.T + p.H) * Rot(180, 0, 0) * kule(p.CEP_BOY)
     return govde
+
+
+@cache
+def kose_dugumu() -> Part:
+    """İki kat arasındaki köşe bağlantısı (T+H … T+H+2T)."""
+    z0 = p.T + p.H
+    govde = _profil(z0, 2 * p.T)
+    m = p.KOSE_KULE
+    return govde - Pos(m, m, z0) * Cylinder(
+        p.GECIS_DELIK / 2, 2 * p.T, align=(Align.CENTER, Align.CENTER, Align.MIN)
+    )

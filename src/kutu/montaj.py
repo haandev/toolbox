@@ -5,9 +5,10 @@ from build123d import Part, Pos, Rot
 
 from kutu import params as p
 from kutu.parts.karo import karo
-from kutu.parts.kiskac import kiskac
-from kutu.parts.kose import kose
+from kutu.parts.kiskac import kiskac, kiskac_dugumu
+from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.panel import panel
+from kutu.parts.yatay_kiskac import yatay_kiskac
 
 
 @dataclass
@@ -46,14 +47,16 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
             yon = (_isaret(c.X - W / 2), _isaret(c.Y - D / 2), 0)
         out.append(Yerlesim(ad, tur, parca, yon))
 
+    for i in range(nx):
+        for j in range(ny):
+            x0, y0 = i * p.P_XY, j * p.P_XY
+            ekle(f"taban_{i}{j}", "karo", Pos(x0, y0, 0) * karo(), 0)
+            ekle(f"tavan_{i}{j}", "karo",
+                 Pos(x0, y0 + p.P_XY, nz * p.P_Z) * Rot(180, 0, 0) * karo(), (nz - 1) * p.P_Z)
+
     for kat in range(nz):
         zb = kat * p.P_Z
-        for i in range(nx):
-            for j in range(ny):
-                x0, y0 = i * p.P_XY, j * p.P_XY
-                ekle(f"k{kat}_taban_{i}{j}", "karo", Pos(x0, y0, zb) * karo(), zb)
-                ekle(f"k{kat}_tavan_{i}{j}", "karo",
-                     Pos(x0, y0 + p.P_XY, zb + p.P_Z) * Rot(180, 0, 0) * karo(), zb)
+        ara = kat < nz - 1   # bu katın üstünde başka kat var: kat arası bant
 
         for ad, yer in (
             ("gb", Pos(0, 0, zb)),
@@ -62,6 +65,8 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
             ("kb", Pos(0, D, zb) * Rot(0, 0, -90)),
         ):
             ekle(f"k{kat}_kose_{ad}", "kose", yer * kose(), zb)
+            if ara:
+                ekle(f"k{kat}_kose_dugumu_{ad}", "kose_dugumu", yer * kose_dugumu(), zb)
 
         def duvar(tur: str, parca: Part, x_listesi, y_listesi) -> None:
             for x in x_listesi:
@@ -78,4 +83,11 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
         duvar("kiskac", kiskac(),
               [i * p.P_XY for i in range(1, nx)],
               [j * p.P_XY for j in range(1, ny)])
+        if ara:
+            duvar("yatay_kiskac", yatay_kiskac(),
+                  [orta + i * p.P_XY for i in range(nx)],
+                  [orta + j * p.P_XY for j in range(ny)])
+            duvar("kiskac_dugumu", kiskac_dugumu(),
+                  [i * p.P_XY for i in range(1, nx)],
+                  [j * p.P_XY for j in range(1, ny)])
     return out

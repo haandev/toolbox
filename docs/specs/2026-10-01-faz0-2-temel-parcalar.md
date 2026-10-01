@@ -97,6 +97,14 @@ Kopolimer PP. Yalnızca klips esneme hesabını etkiler; tek parametre ile deği
 - Taban: oluk yukarı. Tavan: aynı parça ters çevrilmiş, oluk aşağı.
 - Çok hücreli kutularda karolar yan yana birleşir. Kenar ek yerleri kıskaç altına düşer; kıskaç vidası iki karo kenarını birlikte tutar.
 
+### 5.4b Kat arası bağlantı (nz > 1)
+Kat aralarında karo çifti (ara raf) yok; bunun yerine yatayda kullanılan mantık dikeyde tekrarlanır:
+- **Yatay kıskaç** — 160 × 20 × 20 profil (2T yüksekliğinde). Altta ve üstte panel oluğu; iki uçta düğüm kanalına giren dil. Dil, kanal içinde alt ve üst panel dillerinin arasına `FIT` boşlukla oturur. İçten oyuk, kaburgalı; çekiliş yönü +y.
+- **Köşe düğümü** — köşe kesitinin 20 mm boyu; kule yerine vida geçiş deliği.
+- **Kıskaç düğümü** — kıskaç kesitinin 20 mm boyu; iki vida geçiş deliği.
+- Köşe ve dikey kıskaç her yükseklikte 80 mm kalır; her kutu yüksekliği aynı parçalardan kurulur (yeni kalıp yok).
+- Parça sayısı: 4 + 3 = **7 parça tipi**.
+
 ### 5.5 Kurulum sırası
 1. Köşe ve kıskaçlar tabana oturur.
 2. Paneller kanallara yukarıdan kayar.
@@ -110,7 +118,7 @@ Rijitliğin ana kaynağı, panellerin dört kenardan sıkıştığı alt ve üst
 
 `kutu(nx, ny, nz)` tüm parçaları konumlarıyla döndürür. Bu spec'te yalnızca `kutu(1, 1, 1)` kabul kriteridir; `nx, ny > 1` yalnızca ızgara testi için üretilir (ortadaki karo ek yeri çözülmeden).
 
-2H kutular (nz = 2) geçici olarak sırt sırta iki karo ile kurulur (10 + 10 = 20 mm). Ara bilezik parçası Faz 6'da değerlendirilir.
+2H ve üstü kutular (nz > 1) kat aralarında yatay kıskaç ve düğümlerle kurulur (bkz. 5.4b); taban ve tavan yalnızca en alt ve en üstte.
 
 ## 7. Çıktılar (`src/kutu/export.py`)
 
@@ -175,3 +183,4 @@ toolbox/
 5. **Lisans / ticari koruma:** Ürün satışı hedeflendiği için açık lisans yerine tasarım tescili değerlendirilebilir; karar ertelendi.
 6. **Kalıp eğimi:** Bu fazda geometriye uygulanmadı; `kalip.py` eğimsiz yüzleri raporluyor (panel 44, köşe 20, kıskaç 20, karo 104). Kalıp hazırlık fazında uygulanacak.
 7. **Karo çerçevesi kalın kesit:** Kenar çerçevesi K × T dolu; çökme izi (sink) riski. Kalıp hazırlıkta alttan oyulacak.
+8. **Düğüm vida bağlantısı:** Alttaki köşenin üst kulesi ve üstteki köşenin alt kulesi düğüme bakıyor; ikisini düğümden geçen tek bir saplama/uzun vida ile bağlamak öngörülüyor. Detay kalıp hazırlıkta netleşecek.

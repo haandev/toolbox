@@ -10,13 +10,17 @@ from kutu.kalip import egimsiz_yuz_sayisi
 from kutu.lib.kilit_yeri import kilit_noktalari
 from kutu.montaj import kutu
 from kutu.parts.karo import karo
-from kutu.parts.kiskac import kiskac
-from kutu.parts.kose import kose
+from kutu.parts.kiskac import kiskac, kiskac_dugumu
+from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.panel import panel
+from kutu.parts.yatay_kiskac import yatay_kiskac
 
-TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "karo": karo}
-CEKME = {"panel": (0, 1, 0), "kose": (0, 0, 1), "kiskac": (0, 0, 1), "karo": (0, 0, 1)}
-RENKLER = {"karo": "#5b6270", "kose": "#f39c3d", "kiskac": "#f1c40f", "panel": "#9fb3c8"}
+TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "karo": karo,
+          "yatay_kiskac": yatay_kiskac, "kose_dugumu": kose_dugumu, "kiskac_dugumu": kiskac_dugumu}
+CEKME = {"panel": (0, 1, 0), "kose": (0, 0, 1), "kiskac": (0, 0, 1), "karo": (0, 0, 1),
+         "yatay_kiskac": (0, 1, 0), "kose_dugumu": (0, 0, 1), "kiskac_dugumu": (0, 0, 1)}
+RENKLER = {"karo": "#5b6270", "kose": "#f39c3d", "kiskac": "#f1c40f", "panel": "#9fb3c8",
+           "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400", "kiskac_dugumu": "#b7950b"}
 
 
 def disa_aktar(cikti: Path, nx: int, ny: int, nz: int) -> dict:

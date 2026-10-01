@@ -86,11 +86,30 @@ def test_kare_olmayan_kutu_2x1():
     _cakisma_yok(k)
 
 
-def test_2h_kutu():
-    k = kutu(1, 1, 2)
-    assert _sayim(k) == {"karo": 4, "kose": 8, "panel": 8}
-    b = _dis_kutu(k)
+@pytest.fixture(scope="module")
+def k112():
+    return kutu(1, 1, 2)
+
+
+def test_2h_kutu(k112):
+    # katlar arası ara raf yok: yatay kıskaç + köşe düğümü
+    assert _sayim(k112) == {"karo": 2, "kose": 8, "panel": 8, "yatay_kiskac": 4, "kose_dugumu": 4}
+    b = _dis_kutu(k112)
     assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z))
+    _cakisma_yok(k112)
+
+
+def test_2h_paneller_fit_ile_oturur(k112):
+    paneller = [y for y in k112 if y.tur == "panel"]
+    tutucular = [y for y in k112 if y.tur in ("yatay_kiskac", "kose_dugumu", "karo", "kose")]
+    for pnl in paneller:
+        assert min(pnl.parca.distance_to(t.parca) for t in tutucular) == pytest.approx(p.FIT, abs=1e-3)
+
+
+def test_2x1x2_kiskac_dugumu():
+    k = kutu(2, 1, 2)
+    s = _sayim(k)
+    assert s["kiskac_dugumu"] == 2 and s["yatay_kiskac"] == 6 and s["kiskac"] == 4
     _cakisma_yok(k)
 
 
