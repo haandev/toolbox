@@ -1,4 +1,4 @@
-"""Tavan modülleri: yalnız 1×1, 2×1, 2×2 (her biri tek kulplu); büyük kutular bunlarla döşenir."""
+"""Tavan modülleri: 1×1, 2×1, 1×2, 2×2 (her biri tek kulplu); büyük kutular bunlarla döşenir."""
 import itertools
 
 import pytest
@@ -13,8 +13,9 @@ from kutu.parts.tavan import tavan_modulleri
     (2, 1, [(0, 0, 2, 1)]),
     (2, 2, [(0, 0, 2, 2)]),
     (3, 1, [(0, 0, 2, 1), (2, 0, 1, 1)]),
-    (1, 2, [(0, 0, 1, 1), (0, 1, 1, 1)]),
-    (3, 2, [(0, 0, 2, 2), (2, 0, 1, 1), (2, 1, 1, 1)]),
+    (1, 2, [(0, 0, 1, 2)]),
+    (3, 2, [(0, 0, 2, 2), (2, 0, 1, 2)]),
+    (1, 3, [(0, 0, 1, 2), (0, 2, 1, 1)]),
     (2, 3, [(0, 0, 2, 2), (0, 2, 2, 1)]),
     (4, 2, [(0, 0, 2, 2), (2, 0, 2, 2)]),
 ])
@@ -29,7 +30,7 @@ def test_yalniz_uc_modul_tipi():
             m = tavan_modulleri(nx, ny)
             assert sum(a * b for _, _, a, b in m) == nx * ny          # tam döşeme
             tipler |= {(a, b) for _, _, a, b in m}
-    assert tipler == {(1, 1), (2, 1), (2, 2)}
+    assert tipler == {(1, 1), (2, 1), (1, 2), (2, 2)}
 
 
 @pytest.mark.parametrize("nx,ny", [(3, 1), (1, 2), (3, 2)])
@@ -63,3 +64,23 @@ def test_modul_kapagi_tek_basina_acilir():
     for a in acik:
         for b in digerleri:
             assert kesisim_hacmi(a.parca, b.parca) < 1e-3, f"{a.ad} / {b.ad}"
+
+
+def test_4x4_dort_2x2_modul_ve_modul_arasi_kamlar():
+    k = kutu(4, 4, 1, kulp=True)
+    assert sorted(tavan_modulleri(4, 4)) == [(0, 0, 2, 2), (0, 2, 2, 2), (2, 0, 2, 2), (2, 2, 2, 2)]
+    kamlar = [y for y in k if y.tur == "papyon_cerceve"]
+    assert len(kamlar) == 2 * (4 + 4)          # x = 400 ve y = 400 ek yerleri, node başına iki kam
+    ust = [y for y in k if y.tur in ("cerceve", "kapak", "kapak_mandal", "kulp", "papyon_cerceve")]
+    for a, b in itertools.combinations(ust, 2):
+        assert kesisim_hacmi(a.parca, b.parca) < 1e-3, f"{a.ad} / {b.ad}"
+
+
+def test_modul_cerceveleri_kamla_kilitli():
+    k = kutu(2, 2, 1)                        # tek 2×2 modül: kam yok
+    assert not [y for y in k if y.tur == "papyon_cerceve"]
+    k = kutu(3, 1, 1)                        # 2×1 + 1×1
+    kamlar = [y for y in k if y.tur == "papyon_cerceve"]
+    assert len(kamlar) == 2
+    sag = next(y for y in k if y.ad.startswith("m1_cerceve"))
+    assert sum(kesisim_hacmi(Pos(1.0, 0, 0) * sag.parca, m.parca) for m in kamlar) > 1

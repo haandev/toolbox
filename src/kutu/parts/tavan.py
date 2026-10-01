@@ -1,4 +1,4 @@
-"""Tavan modülü (1×1, 2×1, 2×2): üst çerçeve + menteşeli kapak; kutular bu modüllerle döşenir.
+"""Tavan modülü (1×1, 2×1, 1×2, 2×2): üst çerçeve + menteşeli kapak; kutular bu modüllerle döşenir.
 
 Yerel çerçeve: x, y kutu ızgarası (0 … nx·P_XY), z = 0 kutunun nominal üstü.
 Çerçeve (z −T … −KAPAK_H−GAP): kenar halkası, altta panel oluğu, köşe/kıskaç vida delikleri,
@@ -14,6 +14,7 @@ from build123d import Align, Box, Cylinder, Part, Pos, Rot
 from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
+from kutu.lib.papyon import yarim_yuva
 from kutu.parts.karo import delik_noktalari
 from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, TUTMA_Y, kulp_x0
 from kutu.parts.kapak_mandal import cerceve_yuvasi, kapak_cebi
@@ -26,9 +27,9 @@ def kulp_boyu(nx: int) -> int:
 
 
 def tavan_modulleri(nx: int, ny: int) -> list[tuple[int, int, int, int]]:
-    """Kutunun tavanını 2×2, 2×1, 1×1 modüllerle döşer: [(i0, j0, mx, my)].
+    """Kutunun tavanını 2×2, 2×1, 1×2, 1×1 modüllerle döşer: [(i0, j0, mx, my)].
 
-    Satır satır, önce 2×2, sonra 2×1 (genişlik yönünde), kalan yerlere 1×1.
+    Satır satır, önce 2×2, sonra 2×1 (genişlik), sonra 1×2 (derinlik), kalan yerlere 1×1.
     """
     dolu: set[tuple[int, int]] = set()
     out = []
@@ -36,7 +37,7 @@ def tavan_modulleri(nx: int, ny: int) -> list[tuple[int, int, int, int]]:
         for i in range(nx):
             if (i, j) in dolu:
                 continue
-            for mx, my in ((2, 2), (2, 1), (1, 1)):
+            for mx, my in ((2, 2), (2, 1), (1, 2), (1, 1)):
                 hucre = {(i + a, j + b) for a in range(mx) for b in range(my)}
                 if i + mx <= nx and j + my <= ny and not (hucre & dolu):
                     dolu |= hucre
@@ -67,6 +68,74 @@ def _duvar_yerlesimleri(W: float, D: float, nx: int, ny: int):
 
 
 _KAPAK_ALT = -p.GAP - p.KAPAK_H
+MODUL_KAM_Z0 = -p.T                                   # modüller arası kam alttan takılır
+MODUL_ARASI = 2 * p.GAP                               # iki modül çerçevesi arası boşluk
+
+
+def modul_kam_yuvalari(mx: int, my: int) -> Part:
+    """Modül çerçevesinin dört kenarında, her node kenarında YUVA_U'da alttan yarım kam yuvaları."""
+    W, D = mx * p.P_XY, my * p.P_XY
+    z0, z1 = MODUL_KAM_Z0 - 0.01, MODUL_KAM_Z0 + p.PAPYON_H + p.FIT
+    yuvalar = []
+    for i in range(mx):
+        for u in p.YUVA_U:
+            x = i * p.P_XY + u
+            yuvalar.append(yarim_yuva(x, MODUL_ARASI, z0, z1))                                 # güney
+            yuvalar.append(Pos(0, D, 0) * Rot(0, 0, 180) * yarim_yuva(-x, MODUL_ARASI, z0, z1))  # kuzey
+    for j in range(my):
+        for u in p.YUVA_U:
+            y = j * p.P_XY + u
+            yuvalar.append(Rot(0, 0, -90) * yarim_yuva(-y, MODUL_ARASI, z0, z1))               # batı
+            yuvalar.append(Pos(W, 0, 0) * Rot(0, 0, 90) * yarim_yuva(y, MODUL_ARASI, z0, z1))  # doğu
+    tum = yuvalar[0]
+    for y_ in yuvalar[1:]:
+        tum += y_
+    return tum
+
+
+def _duvar_yerlesimleri(W: float, D: float, nx: int, ny: int):
+    """(yerleşim, baş aşağı mı) — batı ve kuzey panelleri baş aşağı takılır."""
+    c = p.P_XY / 2
+    for i in range(nx):
+        yield Pos(c + i * p.P_XY, 0, 0), False
+        yield Pos(c + i * p.P_XY, D, 0) * Rot(0, 0, 180), True
+    for j in range(ny):
+        yield Pos(0, c + j * p.P_XY, 0) * Rot(0, 0, -90), True
+        yield Pos(W, c + j * p.P_XY, 0) * Rot(0, 0, 90), False
+
+
+_KAPAK_ALT = -p.GAP - p.KAPAK_H
+MODUL_KAM_Z0 = -p.T                                   # modüller arası kam alttan takılır
+MODUL_ARASI = 2 * p.GAP                               # iki modül çerçevesi arası boşluk
+
+
+def modul_kam_yuvalari(mx: int, my: int) -> Part:
+    """Modül çerçevesinin dört kenarında, her node kenarında YUVA_U'da alttan yarım kam yuvaları."""
+    W, D = mx * p.P_XY, my * p.P_XY
+    z0, z1 = MODUL_KAM_Z0 - 0.01, MODUL_KAM_Z0 + p.PAPYON_H + p.FIT
+    tum = None
+    for kenar_boyu, adet, yer in ((W, mx, lambda u: Pos(0, 0, 0)),):
+        pass
+    def ekle(parca):
+        nonlocal tum
+        tum = parca if tum is None else tum + parca
+    for i in range(mx):
+        for u in p.YUVA_U:
+            x = i * p.P_XY + u
+            ekle(yarim_yuva(x, MODUL_ARASI, z0, z1))                                   # güney
+            ekle(Pos(0, D, 0) * Rot(180, 0, 0) * Pos(0, 0, 0) * _ayna_z(yarim_yuva(x, MODUL_ARASI, z0, z1)))
+    for j in range(my):
+        for u in p.YUVA_U:
+            y = j * p.P_XY + u
+            ekle(Rot(0, 0, -90) * yarim_yuva(-y, MODUL_ARASI, z0, z1))                 # batı (+x'e açılır)
+            ekle(Pos(W, 0, 0) * Rot(0, 0, 90) * yarim_yuva(y, MODUL_ARASI, z0, z1))   # doğu
+    return tum
+
+
+def _ayna_z(parca: Part) -> Part:
+    """Rot(180,0,0) z'yi de çevirdiği için kuzey yuvasında z aralığını geri getirir."""
+    b = parca.bounding_box()
+    return Pos(0, 0, -(b.min.Z + b.max.Z)) * parca
 
 
 def mentese_ekseni(ny: int) -> tuple[float, float]:
@@ -115,6 +184,7 @@ def cerceve(nx: int, ny: int) -> Part:
 
     for i in range(nx):                  # ön kenarda kapak mandalı yuvaları
         t -= Pos(i * p.P_XY, 0, 0) * cerceve_yuvasi()
+    t -= modul_kam_yuvalari(nx, ny)      # modüller arası kam yuvaları (alttan)
 
     ya, za = mentese_ekseni(ny)          # arka kenarda çerçeve boğumları + pim
     for a, b, cerceve_mi in _bogumlar(nx):

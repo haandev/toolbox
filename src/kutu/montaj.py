@@ -11,7 +11,9 @@ from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.kulp import acik, kulp as kulp_parcasi
 from kutu.parts.panel import panel
 from kutu.parts.kapak_mandal import acik_mandal as kapak_acik_mandal, mandal as kapak_mandal
-from kutu.parts.tavan import cerceve, kapak, kulp_boyu, kulp_yeri, mentese_ekseni, tavan_modulleri
+from kutu.lib.papyon import papyon
+from kutu.parts.tavan import (MODUL_ARASI, MODUL_KAM_Z0, cerceve, kapak, kulp_boyu, kulp_yeri,
+                               mentese_ekseni, tavan_modulleri)
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
 
@@ -49,7 +51,7 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
 
     def ekle(ad: str, tur: str, parca: Part, zb: float) -> None:
         c = parca.bounding_box().center()
-        if tur in ("taban", "cerceve", "kapak", "kapak_mandal", "kulp"):
+        if tur in ("taban", "cerceve", "kapak", "kapak_mandal", "kulp", "papyon_cerceve"):
             yon = (0, 0, _isaret(c.Z - (zb + p.P_Z / 2)))
         elif tur == "cekmece":
             yon = (0, -1, 0)
@@ -66,7 +68,22 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
     ust = Pos(0, 0, nz * p.P_Z)
     zu = (nz - 1) * p.P_Z
     mandal_parca = kapak_acik_mandal() if kapak_mandal_acik else kapak_mandal()
-    for m, (i0, j0, mx, my) in enumerate(tavan_modulleri(nx, ny)):   # tavan modülleri
+    moduller = tavan_modulleri(nx, ny)
+    modul_of = {(i, j): m for m, (i0, j0, mx, my) in enumerate(moduller)
+                for i in range(i0, i0 + mx) for j in range(j0, j0 + my)}
+    for (i, j), m in sorted(modul_of.items()):                       # modüller arası kamlar
+        for di, dj in ((1, 0), (0, 1)):
+            n = modul_of.get((i + di, j + dj))
+            if n is None or n == m:
+                continue
+            for u in p.YUVA_U:
+                if di:
+                    yer = Pos((i + 1) * p.P_XY, j * p.P_XY + u, MODUL_KAM_Z0) * Rot(0, 0, 90)
+                else:
+                    yer = Pos(i * p.P_XY + u, (j + 1) * p.P_XY, MODUL_KAM_Z0)
+                ekle(f"papyon_cerceve_{i}{j}_{di}{dj}_{u:g}", "papyon_cerceve",
+                     ust * yer * papyon(MODUL_ARASI), zu)
+    for m, (i0, j0, mx, my) in enumerate(moduller):   # tavan modülleri
         o = ust * Pos(i0 * p.P_XY, j0 * p.P_XY, 0)
         ekle(f"m{m}_cerceve_{mx}x{my}", "cerceve", o * cerceve(mx, my), zu)
         ekle(f"m{m}_kapak_{mx}x{my}", "kapak", o * kapak(mx, my), zu)

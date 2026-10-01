@@ -54,6 +54,13 @@ MENTESE_PIM_R = 1.5
 MENTESE_BOGUM = 20.0   # yaklaşık boğum boyu (çerçeve ve kapak sırayla)
 KAPAK_MANDAL_YOL = 10.0
 
+# --- Papyon kam (modüller arası ve baskı parçaları arası bağlantı) ---
+YUVA_U = (30.0, 170.0)   # her node kenarında kam konumları (kenar boyunca)
+PAPYON_A = 10.0          # papyon boynu (ek yerinde)
+PAPYON_B = 18.0          # papyon uç genişliği
+PAPYON_L = 12.0          # papyonun parçaya giriş boyu (ek yeri boşluğu hariç)
+PAPYON_H = 3.0           # yuva derinliği (kam yüksekliği PAPYON_H − FIT)
+
 # --- Gömme kulp (tek parça tavanın içinde, kilit yüzünün altında) ---
 KULP_W = 24.0          # tutma yeri genişliği
 KULP_H = 14.0          # kulp kesit yüksekliği (kalın tavan: iç hacimden yemeden +2 mm)
