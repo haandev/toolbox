@@ -10,6 +10,7 @@ from build123d import Box, Part, Pos
 from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import panel_y, yuva
+from kutu.lib.kilit_yeri import yan_oluk
 
 
 @cache
@@ -38,4 +39,6 @@ def yatay_kiskac() -> Part:
     dil_h = h - 2 * (p.DIL + p.FIT)
     for x0 in (-x_yari - p.DIL, x_yari):
         govde += Pos(x0, y0, dil_z0) * Box(p.DIL, p.WALL, dil_h, align=MIN3)
+    if p.YAN_KILIT:
+        govde -= yan_oluk(z0, z0 + h)
     return govde

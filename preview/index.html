@@ -63,6 +63,7 @@ gunes.position.set(400, -300, 800);
 scene.add(gunes);
 
 const kesitDuzlemi = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+window.sahne = { camera, controls, kesitDuzlemi };   // inceleme için
 const parcalar = [];   // {mesh, tur, yon: Vector3}
 let kilitGrup, izgaraGrup, W, D, Hh, kesitX0 = 0, kesitY0 = 0, kesitY = false;
 

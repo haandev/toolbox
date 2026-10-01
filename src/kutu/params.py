@@ -48,6 +48,12 @@ KARO_RIB_ARALIK = 40.0
 ERKEK_H = 5.0      # tavan bileziğinin kilit yüzünden taşma yüksekliği (taban cebine girer)
 ERKEK_PAH = 1.5    # bilezik üst dış kenar giriş pahı
 
+# --- Yan kilit (deneme; YAN_KILIT=False ile kalkar) ---
+YAN_KILIT = True
+YAN_KILIT_X = 15.0   # dil -x'te, oluk +x'te (panel merkezine göre)
+YAN_DIL_W = 10.0
+YAN_DIL_H = 3.0      # dilin ped yüzünden taşma boyu
+
 # --- Kilit bölgeleri (bu fazda boş bırakılan hacim) ---
 KILIT_W = 60.0     # panel üzerinde yatay
 KILIT_H = 50.0     # panel üzerinde dikey

@@ -107,6 +107,14 @@ yalnızca **yan yüzlerde** gereklidir. Dikeyde Gridfinity benzeri erkek–dişi
 - Bu karar, 5.4'teki "taban = tavan tek parça" kararını değiştirir: taban ve tavan iki ayrı kalıp.
 - Dikey çekme kilidi (üstteki kutudan tutunca alttakinin de kalkması) erkek–dişi oturmadan ayrı bir mandal ister; kilit spec'inde ele alınacak.
 
+### 5.4c Yan kilit (deneme — `YAN_KILIT`)
+Dikey istif kutuları zaten kilitlediği için yan kilit isteğe bağlıdır; `YAN_KILIT = False` ile tamamen kalkar.
+- Yatay pim kullanılamaz: kutu komşusunun yanına yukarıdan indirilir (alttaki tavana oturmak için), yandan taşan pim bunu engeller.
+- Panel kilit bölgesinde dış yüze ped; ped üzerinde **dikey dil** (−x, `YAN_KILIT_X = 15`) ve **dikey oluk** (+x). 180° çevrilen komşunun dili bu oluğa denk gelir (cinsiyetsiz).
+- Oluk **boydan boya açık**: panel, yatay kıskaç, taban ve tavanda aynı hizada çentik var. Böylece 2H kutu üst üste iki 1H kutunun yanına indirilirken dil hiçbir katta takılmaz; durdurucu yok, yüksekliği dikey istif belirler.
+- Düz kesit (kırlangıç değil): kalıpta sürgü gerektirmez; görevi yalnızca kayma ve hizalama.
+- Dil kutu yüzünden `YAN_DIL_H − GAP = 2.5` mm taşar; tek başına duran kutunun ayak izi her yanda bu kadar büyür.
+
 ### 5.4b Kat arası bağlantı (nz > 1)
 Kat aralarında karo çifti (ara raf) yok; bunun yerine yatayda kullanılan mantık dikeyde tekrarlanır:
 - **Yatay kıskaç** — 160 × 20 × 20 profil (2T yüksekliğinde). Altta ve üstte panel oluğu; iki uçta düğüm kanalına giren dil. Dil, kanal içinde alt ve üst panel dillerinin arasına `FIT` boşlukla oturur. İçten oyuk, kaburgalı; çekiliş yönü +y.

@@ -14,6 +14,11 @@ def _sayim(liste):
     return s
 
 
+def _yan_tasma():
+    """Yan kilit dili, gövdenin her iki yanında kutu yüzünü aşar."""
+    return 2 * p.YAN_DIL_H if p.YAN_KILIT else 0
+
+
 def _dis_kutu(liste):
     b = liste[0].parca.bounding_box()
     for y in liste[1:]:
@@ -56,11 +61,11 @@ def test_tek_node_sayim(k111):
 
 def test_tek_node_dis_olcu(k111):
     b = _dis_kutu(k111)
-    assert b.size.X == pytest.approx(p.kutu_dis(1, p.P_XY))
-    assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY))
+    assert b.size.X == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
+    assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
     # tavan erkek bileziği gövdenin ERKEK_H üstüne taşar; istifte üstteki tabana girer
     assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + p.ERKEK_H)
-    assert b.min.X == pytest.approx(p.GAP)
+    assert b.min.X == pytest.approx(p.GAP - _yan_tasma() / 2)
 
 
 def test_tek_node_cakisma_yok(k111):
@@ -82,8 +87,8 @@ def test_kare_olmayan_kutu_2x1():
     k = kutu(2, 1, 1)
     assert _sayim(k) == {"taban": 2, "tavan": 2, "kose": 4, "panel": 6, "kiskac": 2}
     b = _dis_kutu(k)
-    assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY))
-    assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY))
+    assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY) + _yan_tasma())
+    assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
     _cakisma_yok(k)
 
 
@@ -118,8 +123,8 @@ def test_2x2_sayim_ve_olcu():
     k = kutu(2, 2, 1)
     assert _sayim(k) == {"taban": 4, "tavan": 4, "kose": 4, "panel": 8, "kiskac": 4}
     b = _dis_kutu(k)
-    assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY))
-    assert b.size.Y == pytest.approx(p.kutu_dis(2, p.P_XY))
+    assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY) + _yan_tasma())
+    assert b.size.Y == pytest.approx(p.kutu_dis(2, p.P_XY) + _yan_tasma())
 
 
 def test_patlatma_yonleri(k111):

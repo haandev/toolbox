@@ -22,20 +22,34 @@ def test_dis_olculer(pnl):
     assert b.size.X == pytest.approx(p.PANEL_L)
     assert b.size.Z == pytest.approx(p.PANEL_H)
     assert b.min.Z == pytest.approx(p.T - p.DIL)
-    assert b.min.Y == pytest.approx(y0)
-    assert b.size.Y == pytest.approx(p.WALL + p.RIB_D)
+    assert b.max.Y == pytest.approx(y0 + p.WALL + p.RIB_D)
 
 
 def test_deri_kalinligi_wall(pnl):
-    # kilit bölgesinin ortasında yalnızca deri var
     y0, y1 = panel_y()
-    sonda = Pos(-5, y0 - 1, p.T + p.H / 2 - 5) * Box(10, p.WALL + p.RIB_D + 2, 10, align=MIN3)
+    # kilit bölgesinin altında, kaburgasız bir noktada yalnızca deri var
+    sonda = Pos(-5, y0 - 1, p.T + 2) * Box(10, p.WALL + p.RIB_D + 2, 10, align=MIN3)
     kesit = pnl & sonda
     assert kesit.volume == pytest.approx(10 * 10 * p.WALL, rel=1e-3)
 
 
-def test_kilit_bolgesinde_kaburga_yok(pnl):
-    assert (pnl & panel_bolgesi()).volume == pytest.approx(0, abs=1e-6)
+def test_kilit_bolgesinde_kaburga_yok(monkeypatch):
+    # yan kilit kapalıyken kilit bölgesi tamamen boş (kaburga girmez)
+    monkeypatch.setattr(p, "YAN_KILIT", False)
+    panel.cache_clear()
+    try:
+        assert (panel() & panel_bolgesi()).volume == pytest.approx(0, abs=1e-6)
+    finally:
+        panel.cache_clear()
+
+
+def test_yan_kilit_kapaliyken_kutu_yuzunu_asmaz(monkeypatch):
+    monkeypatch.setattr(p, "YAN_KILIT", False)
+    panel.cache_clear()
+    try:
+        assert panel().bounding_box().min.Y == pytest.approx(p.GAP + p.LIP)
+    finally:
+        panel.cache_clear()
 
 
 def test_kaburgalar_kanala_girmez(pnl):

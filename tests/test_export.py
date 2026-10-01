@@ -31,3 +31,9 @@ def test_istif_aktar(tmp_path):
     m = istif_aktar(tmp_path)
     assert len(m["parcalar"]) == 16 + 10
     assert all((tmp_path / "istif" / x["dosya"]).stat().st_size > 0 for x in m["parcalar"])
+
+
+def test_yan_yana_aktar(tmp_path):
+    from kutu.export import yan_yana_aktar
+    m = yan_yana_aktar(tmp_path)
+    assert len(m["parcalar"]) == 10 + 10 + 26
