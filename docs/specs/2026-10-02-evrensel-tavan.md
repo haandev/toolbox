@@ -78,3 +78,16 @@ Kaldırmalı kulbun kılavuz kovanları ve ayakları 25 mm kaldırma için kapa�
 - Katlıyken kollar +x yönünde yatık, çubuk kanalda 25 mm kaymış; hiçbir parça kapağın altına sarkmaz.
 - Kaldırınca kollar dikleşir, çubuk paralelkenarla yatay kalarak 25 mm yükselir; iki ayağın tam ortasında = grubun ağırlık merkezinin üstünde.
 - Kanal `KANAL_W = 22`.
+
+## 10. Uygulama notları (2026-10-02)
+
+- Uygulandı: `parts/evrensel.py` (çerçeve hücresi, kapak hücresi, kam — çerçevede 6.3, kapakta kanal altında 2.3 mm yükseklik —, tapa, menteşe çerçeve/kapak ekleri, mandal eki, kulp ayağı/kolu/çubuğu), `kutu(..., tavan="evrensel")` **varsayılan**, `kapak_gruplari`, `mandal_acik`, `montaj.evrensel_grup_ac()`. Modül tavan `tavan="modul"` ile kalıp seçeneği olarak duruyor.
+- Ölçü: H = 70, T = 15, kapak 8 mm.
+- **Sapmalar:**
+  - Kaldırmalı kulp yerine paralel kollu katlanır kulp (§9); kanal 22 mm, çubuk 16×5.
+  - Çerçeve yuvalarına kenar ortası (100) eklendi: grup sınırlarında menteşe (x = 160) ve mandal (x = 160) yuvaları dolu olduğundan çerçeve sürekliliği 40 ve 100'deki kamlarla sağlanır.
+  - Menteşe ekleri arka kenarda 180° çevrik: çerçeve eki x = 160, kapak eki x = 40.
+  - Çerçeve hücresinin bir **yönü** var: baş aşağı panellerin anahtar cepleri yalnız kuzey ve batı kenarlarda (simetrik olsaydı güney/doğu paneli baş aşağı takılınca yakalanmazdı).
+  - Mandal eki çerçevenin altına takılan dudakla kilitler; açmak için öne `MANDAL_GERI` esnetilir.
+  - Kulp yalnız 1×1, 2×1, 2×2 gruplarına takılır; diğer grup boylarında kulp yok (kullanıcı grubu buna göre seçer).
+- Testler: `test_evrensel.py`, `test_evrensel_kulp.py` (+ tüm mevcut testler evrensel varsayılanla), toplam 308.

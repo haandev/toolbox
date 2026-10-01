@@ -46,7 +46,7 @@ def kesisim_hacmi(a: Part, b: Part) -> float:
 
 
 def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False,
-         cekmece: bool = False, kapak_mandal_acik: bool = False, tavan: str = "modul",
+         cekmece: bool = False, kapak_mandal_acik: bool = False, tavan: str = "evrensel",
          kapak_gruplari: list[tuple[int, int, int, int]] | None = None,
          mandal_acik: bool = False) -> list[Yerlesim]:
     """tavan: "modul" (1×1 / 2×1 / 1×2 / 2×2 tek parça modüller) ya da "evrensel"

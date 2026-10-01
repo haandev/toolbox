@@ -7,7 +7,7 @@ from kutu.montaj import kesisim_hacmi, kutu
 from kutu.parts.karo import karo_taban
 from kutu.parts.tavan import tavan
 
-from conftest import hacim
+from conftest import TAVAN_TURLERI, hacim
 
 _C = p.P_XY / 2
 
@@ -18,7 +18,7 @@ def _ust(dx=0.0, dy=0.0, dz=0.0, nx=1, ny=1, yer=None):
 
 
 def _carpisma(alt, ust):
-    tv = [y for y in alt if y.tur in ("kapak", "kapak_mandal", "cerceve", "kulp")]
+    tv = [y for y in alt if y.tur in TAVAN_TURLERI]
     return sum(kesisim_hacmi(a.parca, b.parca) for a in tv for b in ust)
 
 

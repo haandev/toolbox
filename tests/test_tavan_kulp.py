@@ -4,8 +4,12 @@ import itertools
 import pytest
 from build123d import Pos
 from kutu import params as p
-from kutu.montaj import kesisim_hacmi, kutu
+from functools import partial
+
+from kutu.montaj import kutu as _kutu, kesisim_hacmi
 from kutu.parts.kulp import kulp
+
+kutu = partial(_kutu, tavan="modul")   # bu dosya modül tavanını sınar
 
 
 @pytest.mark.parametrize("n", [1, 2])

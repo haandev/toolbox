@@ -4,7 +4,11 @@ import itertools
 import pytest
 from build123d import Pos
 from kutu import params as p
-from kutu.montaj import kapak_ac, kesisim_hacmi, kutu
+from functools import partial
+
+from kutu.montaj import kutu as _kutu, kapak_ac, kesisim_hacmi
+
+kutu = partial(_kutu, tavan="modul")   # bu dosya modül tavanını sınar
 
 _KAPAK = ("kapak", "kapak_mandal", "kulp")
 

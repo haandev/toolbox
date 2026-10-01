@@ -9,7 +9,8 @@ from kutu import params as p
 from kutu.kalip import egimsiz_yuz_sayisi
 from kutu.lib.kilit_yeri import kilit_noktalari
 from kutu.baski import kulp_baski_parcalari, modul_baski_parcalari
-from kutu.montaj import kapak_ac, kutu
+from kutu.montaj import evrensel_grup_ac, kapak_ac, kutu
+from kutu.parts import evrensel as ev
 from kutu.parts.karo import karo_taban
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
@@ -33,6 +34,10 @@ RENKLER = {"taban": "#5b6270", "cerceve": "#4a5060", "kapak": "#8a94a6", "kapak_
            "panel": "#9fb3c8", "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400",
            "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c", "papyon_kapak": "#e67e22",
            "kulp_ucu": "#e74c3c", "kulp_cubugu": "#bdc3c7",
+           "cerceve_hucre": "#4a5060", "kapak_hucre": "#8a94a6", "kam_cerceve": "#e67e22",
+           "kam_kapak": "#e67e22", "tapa": "#2c3e50", "mentese_cerceve": "#16a085",
+           "mentese_kapak": "#1abc9c", "mentese_pimi": "#7f8c8d", "mandal_eki": "#8e44ad",
+           "kulp_ayagi": "#c0392b", "kulp_kolu": "#e74c3c",
            "cekmece": "#5dade2", "raf": "#95a5a6"}
 
 
@@ -107,13 +112,14 @@ def yan_yana_aktar(cikti: Path) -> dict:
 
 
 def kulp_sahnesi_aktar(cikti: Path) -> dict:
-    """1×1 (açık kulp), 2×1 (katlı), 3×1 (açık) ve 2×2 (açık) kutular yan yana."""
+    """Evrensel tavanda kulp grupları: 1×1, 2×1, 2×2 (açık) ve 3×2 kutu: 2×2 + iki 1×1 grup."""
     return sahne_aktar(cikti, "kulp", [
         ("a", kutu(1, 1, 1, kulp=True, kulp_acik=True), Pos(0, 0, 0), 0),
-        ("b", kutu(2, 1, 1, kulp=True), Pos(0, 300, 0), 0),
-        ("c", kutu(3, 1, 1, kulp=True, kulp_acik=True), Pos(0, 600, 0), 0),
-        ("d", kutu(2, 2, 1, kulp=True, kulp_acik=True), Pos(700, 0, 0), 0),
-    ], (1100, 800, 2 * p.P_Z))
+        ("b", kutu(2, 1, 1, kulp=True, kulp_acik=True), Pos(300, 0, 0), 0),
+        ("c", kutu(2, 2, 1, kulp=True, kulp_acik=True), Pos(0, 300, 0), 0),
+        ("d", kutu(3, 2, 1, kulp=True, kulp_acik=True,
+                   kapak_gruplari=[(0, 0, 2, 2), (2, 0, 1, 1), (2, 1, 1, 1)]), Pos(500, 300, 0), 0),
+    ], (1100, 700, 2 * p.P_Z))
 
 
 def cekmece_sahnesi_aktar(cikti: Path) -> dict:
@@ -154,7 +160,7 @@ def karma_gruplar():
         ("C", kutu(1, 1, 1, kulp=True), Pos(0, 0, Z)),
         ("D_cekilmis", kutu(1, 1, 1, kulp=True), Pos(P, -110, Z)),
         ("E", kutu(1, 1, 1, kulp=True), Pos(2 * P, 0, Z)),
-        ("F_3x1", kutu(3, 1, 1, kulp=True), Pos(0, 0, 2 * Z)),
+        ("F_3x1", kutu(3, 1, 1, kulp=True, kapak_gruplari=[(0, 0, 2, 1), (2, 0, 1, 1)]), Pos(0, 0, 2 * Z)),
         ("G_2h", kutu(1, 1, 2, kulp=True), Pos(3 * P, 0, 0)),
     ]
 
@@ -165,16 +171,21 @@ def karma_sahnesi_aktar(cikti: Path) -> dict:
 
 
 def kapak_sahnesi_aktar(cikti: Path) -> dict:
-    """Kapağı açık kutular: 1×1 (90°), 2×1 (60°), 1×1 kapalı ve kilitli."""
-    def acik(nx, ny, aci):
-        k = kutu(nx, ny, 1, kulp=True, kapak_mandal_acik=True)
-        ust = [y for y in k if y.tur in ("kapak", "kapak_mandal", "kulp")]
-        return [y for y in k if y not in ust] + kapak_ac(ust, ny, 1, aci)
+    """Evrensel tavan: 1×1 (90° açık), 2×1 (60°), 2×2 iki satır grup (arka grup 90° açık)."""
+    def acik(nx, ny, gruplar, acilacak):
+        k = kutu(nx, ny, 1, kulp=True, kapak_gruplari=gruplar, mandal_acik=True)
+        out = list(k)
+        for g, aci in acilacak:
+            grup = evrensel_grup_ac(k, g, aci, nx, ny, 1, gruplar)
+            adlar = {y.ad for y in grup}
+            out = [y for y in out if y.ad not in adlar] + grup
+        return out
+    iki = [(0, 0, 2, 1), (0, 1, 2, 1)]
     return sahne_aktar(cikti, "kapak", [
-        ("a", acik(1, 1, 90), Pos(0, 0, 0), 0),
-        ("b", acik(2, 1, 60), Pos(300, 0, 0), 0),
-        ("c", kutu(1, 1, 1, kulp=True), Pos(800, 0, 0), 0),
-    ], (1000, p.P_XY, 2 * p.P_Z))
+        ("a", acik(1, 1, None, [(0, 90)]), Pos(0, 0, 0), 0),
+        ("b", acik(2, 1, None, [(0, 60)]), Pos(300, 0, 0), 0),
+        ("c", acik(2, 2, iki, [(1, 90)]), Pos(800, 0, 0), 0),
+    ], (1200, 2 * p.P_XY, 2 * p.P_Z))
 
 
 def baski_aktar(cikti: Path) -> list[Path]:
@@ -189,6 +200,14 @@ def baski_aktar(cikti: Path) -> list[Path]:
             dosyalar.append(d)
     for ad, _, parca in kulp_baski_parcalari(2):
         d = klasor / f"kulp_2x_{ad}.stl"
+        export_stl(parca, str(d))
+        dosyalar.append(d)
+    evrensel = {"cerceve_hucre": ev.cerceve_hucre(), "kapak_hucre": ev.kapak_hucre(),
+                "kam_cerceve": ev.kam(), "kam_kapak": ev.kam(ev.KAPAK_KAM_H), "tapa": ev.tapa(),
+                "mentese_cerceve": ev.mentese_cerceve(), "mentese_kapak": ev.mentese_kapak(),
+                "mandal_eki": ev.mandal_eki(), "kulp_ayagi": ev.kulp_ayagi(), "kulp_kolu": ev.kulp_kolu()}
+    for ad, parca in evrensel.items():
+        d = klasor / f"evrensel_{ad}.stl"
         export_stl(parca, str(d))
         dosyalar.append(d)
     return dosyalar

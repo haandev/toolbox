@@ -1,8 +1,9 @@
 """Evrensel tavan: tek tip çerçeve hücresi, tek tip kapak hücresi ve evrensel yuva ekleri.
 
 Hücre çerçevesi: node orijini (x, y ∈ [0, P_XY]), z = 0 kutunun nominal üstü.
-- Çerçeve hücresi (z −T … −GAP−KAPAK_H): halka, panel oluğu, 12 vida deliği, anahtar cebi;
-  her kenarda YUVA_U ve YUVA_ORTA'da tam boy yarım papyon yuvaları.
+- Çerçeve hücresi (z −T … −GAP−KAPAK_H): halka, panel oluğu, 12 vida deliği; her kenarda
+  YUVA_U ve YUVA_ORTA'da tam boy yarım papyon yuvaları; anahtar cepleri yalnız kuzey ve batı
+  kenarında (hücrenin bir yönü vardır — hata önleyici anahtar çalışsın diye).
 - Kapak hücresi (z −GAP−KAPAK_H … −GAP): her kenardan KAPAK_ICERI içeride; altta güverte,
   kaburgalar, T raylar; orta kanal (y = 100) ve ön/arka kenar yarım kanalları (kaldırmalı kulp);
   her kenarda YUVA_U'da tam boy yarım yuvalar, orta çizgide YUVA_U'da tam yuvalar;
@@ -77,11 +78,15 @@ def cerceve_hucre() -> Part:
     g = p.GAP
     t = _k(g, p.P_XY - g, g, p.P_XY - g, ALT, CUST)
     t -= _k(p.K, p.P_XY - p.K, p.K, p.P_XY - p.K, ALT - 1, CUST + 1)
-    guney = (_oluk_profili(CUST)
-             + Pos(_C, 0, 0) * anahtar_cebi(ALT, ALT + p.DIL_V + p.FIT, x=-p.ANAHTAR_X))
+    guney = _oluk_profili(CUST)
     for u in p.YUVA_U + (p.YUVA_ORTA,):
         guney += _yarim(u, ALT - 0.01, CUST + 0.01, _F)
     t -= _dort(guney)
+    # baş aşağı takılan (kuzey, batı) panellerin anahtar cepleri yalnız o kenarlarda:
+    # hücrenin bir yönü vardır; güney/doğu paneli baş aşağı takılırsa çerçeveye çarpar
+    cep = Pos(_C, 0, 0) * anahtar_cebi(ALT, ALT + p.DIL_V + p.FIT, x=-p.ANAHTAR_X)
+    for aci in (180, 270):
+        t -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
     for x, y in delik_noktalari():
         t -= Pos(x, y, ALT) * Cylinder(p.GECIS_DELIK / 2, p.T, align=(Align.CENTER, Align.CENTER, Align.MIN))
     return t
