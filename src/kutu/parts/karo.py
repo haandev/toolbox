@@ -13,7 +13,7 @@ from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.lib.kilit_yeri import karo_bolgesi
 from kutu.parts.cekmece import durdurucu
-from kutu.parts.mandal import taban_yuvasi
+from kutu.parts.t_kanal import taban_kanali
 
 _C = p.P_XY / 2
 
@@ -87,8 +87,8 @@ def karo_taban() -> Part:
     cep = Pos(_C, 0, 0) * anahtar_cebi(p.T - p.DIL - p.FIT, p.T)   # güney duvar
     for aci in (0, 90, 180, 270):
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
-    for aci in (0, 90, 180, 270):                      # mandal yuvası her kenarda (döndürülmüş istif)
-        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * taban_yuvasi()
+    for aci in (0, 90, 180, 270):                      # T kanal + geçit her kenarda (döndürülmüş istif)
+        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * taban_kanali()
     g = p.WALL + 2 * p.FIT                             # kılavuz rayların çerçevenin altından geçtiği çentikler
     centik = None
     for x in (p.K, p.P_XY - p.K - g):

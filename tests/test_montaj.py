@@ -14,6 +14,11 @@ def _sayim(liste):
     return s
 
 
+def _ust_tasma():
+    """Tavanın kilit yüzünden en yüksek çıkıntısı (kılavuz ray ya da T kanca başı), kutu üstünden."""
+    return max(p.KILAVUZ_H - p.GAP, p.T_BAS_Z1) + p.GAP
+
+
 def _yan_tasma():
     """Yan kilit dili, gövdenin her iki yanında kutu yüzünü aşar."""
     return 2 * p.RAY_T if p.YAN_KILIT else 0
@@ -64,7 +69,7 @@ def test_tek_node_dis_olcu(k111):
     assert b.size.X == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
     assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
     # tavan kılavuz rayları gövdenin KILAVUZ_H üstüne taşar; istifte üstteki tabana girer
-    assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + p.KILAVUZ_H)
+    assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + _ust_tasma())
     assert b.min.X == pytest.approx(p.GAP - _yan_tasma() / 2)
 
 
@@ -101,7 +106,7 @@ def test_2h_kutu(k112):
     # katlar arası ara raf yok: yatay kıskaç + köşe düğümü
     assert _sayim(k112) == {"taban": 1, "tavan": 1, "kose": 8, "panel": 8, "yatay_kiskac": 4, "kose_dugumu": 4}
     b = _dis_kutu(k112)
-    assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z) + p.KILAVUZ_H)
+    assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z) + _ust_tasma())
     _cakisma_yok(k112)
 
 

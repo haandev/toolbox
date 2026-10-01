@@ -17,8 +17,8 @@ def test_tavan_tek_parca_olculer(nx, ny):
     b = t.bounding_box()
     assert b.size.X == pytest.approx(p.kutu_dis(nx, p.P_XY))
     assert b.size.Y == pytest.approx(p.kutu_dis(ny, p.P_XY))
-    # yerel z = 0 kutunun nominal üstü; kılavuz raylar KILAVUZ_H taşar
-    assert b.max.Z == pytest.approx(p.KILAVUZ_H - p.GAP)
+    # yerel z = 0 kutunun nominal üstü; en yüksek çıkıntı kılavuz ray ya da T kanca başı
+    assert b.max.Z == pytest.approx(max(p.KILAVUZ_H - p.GAP, p.T_BAS_Z1))
 
 
 @pytest.mark.parametrize("ny", [1, 2])

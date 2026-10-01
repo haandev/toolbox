@@ -22,7 +22,7 @@ def _cakisma_yok(liste):
 
 @pytest.mark.parametrize("nx,ny,nz", [(1, 1, 1), (2, 1, 1), (1, 1, 2), (2, 1, 2)])
 def test_cekmeceli_kutu_cakismaz(nx, ny, nz):
-    k = kutu(nx, ny, nz, kulp=True, mandal=True, cekmece=True)
+    k = kutu(nx, ny, nz, kulp=True, cekmece=True)
     s = _sayim(k)
     assert s["cekmece"] == nx * nz
     assert s["panel"] == (nx + 2 * ny) * nz          # ön yüzde panel yok
@@ -39,7 +39,7 @@ def test_on_yuz_panelle_ayni_hizada():
 
 @pytest.mark.parametrize("nz", [1, 2])
 def test_cekmece_disari_cekilebilir(nz):
-    k = kutu(1, 1, nz, kulp=True, mandal=True, cekmece=True)
+    k = kutu(1, 1, nz, kulp=True, cekmece=True)
     cekmeceler = [y for y in k if y.tur == "cekmece"]
     digerleri = [y for y in k if y.tur != "cekmece"]
     for c in cekmeceler:
@@ -64,7 +64,7 @@ def test_raf_yatay_kiskaclara_oturur():
 
 
 def _cekmece_ve_digerleri(nz=1, kat=0):
-    k = kutu(1, 1, nz, kulp=True, mandal=True, cekmece=True)
+    k = kutu(1, 1, nz, kulp=True, cekmece=True)
     c = next(y for y in k if y.ad == f"k{kat}_cekmece_0")
     return c, [y for y in k if y is not c]
 

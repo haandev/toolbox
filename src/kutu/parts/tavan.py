@@ -15,7 +15,7 @@ from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.parts.karo import delik_noktalari
 from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, kulp_x0
-from kutu.parts.mandal import tavan_cebi
+from kutu.parts.t_kanal import kanca
 
 
 def kulp_boyu(nx: int) -> int:
@@ -127,13 +127,13 @@ def tavan(nx: int, ny: int) -> Part:
         tekne = kabuk if tekne is None else tekne + kabuk
     t = _govde(nx, ny) + tekne - oyuk + bloklar
     t += _kilavuzlar(nx, ny) - zarf      # oyuktan sonra: ray kenarı oyuk ağzından kesilmez
-    for yer in mandal_yerleri(nx, ny):
-        t -= yer * tavan_cebi()
+    for yer in kanca_yerleri(nx, ny):
+        t += yer * kanca()
     return t
 
 
-def mandal_yerleri(nx: int, ny: int):
-    """Her node'un ön (güney) ve arka (kuzey) kenarındaki mandal dönüşümleri."""
+def kanca_yerleri(nx: int, ny: int):
+    """Her node'un ön (güney) ve arka (kuzey) kenarındaki T kanca dönüşümleri."""
     c = p.P_XY / 2
     W, D = nx * p.P_XY, ny * p.P_XY
     for i in range(nx):
