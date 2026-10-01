@@ -19,10 +19,10 @@ def yatay_kiskac() -> Part:
     govde = Pos(-x_yari, p.GAP, z0) * Box(p.U, p.K - p.GAP, h, align=MIN3)
 
     # alt oluk (alttaki panelin üst dili) ve üst oluk (üstteki panelin alt dili)
-    govde -= yuva(-x_yari, x_yari, z0, z0 + p.DIL + p.FIT)
-    govde -= yuva(-x_yari, x_yari, z0 + h - p.DIL - p.FIT, z0 + h)
-    govde -= anahtar_cebi(z0 + h - p.DIL - p.FIT, z0 + h)               # üstteki normal panelin anahtarı
-    govde -= anahtar_cebi(z0, z0 + p.DIL + p.FIT, x=-p.ANAHTAR_X)       # alttaki baş aşağı panelin anahtarı
+    govde -= yuva(-x_yari, x_yari, z0, z0 + p.DIL_V + p.FIT)
+    govde -= yuva(-x_yari, x_yari, z0 + h - p.DIL_V - p.FIT, z0 + h)
+    govde -= anahtar_cebi(z0 + h - p.DIL_V - p.FIT, z0 + h)               # üstteki normal panelin anahtarı
+    govde -= anahtar_cebi(z0, z0 + p.DIL_V + p.FIT, x=-p.ANAHTAR_X)       # alttaki baş aşağı panelin anahtarı
 
     # içten oyuk: cep +y'ye açık, aralarda kaburga
     cep_x = x_yari - p.WALL
@@ -36,8 +36,8 @@ def yatay_kiskac() -> Part:
 
     # iki uçta düğüm kanalına giren dil; kanalda alt/üst panel dillerinin arasına oturur
     y0, _ = panel_y()
-    dil_z0 = z0 + p.DIL + p.FIT
-    dil_h = h - 2 * (p.DIL + p.FIT)
+    dil_z0 = z0 + p.DIL_V + p.FIT
+    dil_h = h - 2 * (p.DIL_V + p.FIT)
     for x0 in (-x_yari - p.DIL, x_yari):
         govde += Pos(x0, y0, dil_z0) * Box(p.DIL, p.WALL, dil_h, align=MIN3)
     return govde

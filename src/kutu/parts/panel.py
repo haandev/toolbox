@@ -13,7 +13,7 @@ from kutu.lib.kilit_yeri import panel_bolgesi
 @cache
 def panel() -> Part:
     y0, y_ic = panel_y()
-    deri = Pos(-p.PANEL_L / 2, y0, p.T - p.DIL) * Box(p.PANEL_L, p.WALL, p.PANEL_H, align=MIN3)
+    deri = Pos(-p.PANEL_L / 2, y0, p.T - p.DIL_V) * Box(p.PANEL_L, p.WALL, p.PANEL_H, align=MIN3)
 
     # kaburgalar yalnızca görünür açıklıkta (kanal/oluk içine girmez), 1 mm pay
     z0, z1 = p.T + 1, p.T + p.H - 1
@@ -24,7 +24,7 @@ def panel() -> Part:
     kaburga -= panel_bolgesi()
 
     # hata önleyici anahtar yalnız alt dilde: baş aşağı ya da içi dışına takılamaz
-    govde = deri + kaburga + anahtar(p.T - p.DIL, p.T)
+    govde = deri + kaburga + anahtar(p.T - p.DIL_V, p.T)
     if p.YAN_KILIT:
         govde = _yan_kilit(govde)
     return govde

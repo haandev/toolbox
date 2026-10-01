@@ -56,8 +56,8 @@ def _govde(kaburga_kes: Part | None) -> Part:
         kaburga -= kaburga_kes
     plaka += kaburga
 
-    # dört kenarda panel oluğu (üst yüzden DIL+FIT derin)
-    oluk = yuva(g, p.P_XY - g, p.T - p.DIL - p.FIT, p.T)
+    # dört kenarda panel oluğu (üst yüzden DIL_V+FIT derin)
+    oluk = yuva(g, p.P_XY - g, p.T - p.DIL_V - p.FIT, p.T)
     for aci in (0, 90, 180, 270):
         plaka -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * oluk
 
@@ -84,7 +84,7 @@ def _bilezik_bandi() -> Part:
 @cache
 def karo_taban() -> Part:
     taban = _govde(_bilezik_bandi())
-    cep = Pos(_C, 0, 0) * anahtar_cebi(p.T - p.DIL - p.FIT, p.T)   # güney duvar
+    cep = Pos(_C, 0, 0) * anahtar_cebi(p.T - p.DIL_V - p.FIT, p.T)   # güney duvar
     for aci in (0, 90, 180, 270):
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
     for aci in (0, 90, 180, 270):                      # T kanal + geçit her kenarda (döndürülmüş istif)

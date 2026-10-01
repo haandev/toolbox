@@ -60,9 +60,9 @@ def _govde(nx: int, ny: int) -> Part:
 
     # dış kenarlarda panel oluğu (alttan) ve yan kilit çentiği
     for yer, bas_asagi in _duvar_yerlesimleri(W, D, nx, ny):
-        t -= yer * yuva(-p.P_XY / 2, p.P_XY / 2, alt, alt + p.DIL + p.FIT)
+        t -= yer * yuva(-p.P_XY / 2, p.P_XY / 2, alt, alt + p.DIL_V + p.FIT)
         if bas_asagi:                    # baş aşağı panelin anahtarı üstte, x = −ANAHTAR_X
-            t -= yer * anahtar_cebi(alt, alt + p.DIL + p.FIT, x=-p.ANAHTAR_X)
+            t -= yer * anahtar_cebi(alt, alt + p.DIL_V + p.FIT, x=-p.ANAHTAR_X)
 
     # köşe ve kıskaç vida delikleri (yalnız dış kenara yakın olanlar)
     for i in range(nx):

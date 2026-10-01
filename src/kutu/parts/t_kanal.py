@@ -41,3 +41,22 @@ def taban_kanali() -> Part:
     yol = (_k(hx - bw, hx + bw, p.K, p.P_XY - p.K, alt, p.T_KANAL_Z1)
            + _k(gx - bw, gx + bw, p.K, p.P_XY - p.K, alt, p.T_KANAL_Z1))
     return t + gecit + yol
+
+
+def kanca_kapasitesi() -> float:
+    """Bir T kancanın taşıyabileceği dikey yük (N), kaba el hesabı.
+
+    En zayıf eleman tabandaki tutma çıkıntıları: kanca başı yükü iki çıkıntıya bölünür; her
+    çıkıntı kanca boyunca (T_KANCA_Y1 − T_KANCA_Y0) uzanan, (T_BAS_W − T_BOYUN_W)/2 çıkmalı
+    ankastre konsol, yük çıkmanın ortasında. σ = M / W ≤ T_SIGMA_IZIN. Kanca başı da aynı
+    modelle kontrol edilir; küçüğü döner.
+    """
+    b = (p.T_KANCA_Y1 - p.T_KANCA_Y0) / 1000
+    c = (p.T_BAS_W - p.T_BOYUN_W) / 2 / 1000
+    def tasima(t_mm: float) -> float:
+        t = t_mm / 1000
+        W = b * t**2 / 6
+        return 2 * p.T_SIGMA_IZIN * W / (c / 2)      # P = 2 · σ · W / kol
+    cikinti = p.T_BOYUN_Z1 - p.GAP
+    bas = p.T_BAS_Z1 - p.T_BAS_Z0
+    return min(tasima(cikinti), tasima(bas))

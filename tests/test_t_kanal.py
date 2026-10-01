@@ -80,3 +80,13 @@ def test_dondurulmus_ust_kutu_da_kilitlenir(aci):
     alt = kutu(1, 1, 1, kulp=True)
     assert _carpisma(alt, _ust(yer=yer)) < 1e-3
     assert _carpisma(alt, _ust(yer=Pos(0, 0, 1) * yer)) > 1
+
+
+def test_kanca_kapasitesi_en_az_100N():
+    from kutu.parts.t_kanal import kanca_kapasitesi
+    assert kanca_kapasitesi() >= 100.0
+
+
+def test_kanal_panel_olugunun_altinda():
+    # geçit/kanal tavanı ile taban panel oluğu arasında malzeme kalır
+    assert p.T_KANAL_Z1 < p.T - p.DIL_V - p.FIT

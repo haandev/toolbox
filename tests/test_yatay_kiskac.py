@@ -26,8 +26,8 @@ def test_gecerli_ve_olculer(yk):
 @pytest.mark.parametrize("alt", [True, False])
 def test_alt_ve_ust_oluk(yk, alt):
     y0, y1 = yuva_y()
-    z = Z0 if alt else Z1 - p.DIL
-    oluk = Pos(-p.U / 2, y0, z) * Box(p.U, y1 - y0, p.DIL, align=MIN3)
+    z = Z0 if alt else Z1 - p.DIL_V
+    oluk = Pos(-p.U / 2, y0, z) * Box(p.U, y1 - y0, p.DIL_V, align=MIN3)
     assert hacim(yk & oluk) == pytest.approx(0, abs=1e-6)
 
 
@@ -37,7 +37,7 @@ def test_uclarda_dil_wall_kalinliginda(yk, taraf):
     x0 = p.U / 2 if taraf > 0 else -p.U / 2 - p.DIL
     bolge = Pos(x0, 0, Z0) * Box(p.DIL, p.K, 2 * p.T, align=MIN3)
     # dil, düğüm kanalında alt ve üst panel dillerinin arasında kalır (FIT boşluklu)
-    dil_h = 2 * p.T - 2 * (p.DIL + p.FIT)
+    dil_h = 2 * p.T - 2 * (p.DIL_V + p.FIT)
     assert hacim(yk & bolge) == pytest.approx(p.DIL * p.WALL * dil_h, rel=1e-3)
 
 

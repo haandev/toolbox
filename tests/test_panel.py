@@ -21,7 +21,7 @@ def test_dis_olculer(pnl):
     y0, _ = panel_y()
     assert b.size.X == pytest.approx(p.PANEL_L)
     assert b.size.Z == pytest.approx(p.PANEL_H)
-    assert b.min.Z == pytest.approx(p.T - p.DIL)
+    assert b.min.Z == pytest.approx(p.T - p.DIL_V)
     assert b.max.Y == pytest.approx(y0 + p.WALL + p.RIB_D)
 
 
@@ -58,7 +58,7 @@ def test_kaburgalar_kanala_girmez(monkeypatch):
     panel.cache_clear()
     try:
         y0, _ = panel_y()
-        dil = Pos(p.U / 2, y0, p.T - p.DIL) * Box(p.DIL, p.WALL + p.RIB_D, p.PANEL_H, align=MIN3)
+        dil = Pos(p.U / 2, y0, p.T - p.DIL_V) * Box(p.DIL, p.WALL + p.RIB_D, p.PANEL_H, align=MIN3)
         assert (panel() & dil).volume == pytest.approx(p.DIL * p.WALL * p.PANEL_H, rel=1e-3)
     finally:
         panel.cache_clear()

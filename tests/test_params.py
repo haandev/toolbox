@@ -8,7 +8,8 @@ def test_turetilen_degerler():
     assert p.K == 20
     assert p.T == 10
     assert p.PANEL_L == 172
-    assert p.PANEL_H == 92
+    assert p.PANEL_H == 88   # alt/üst dil DIL_V = 4
+    assert p.DIL_V < p.DIL
 
 
 @pytest.mark.parametrize("n", [1, 2, 3, 4])

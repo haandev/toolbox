@@ -22,9 +22,10 @@ FIT = 0.2            # geçme boşluğu, prototiple kalibre edilir
 
 # --- Kanal / dil ---
 LIP = 1.5                  # kanal dış dudağı; panel dış yüzü bu kadar gömük
-DIL = 6.0                  # panel dilinin kanal/oluk içine giriş boyu
+DIL = 6.0                  # panel yan dilinin köşe/kıskaç kanalına giriş boyu
+DIL_V = 4.0                # panel alt/üst dilinin taban, tavan ve yatay kıskaç oluğuna giriş boyu
 PANEL_L = U + 2 * DIL      # 172
-PANEL_H = H + 2 * DIL      # 92
+PANEL_H = H + 2 * DIL_V    # 88
 PANEL_KABURGA_X = (-55.0, -35.0, 35.0, 55.0)   # dikey kaburga konumları (panel merkezine göre)
 
 # --- Vida / kule ---
@@ -68,10 +69,11 @@ T_KANCA_X = -35.0    # kanca merkezi, node kenar ortasından (güney kenar)
 T_KANCA_Y0, T_KANCA_Y1 = 2.0, 18.0   # kanca, tavan kenar çerçevesinin içinde
 T_BOYUN_W = 6.0
 T_BAS_W = 12.0
-T_BOYUN_Z1 = 1.4     # taban yerel z: kanalın boyun bölgesi GAP … 1.4 (tutma çıkıntısı)
-T_BAS_Z0 = 1.6       # kanca başı (kutu üstünden, = üst taban yerel z)
-T_BAS_Z1 = 3.0
-T_KANAL_Z1 = 3.2     # kanal tavanı; panel oluğunun (3.8) altında
+T_BOYUN_Z1 = 2.2     # taban yerel z: kanalın boyun bölgesi GAP … 2.2 (tutma çıkıntısı 1.7 mm)
+T_BAS_Z0 = 2.4       # kanca başı (kutu üstünden, = üst taban yerel z)
+T_BAS_Z1 = 5.2       # kanca başı 2.8 mm
+T_KANAL_Z1 = 5.4     # kanal/geçit tavanı; taban panel oluğunun (T − DIL_V − FIT = 5.8) altında
+T_SIGMA_IZIN = 10e6  # PP uzun süreli (sünme) izin verilen eğilme gerilmesi, Pa
 
 # --- Çekmece ---
 CEKMECE_B = 0.5      # çekmece ile köşe/kıskaç yüzleri arası yan boşluk

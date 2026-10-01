@@ -17,16 +17,16 @@ def _anahtar_sondasi(z0, z1):
 
 
 def test_anahtar_yalniz_alt_dilde():
-    alt = _anahtar_sondasi(p.T - p.DIL, p.T)
-    ust = _anahtar_sondasi(p.T + p.H, p.T + p.H + p.DIL)
-    assert hacim(panel() & alt) == pytest.approx(p.ANAHTAR_W * p.ANAHTAR_T * p.DIL, rel=1e-3)
+    alt = _anahtar_sondasi(p.T - p.DIL_V, p.T)
+    ust = _anahtar_sondasi(p.T + p.H, p.T + p.H + p.DIL_V)
+    assert hacim(panel() & alt) == pytest.approx(p.ANAHTAR_W * p.ANAHTAR_T * p.DIL_V, rel=1e-3)
     assert hacim(panel() & ust) == pytest.approx(0, abs=1e-6)
 
 
 def test_yatay_kiskac_ust_olukta_cep_alt_olukta_yok():
     z0 = p.T + p.H
-    ust_cep = _anahtar_sondasi(z0 + 2 * p.T - p.DIL, z0 + 2 * p.T)
-    alt = _anahtar_sondasi(z0, z0 + p.DIL)
+    ust_cep = _anahtar_sondasi(z0 + 2 * p.T - p.DIL_V, z0 + 2 * p.T)
+    alt = _anahtar_sondasi(z0, z0 + p.DIL_V)
     assert hacim(yatay_kiskac() & ust_cep) == pytest.approx(0, abs=1e-6)
     assert hacim(yatay_kiskac() & alt) > 0
 

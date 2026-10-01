@@ -106,3 +106,9 @@ Kutulardan kurulan bir duvarda (yan yana ve üst üste) **herhangi bir kutu çek
   - Kılavuz raylar kilit yüzünün 1 mm altından başlar (çerçeve ve kaburgaların üstüne oturur); cep üstünde kaburga kesişimlerinde taşınır.
   - Kanca başındaki konum tutucu tümsek modellenmedi (açık madde).
 - Testler: `test_yan_ray`, `test_yan_kilit`, `test_t_kanal`, `test_duvar` (+ mevcut kulp, çekmece, istif testleri) — toplam 216 test geçiyor.
+
+## 11. T kanal güçlendirme (2026-10-02)
+
+- Panelin alt/üst dili `DIL_V = 4` mm'ye indi (yan diller `DIL = 6` kaldı); taban/tavan/yatay kıskaç olukları `DIL_V + FIT`. Taban oluğunun altında 5.8 mm malzeme kaldı.
+- T kanal: tutma çıkıntısı 0.9 → 1.7 mm (`T_BOYUN_Z1 = 2.2`), kanca başı 1.4 → 2.8 mm (`2.4 … 5.2`), kanal/geçit tavanı 5.4.
+- `kanca_kapasitesi()`: konsol eğilme modeli, PP σ_izin = 10 MPa (sünme) → kanca başına ~29 N'den **~103 N**'ye (node başına iki kanca ≈ 21 kg). Akma sınırına göre anlık ~2.5 katı. Prototip çekme testiyle doğrulanacak.

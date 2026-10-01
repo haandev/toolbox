@@ -39,7 +39,7 @@ def test_kilit_bolgesinde_kaburga_yok(kr):
 @pytest.mark.parametrize("aci", [0, 90, 180, 270])
 def test_dort_kenarda_oluk(kr, aci):
     y0, y1 = yuva_y()
-    oluk = Pos(p.K, y0, p.T - p.DIL) * Box(p.P_XY - 2 * p.K, y1 - y0, p.DIL, align=MIN3)
+    oluk = Pos(p.K, y0, p.T - p.DIL_V) * Box(p.P_XY - 2 * p.K, y1 - y0, p.DIL_V, align=MIN3)
     c = p.P_XY / 2
     oluk = Pos(c, c, 0) * Rot(0, 0, aci) * Pos(-c, -c, 0) * oluk
     assert hacim(kr & oluk) == pytest.approx(0, abs=1e-6)
