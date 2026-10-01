@@ -41,8 +41,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
-const KOK = '../out/preview/';
+const KOK = '../out/' + (new URLSearchParams(location.search).get('m') || 'preview') + '/';
 const ADLAR = { karo: 'Karo (taban/tavan)', kose: 'Köşe', kiskac: 'Kıskaç', panel: 'Panel',
+                kirlangic: '1 · Kırlangıç (y kayar)', pim: '2 · Dönel pim', kanca: '3 · Kanca (x kayar)',
                 yatay_kiskac: 'Yatay kıskaç', kose_dugumu: 'Köşe düğümü', kiskac_dugumu: 'Kıskaç düğümü' };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -63,7 +64,7 @@ scene.add(gunes);
 
 const kesitDuzlemi = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
 const parcalar = [];   // {mesh, tur, yon: Vector3}
-let kilitGrup, izgaraGrup, W, D, Hh;
+let kilitGrup, izgaraGrup, W, D, Hh, kesitX0 = 0, kesitY0 = 0, kesitY = false;
 
 function uygula() {
   const e = +document.getElementById('patlat').value;
@@ -75,7 +76,8 @@ function uygula() {
   }
   kilitGrup.visible = document.getElementById('kilit').checked;
   izgaraGrup.visible = document.getElementById('izgara').checked;
-  kesitDuzlemi.constant = W * (+document.getElementById('kesit').value) / 100 + 0.01;
+  const oran = (+document.getElementById('kesit').value) / 100;
+  kesitDuzlemi.constant = kesitY ? kesitY0 + D * oran + 0.01 : kesitX0 + W * oran + 0.01;
 }
 
 function izgara(m) {
@@ -92,10 +94,19 @@ function izgara(m) {
 
 async function yukle() {
   const m = await (await fetch(KOK + 'manifest.json', { cache: 'no-store' })).json();
-  const { nx, ny, nz, P_XY, P_Z } = m.kutu;
-  W = nx * P_XY; D = ny * P_XY; Hh = nz * P_Z;
-  document.getElementById('bilgi').textContent =
-    `${W / 10} × ${D / 10} × ${Hh / 10} cm · ${m.parcalar.length} parça`;
+  let x0 = 0, y0 = 0, z0 = 0;
+  if (m.kutu) {
+    const { nx, ny, nz, P_XY, P_Z } = m.kutu;
+    W = nx * P_XY; D = ny * P_XY; Hh = nz * P_Z;
+    document.getElementById('bilgi').textContent =
+      `${W / 10} × ${D / 10} × ${Hh / 10} cm · ${m.parcalar.length} parça`;
+  } else {
+    const s = m.sahne;
+    x0 = s.x0; kesitX0 = s.x0; y0 = s.y0; kesitY0 = s.y0; kesitY = true;
+    kesitDuzlemi.normal.set(0, -1, 0);
+    document.querySelector('label:has(#kesit)').firstChild.textContent = 'Kesit (Y) '; z0 = s.z0; W = s.x1 - s.x0; D = s.y1 - s.y0; Hh = s.z1 - s.z0;
+    document.getElementById('bilgi').textContent = `${m.parcalar.length} parça · patlatma: B kalkar`;
+  }
 
   const turler = [...new Set(m.parcalar.map(p => p.tur))];
   document.getElementById('turler').innerHTML = turler.map(t => {
@@ -122,11 +133,13 @@ async function yukle() {
     kilitGrup.add(s);
   }
   scene.add(kilitGrup);
-  izgaraGrup = izgara(m);
+  izgaraGrup = m.kutu ? izgara(m) : new THREE.Group();
   scene.add(izgaraGrup);
 
-  controls.target.set(W / 2, D / 2, Hh / 2);
-  camera.position.set(W / 2 + 1.6 * Math.max(W, 300), D / 2 - 1.8 * Math.max(D, 300), Hh / 2 + 1.4 * Math.max(Hh, 250));
+  const cx = x0 + W / 2, cy = y0 + D / 2, cz = z0 + Hh / 2;
+  const olcek = m.kutu ? 1 : 0.35;
+  controls.target.set(cx, cy, cz);
+  camera.position.set(cx + olcek * 1.6 * Math.max(W, 300), cy - olcek * 1.8 * Math.max(D, 300), cz + olcek * 1.4 * Math.max(Hh, 250));
   uygula();
 }
 
