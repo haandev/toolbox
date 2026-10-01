@@ -40,7 +40,7 @@ def test_kulp_ortada(nx, ny):
 def test_kulp_acikken_cakismaz_ve_yukarida(nx, ny):
     k = kutu(nx, ny, 1, kulp=True, kulp_acik=True)
     kp = next(y for y in k if y.tur == "kulp")
-    assert kp.parca.bounding_box().max.Z > p.P_Z + p.ERKEK_H + 20
+    assert kp.parca.bounding_box().max.Z > p.P_Z + p.KILAVUZ_H + 20
     for y in k:
         if y is not kp:
             assert kesisim_hacmi(kp.parca, y.parca) < 1e-3, y.ad

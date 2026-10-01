@@ -63,8 +63,8 @@ def test_tek_node_dis_olcu(k111):
     b = _dis_kutu(k111)
     assert b.size.X == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
     assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY) + _yan_tasma())
-    # tavan erkek bileziği gövdenin ERKEK_H üstüne taşar; istifte üstteki tabana girer
-    assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + p.ERKEK_H)
+    # tavan kılavuz rayları gövdenin KILAVUZ_H üstüne taşar; istifte üstteki tabana girer
+    assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + p.KILAVUZ_H)
     assert b.min.X == pytest.approx(p.GAP - _yan_tasma() / 2)
 
 
@@ -101,7 +101,7 @@ def test_2h_kutu(k112):
     # katlar arası ara raf yok: yatay kıskaç + köşe düğümü
     assert _sayim(k112) == {"taban": 1, "tavan": 1, "kose": 8, "panel": 8, "yatay_kiskac": 4, "kose_dugumu": 4}
     b = _dis_kutu(k112)
-    assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z) + p.ERKEK_H)
+    assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z) + p.KILAVUZ_H)
     _cakisma_yok(k112)
 
 
@@ -149,3 +149,13 @@ def test_istif_erkek_disi_oturur(alt, ust, dx):
     # yanal hizalama boşluğu FIT: erkek bilezik dişi çerçeveye FIT ile oturur
     for tb in tabanlar:
         assert min(tb.parca.distance_to(tv.parca) for tv in tavanlar) == pytest.approx(p.FIT, abs=1e-3)
+
+
+@pytest.mark.parametrize("dy", [-20.0, -80.0, -150.0, -210.0])
+def test_ust_kutu_one_kayarak_cikar(dy):
+    alt = kutu(1, 1, 1, kulp=True)
+    ust = [type(y)(y.ad, y.tur, Pos(0, dy, p.P_Z) * y.parca, y.patlat) for y in kutu(1, 1, 1)]
+    for a in alt:
+        if a.tur in ("tavan", "kulp"):
+            for b in ust:
+                assert kesisim_hacmi(a.parca, b.parca) < 1e-3, f"{a.ad} / {b.ad} dy={dy}"

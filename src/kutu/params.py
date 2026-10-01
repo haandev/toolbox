@@ -45,10 +45,9 @@ KISKAC_KULE_X = KISKAC_CEP_YARI - KULE_OD / 2 - 0.5   # kıskaç kuleleri ±x
 
 # --- Karo ---
 KARO_RIB_ARALIK = 40.0
-ERKEK_H = 5.0      # tavan bileziğinin kilit yüzünden taşma yüksekliği (taban cebine girer)
-ERKEK_PAH = 1.5    # bilezik üst dış kenar giriş pahı
-TUTUCU_A = K + FIT # tavan köşe tutucusunun dış yüzü (node kenarından)
-TUTUCU_L = 25.0    # köşe tutucusu kol boyu
+KILAVUZ_H = 3.0    # tavan kılavuz raylarının kilit yüzünden yüksekliği (taban cebine girer; panel oluğunun altında)
+KILAVUZ_A = K + FIT  # kılavuz rayın dış yüzü (node kenarından)
+KILAVUZ_PAH = 1.5  # kılavuz ray ön/arka uç pahı (kayarak giriş)
 
 # --- Gömme kulp (tek parça tavanın içinde, kilit yüzünün altında) ---
 KULP_W = 24.0          # tutma yeri genişliği

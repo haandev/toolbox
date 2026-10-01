@@ -1,8 +1,8 @@
 """Karo: 1 node'luk taban ve tavan plakaları.
 
 Ortak gövde: oluk yüzü +z, kilit yüzü z = GAP (alttan oyuk, kaburgalı).
-Dikey istif erkek–dişi: tavanın (parts/tavan.py) köşe tutucuları erkek; taban alt cebi dişi
-yuvadır, kaburga uçları tutucu bandında kısaltılır.
+Dikey istif: tavanın (parts/tavan.py) kılavuz rayları taban alt cebine girer; kaburga uçları
+ray bandında kısaltılır, çerçevenin dört kenarında rayların geçtiği çentikler (öne kayan istif).
 """
 from functools import cache
 
@@ -73,9 +73,9 @@ _IC = p.P_XY - 2 * p.K
 
 
 def _bilezik_bandi() -> Part:
-    """Kilit yüzünden ERKEK_H+FIT derinlikte, çerçeve iç kenarı boyunca halka bant (taban)."""
+    """Kilit yüzünden KILAVUZ_H+FIT derinlikte, çerçeve iç kenarı boyunca halka bant (taban)."""
     bant = p.WALL + 2 * p.FIT
-    derin = p.ERKEK_H + p.FIT
+    derin = p.KILAVUZ_H + p.FIT
     dis = Pos(p.K, p.K, p.GAP) * Box(_IC, _IC, derin, align=MIN3)
     ic = Pos(p.K + bant, p.K + bant, p.GAP) * Box(_IC - 2 * bant, _IC - 2 * bant, derin, align=MIN3)
     return dis - ic
@@ -89,6 +89,13 @@ def karo_taban() -> Part:
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
     for aci in (0, 90, 180, 270):                      # mandal yuvası her kenarda (döndürülmüş istif)
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * taban_yuvasi()
+    g = p.WALL + 2 * p.FIT                             # kılavuz rayların çerçevenin altından geçtiği çentikler
+    centik = None
+    for x in (p.K, p.P_XY - p.K - g):
+        c = Pos(x, p.GAP - 0.01, p.GAP - 0.01) * Box(g, p.K - p.GAP + 0.02, p.KILAVUZ_H + p.FIT + 0.01, align=MIN3)
+        centik = c if centik is None else centik + c
+    for aci in (0, 90, 180, 270):
+        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * centik
     for aci in (0, 90, 180, 270):                      # çekmece durdurucusu her kenarda (çerçeve üstünde)
         taban += Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * durdurucu(_C, p.T)
     return taban

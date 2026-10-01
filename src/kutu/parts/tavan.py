@@ -2,8 +2,8 @@
 
 Yerel çerçeve: x, y kutu ızgarası (0 … nx·P_XY), z = 0 kutunun nominal üstü.
 Gövde: kenar çerçevesi (altta panel oluğu), altta güverte, üstte kaburgalı cep, kilit yüzü
-z = −GAP. Her node'un köşelerinde L tutucular kilit yüzünden ERKEK_H taşar ve üstteki
-kutunun taban dişi yuvasına oturur. Ortada gömme kulp oyuğu (kilit yüzünün altında,
+z = −GAP. Her node sütununda ön–arka boyunca iki kılavuz ray kilit yüzünden KILAVUZ_H taşar;
+üstteki kutunun taban cebine x'te FIT ile oturur, y'de serbest (kutu öne kayarak çıkar). Ortada gömme kulp oyuğu (kilit yüzünün altında,
 kutunun içine sarkan tekne) ve mafsal blokları.
 """
 from functools import cache
@@ -75,17 +75,19 @@ def _govde(nx: int, ny: int) -> Part:
     return t
 
 
-def _kose_tutuculari(nx: int, ny: int) -> Part:
-    a, L, w = p.TUTUCU_A, p.TUTUCU_L, p.WALL
-    z0, z1 = -p.T + p.WALL, p.ERKEK_H - p.GAP
-    c = p.P_XY / 2
-    tek = _kutu(a, a + L, a, a + w, z0, z1) + _kutu(a, a + w, a, a + L, z0, z1)
+def _kilavuzlar(nx: int, ny: int) -> Part:
+    a, w = p.KILAVUZ_A, p.WALL
+    D = ny * p.P_XY
+    z0, z1 = -p.GAP - 1.0, p.KILAVUZ_H - p.GAP   # çerçeve ve kaburgaların üstüne oturur, panel oluğuna inmez
+    pah = p.KILAVUZ_PAH
     tum = None
     for i in range(nx):
-        for j in range(ny):
-            for aci in (0, 90, 180, 270):
-                L_ = Pos(i * p.P_XY + c, j * p.P_XY + c, 0) * Rot(0, 0, aci) * Pos(-c, -c, 0) * tek
-                tum = L_ if tum is None else tum + L_
+        for x in (i * p.P_XY + a, (i + 1) * p.P_XY - a - w):
+            ray = _kutu(x, x + w, p.GAP, D - p.GAP, z0, z1)
+            # ön ve arka uçta üst kenar pahı (kayarak giriş)
+            for y0, y1 in ((p.GAP, p.GAP + pah), (D - p.GAP - pah, D - p.GAP)):
+                ray -= _kutu(x - 1, x + w + 1, y0 - 0.01, y1 + 0.01, z1 - pah, z1 + 1)
+            tum = ray if tum is None else tum + ray
     return tum
 
 
@@ -102,7 +104,7 @@ def _kulp_bolgeleri(nx: int, ny: int):
     oyuk = (_kutu(x0 - 1, x1 + 1, yc - p.KULP_W / 2 - 1, yc + p.KULP_W / 2 + 1, taban, kilit + 1)
             + _kutu(bx0, x0 + p.KOL_T + 1, ey - p.MAFSAL_W / 2 - 1, yc, taban, kilit + 1)
             + _kutu(x1 - p.KOL_T - 1, bx1, ey - p.MAFSAL_W / 2 - 1, yc, taban, kilit + 1))
-    zarf = _kutu(bx0 - 1, bx1 + 1, ey - p.KULP_W / 2 - 2, yc + p.KULP_W / 2 + 2, kilit, p.ERKEK_H + 1)
+    zarf = _kutu(x0 - 1, x1 + 1, ey - p.KULP_W / 2 - 2, yc + p.KULP_W / 2 + 2, kilit, p.KILAVUZ_H + 1)
     mz = kilit + MAFSAL_Z
     bloklar = None
     for bx in (bx0, x1 + p.FIT):
@@ -123,8 +125,8 @@ def tavan(nx: int, ny: int) -> Part:
         kabuk = _kutu(b.min.X - p.WALL, b.max.X + p.WALL, b.min.Y - p.WALL, b.max.Y + p.WALL,
                       b.min.Z - p.WALL, -p.GAP)
         tekne = kabuk if tekne is None else tekne + kabuk
-    t = _govde(nx, ny) + tekne + (_kose_tutuculari(nx, ny) - zarf)
-    t = t - oyuk + bloklar
+    t = _govde(nx, ny) + tekne - oyuk + bloklar
+    t += _kilavuzlar(nx, ny) - zarf      # oyuktan sonra: ray kenarı oyuk ağzından kesilmez
     for yer in mandal_yerleri(nx, ny):
         t -= yer * tavan_cebi()
     return t
