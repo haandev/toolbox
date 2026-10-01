@@ -59,10 +59,12 @@ Tüm ölçüler bu dosyadan gelir; parça dosyalarında sabit sayı yazılmaz.
 ### 3.5 Malzeme varsayımı
 Kopolimer PP. Yalnızca klips esneme hesabını etkiler; tek parametre ile değişir.
 
-## 4. Izgara ve kilit noktası kuralı
+## 4. Node, ızgara ve kilit noktası kuralı
 
-- Kutular 200 × 200 × 100 mm hücrelerden oluşur.
-- **Kilit noktaları:** Her dikey yüzde her 200×100 hücrenin merkezi (`x = 100 + 200k`, `z = 50 + 100j`); alt ve üst yüzde her 200×200 hücrenin merkezi.
+- Sistemin temel birimi **node**: 200 × 200 × 100 mm. En küçük kutu (20×20×10) tek bir node'dur.
+- Her kutu, node'ların X, Y ve Z yönünde birleşimidir: `kutu(nx, ny, nz)` (ör. 40×40×20 = 2×2×2 node).
+- Kutunun dış ölçüsü daima node'un tam katıdır.
+- **Kilit noktaları:** Her dikey yüzde her node yüzünün (200×100) merkezi (`x = 100 + 200k`, `z = 50 + 100j`); alt ve üst yüzde her node yüzünün (200×200) merkezi.
 - Bu kural kutu boyutundan, kaydırmadan ve döndürmeden bağımsız olarak kilit noktalarının çakışmasını garanti eder.
 - Bu spec'te kilit geometrisi **tasarlanmaz**; her kilit noktasında boş bir **kilit bölgesi** hacmi ayrılır (`lib/kilit_yeri.py`).
 
