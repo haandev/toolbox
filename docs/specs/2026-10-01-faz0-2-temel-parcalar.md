@@ -114,6 +114,15 @@ Dikeyde her zaman alttaki kutunun tavanı üstteki kutunun tabanıyla buluşur; 
 - **Neden tavan karo değil:** Karo tavan + istif arayüzüne gömülü kulp, üstteki kutunun karo tabanındaki ek yeri çerçeveleriyle çakışıyor (modelde 4693 mm³). Tavanı tek parça yapmak bunu çözüyor; bedeli kutu boyu başına bir tavan kalıbı.
 - Dikey çekme kilidi (üstteki kutudan tutunca alttakinin de kalkması) ayrı bir mandal ister; sıradaki iş.
 
+### 5.4d Dikey çekme mandalı
+Erkek–dişi oturma kutuları hizalar ama birbirine bağlamaz; üstteki kutudan tutunca alttakinin de kalkması için mandal.
+- Dış yüzde yer yok (panel dış yüzü ile kutu yüzü arası 1.5 mm; dışa taşan mandal komşu kutuya çarpar), bu yüzden **kayar kanca**:
+- **Tavanda:** kenar çerçevesinin iç kısmında (y 7–17 mm) sürgü cebi. Sürgüden yukarı çıkan kanca kilit yüzünü geçer. Sürgüye bağlı dil, panel oluğunun üstünden kutu yüzüne uzanır; dışarıdan parmakla itilir (`MANDAL_YOL = 10` mm).
+- **Taban karosunda:** her kenarda anahtar deliği biçimli yuva (giriş penceresi + oda); oda tabanı ile pencere arasındaki çerçeve malzemesi tutma çıkıntısıdır. Dört kenarda olduğu için üstteki kutu 90°/180° döndürülse de mandala denk gelir.
+- Konum: ön ve arka yüzde, her node'da bir mandal (node kenar ortasından `MANDAL_X = −35` mm; yan kilit oluğu ve anahtar cebiyle çakışmaz).
+- Kilitliyken kanca başı çıkıntının `FIT` üstünde; üstteki kutu 1 mm kalkınca takılır (testli). Açıkken serbest kalkar.
+- Açık konuda: sürgünün yaylı tutucusu (kendiliğinden açılmasın diye detent) ve dilin parmak girintisi henüz modellenmedi.
+
 ### 5.4c Yan kilit (deneme — `YAN_KILIT`)
 Dikey istif kutuları zaten kilitlediği için yan kilit isteğe bağlıdır; `YAN_KILIT = False` ile tamamen kalkar.
 - Yatay pim kullanılamaz: kutu komşusunun yanına yukarıdan indirilir (alttaki tavana oturmak için), yandan taşan pim bunu engeller.

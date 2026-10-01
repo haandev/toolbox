@@ -11,7 +11,7 @@ def test_disa_aktar_tek_node(tmp_path):
     disk = json.loads((tmp_path / "preview" / "manifest.json").read_text())
     assert disk == m
     assert m["kutu"] == {"nx": 1, "ny": 1, "nz": 1, "P_XY": 200, "P_Z": 100}
-    assert len(m["parcalar"]) == 11   # 4 köşe + 4 panel + taban + tavan + kulp
+    assert len(m["parcalar"]) == 13   # 4 köşe + 4 panel + taban + tavan + kulp + 2 mandal
     assert len(m["kilit"]) == 6
     for parca in m["parcalar"]:
         assert (tmp_path / "preview" / parca["dosya"]).stat().st_size > 0
@@ -23,7 +23,7 @@ def test_yeniden_aktarma_eski_onizlemeyi_temizler(tmp_path):
     disa_aktar(tmp_path, 2, 1, 1)
     disa_aktar(tmp_path, 1, 1, 1)
     stl = list((tmp_path / "preview").glob("*.stl"))
-    assert len(stl) == 11
+    assert len(stl) == 13
 
 
 def test_istif_aktar(tmp_path):

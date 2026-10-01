@@ -12,6 +12,7 @@ from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.lib.kilit_yeri import karo_bolgesi, yan_oluk
+from kutu.parts.mandal import taban_yuvasi
 
 _C = p.P_XY / 2
 
@@ -87,6 +88,8 @@ def karo_taban() -> Part:
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
     if p.YAN_KILIT:
         taban -= _yan_centikler()
+    for aci in (0, 90, 180, 270):                      # mandal yuvası her kenarda (döndürülmüş istif)
+        taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * taban_yuvasi()
     return taban
 
 

@@ -64,6 +64,17 @@ ANAHTAR_X = 40.0     # panel alt dilinde, merkezden +x
 ANAHTAR_W = 10.0
 ANAHTAR_T = 2.0      # dilin iç yüzünden içe çıkıntı
 
+# --- Dikey çekme mandalı (tavanda kayar kanca, üst tabanda anahtar deliği) ---
+MANDAL_X = -35.0     # sürgü merkezi, node kenar ortasından (kilitli konum)
+MANDAL_YOL = 10.0    # sürgü kayma boyu
+MANDAL_L = 20.0      # sürgü boyu (x)
+MANDAL_Y0, MANDAL_Y1 = 7.0, 17.0      # sürgü (kutu yüzünden içe)
+KANCA_Y0, KANCA_Y1 = 10.2, 13.8       # kanca gövdesi ve başı
+KANCA_W = 4.0        # kanca gövdesi (x)
+KANCA_BAS = 12.0     # kanca başı boyu (x)
+CIKINTI_H = 3.0      # üst tabandaki tutma çıkıntısının üst yüzü (taban yerel z)
+KANCA_BAS_H = 2.8    # kanca başı kalınlığı
+
 # --- Yan kilit (deneme; YAN_KILIT=False ile kalkar) ---
 YAN_KILIT = True
 YAN_KILIT_X = 15.0   # dil -x'te, oluk +x'te (panel merkezine göre)

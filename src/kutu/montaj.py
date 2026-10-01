@@ -9,7 +9,8 @@ from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.kulp import acik, kulp as kulp_parcasi
 from kutu.parts.panel import panel
-from kutu.parts.tavan import kulp_boyu, kulp_yeri, tavan
+from kutu.parts.mandal import acik_mandal, mandal as mandal_parcasi
+from kutu.parts.tavan import kulp_boyu, kulp_yeri, mandal_yerleri, tavan
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
 
@@ -37,7 +38,8 @@ def kesisim_hacmi(a: Part, b: Part) -> float:
     return float(k.volume) if k is not None else 0.0
 
 
-def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False) -> list[Yerlesim]:
+def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False,
+         mandal: bool = False, mandal_acik: bool = False) -> list[Yerlesim]:
     W, D = nx * p.P_XY, ny * p.P_XY
     out: list[Yerlesim] = []
 
@@ -91,6 +93,10 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
             duvar("kiskac_dugumu", kiskac_dugumu(),
                   [i * p.P_XY for i in range(1, nx)],
                   [j * p.P_XY for j in range(1, ny)])
+    if mandal:
+        parca = acik_mandal() if mandal_acik else mandal_parcasi()
+        for i, yer in enumerate(mandal_yerleri(nx, ny)):
+            ekle(f"mandal_{i}", "mandal", Pos(0, 0, nz * p.P_Z) * yer * parca, (nz - 1) * p.P_Z)
     if kulp:
         xs, yc = kulp_yeri(nx, ny)
         parca = kulp_parcasi(kulp_boyu(nx))
