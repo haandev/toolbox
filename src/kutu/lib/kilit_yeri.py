@@ -42,9 +42,3 @@ def kilit_noktalari(nx: int, ny: int, nz: int) -> list[tuple[str, tuple[float, f
             out.append(("ust", (x, y, Hh)))
     return out
 
-
-def yan_oluk(z0: float, z1: float) -> Part:
-    """Yan kilit oluğu (panel yerel çerçevesi, +x tarafı); z0..z1 arası açık."""
-    og = p.YAN_DIL_W + 2 * p.FIT
-    return Pos(p.YAN_KILIT_X - og / 2, p.GAP - 0.01, z0) * Box(
-        og, p.YAN_DIL_H + p.FIT + 0.01, z1 - z0, align=MIN3)

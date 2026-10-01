@@ -11,6 +11,7 @@ from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import yuva, yuva_y
 from kutu.lib.kule import kule
+from kutu.lib import yan_ray
 
 
 def _profil(z0: float, h: float) -> Part:
@@ -30,6 +31,9 @@ def _profil(z0: float, h: float) -> Part:
 @cache
 def kose() -> Part:
     govde = _profil(p.T, p.H)
+    if p.YAN_KILIT:                      # komşu dilinin geçeceği oluklar (güney ve batı dış yüzü)
+        govde -= yan_ray.dis_oluklar(0, p.K + 0.01)
+        govde -= yan_ray.dis_oluklar_y(0, p.K + 0.01)
 
     # alt ve üst cepler, ortada WALL kalınlığında ara duvar
     c0, c1 = p.CEP_IC, p.K - p.WALL

@@ -92,11 +92,13 @@ TUTUCU_TUMSEK = 0.6  # kapalı tutucu: oluk tavanındaki tümsek
 # --- Malzeme (PP kopolimer) ---
 MALZEME_E = 1.3e9    # Pa
 
-# --- Yan kilit (deneme; YAN_KILIT=False ile kalkar) ---
+# --- Yan ray (kayar duvar; YAN_KILIT=False ile kalkar) ---
 YAN_KILIT = True
-YAN_KILIT_X = 15.0   # dil -x'te, oluk +x'te (panel merkezine göre)
-YAN_DIL_W = 10.0
-YAN_DIL_H = 3.0      # dilin ped yüzünden taşma boyu
+RAY_D = 20.0         # raylar panel orta yüksekliğinden ±RAY_D
+RAY_H = 8.0          # dil ray yüksekliği
+RAY_T = 3.0          # dil rayın şerit yüzünden taşması
+RAY_V1 = T + H / 2 - RAY_D   # dil (normal panel), kat tabanından
+RAY_V2 = T + H / 2 + RAY_D   # oluk (normal panel)
 
 # --- Kilit bölgeleri (bu fazda boş bırakılan hacim) ---
 KILIT_W = 60.0     # panel üzerinde yatay

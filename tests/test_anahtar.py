@@ -59,3 +59,20 @@ def test_ici_disina_takilan_panel_tabana_carpar():
     yanlis = Pos(p.P_XY / 2, ym, 0) * Rot(0, 0, 180) * Pos(-p.P_XY / 2, -ym, 0) * guney.parca
     tabanlar = [y for y in k if y.tur == "taban"]
     assert sum(kesisim_hacmi(yanlis, d.parca) for d in tabanlar) > 1
+
+
+def test_bati_paneli_montajdaki_bas_asagi_haliyle_cakismaz():
+    k = kutu(1, 1, 1)
+    bati = next(y for y in k if y.ad.endswith("panel_b100"))
+    digerleri = [y for y in k if y.tur in ("taban", "tavan")]
+    assert sum(kesisim_hacmi(bati.parca, d.parca) for d in digerleri) < 1e-3
+
+
+def test_dogu_paneli_bas_asagi_takilirsa_tavana_carpar():
+    k = kutu(1, 1, 1)
+    dogu = next(y for y in k if y.ad.endswith("panel_d100"))
+    c = Pos(p.P_XY, p.P_XY / 2, p.P_Z / 2)
+    # duvar düzleminde (x = sabit) dikey eksen değil, yüz normali (x) etrafında 180°
+    yanlis = c * Rot(180, 0, 0) * Pos(-p.P_XY, -p.P_XY / 2, -p.P_Z / 2) * dogu.parca
+    tavan = next(y for y in k if y.tur == "tavan")
+    assert kesisim_hacmi(yanlis, tavan.parca) > 1

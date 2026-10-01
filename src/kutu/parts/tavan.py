@@ -12,8 +12,7 @@ from build123d import Align, Box, Cylinder, Part, Pos, Rot
 
 from kutu import params as p
 from kutu.lib import MIN3
-from kutu.lib.kanal import yuva
-from kutu.lib.kilit_yeri import yan_oluk
+from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.parts.karo import delik_noktalari
 from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, kulp_x0
 from kutu.parts.mandal import tavan_cebi
@@ -34,13 +33,14 @@ def _kutu(x0, x1, y0, y1, z0, z1) -> Part:
 
 
 def _duvar_yerlesimleri(W: float, D: float, nx: int, ny: int):
+    """(yerleşim, baş aşağı mı) — batı ve kuzey panelleri baş aşağı takılır."""
     c = p.P_XY / 2
     for i in range(nx):
-        yield Pos(c + i * p.P_XY, 0, 0)
-        yield Pos(c + i * p.P_XY, D, 0) * Rot(0, 0, 180)
+        yield Pos(c + i * p.P_XY, 0, 0), False
+        yield Pos(c + i * p.P_XY, D, 0) * Rot(0, 0, 180), True
     for j in range(ny):
-        yield Pos(0, c + j * p.P_XY, 0) * Rot(0, 0, -90)
-        yield Pos(W, c + j * p.P_XY, 0) * Rot(0, 0, 90)
+        yield Pos(0, c + j * p.P_XY, 0) * Rot(0, 0, -90), True
+        yield Pos(W, c + j * p.P_XY, 0) * Rot(0, 0, 90), False
 
 
 def _govde(nx: int, ny: int) -> Part:
@@ -59,10 +59,10 @@ def _govde(nx: int, ny: int) -> Part:
         y += p.KARO_RIB_ARALIK
 
     # dış kenarlarda panel oluğu (alttan) ve yan kilit çentiği
-    for yer in _duvar_yerlesimleri(W, D, nx, ny):
+    for yer, bas_asagi in _duvar_yerlesimleri(W, D, nx, ny):
         t -= yer * yuva(-p.P_XY / 2, p.P_XY / 2, alt, alt + p.DIL + p.FIT)
-        if p.YAN_KILIT:
-            t -= yer * yan_oluk(alt - 1, p.ERKEK_H + 1)
+        if bas_asagi:                    # baş aşağı panelin anahtarı üstte, x = −ANAHTAR_X
+            t -= yer * anahtar_cebi(alt, alt + p.DIL + p.FIT, x=-p.ANAHTAR_X)
 
     # köşe ve kıskaç vida delikleri (yalnız dış kenara yakın olanlar)
     for i in range(nx):

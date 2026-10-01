@@ -52,8 +52,13 @@ def test_yan_kilit_kapaliyken_kutu_yuzunu_asmaz(monkeypatch):
         panel.cache_clear()
 
 
-def test_kaburgalar_kanala_girmez(pnl):
-    # dil bölgesinde (|x| > U/2) yalnızca deri bulunur
-    y0, _ = panel_y()
-    dil = Pos(p.U / 2, y0, p.T - p.DIL) * Box(p.DIL, p.WALL + p.RIB_D, p.PANEL_H, align=MIN3)
-    assert (pnl & dil).volume == pytest.approx(p.DIL * p.WALL * p.PANEL_H, rel=1e-3)
+def test_kaburgalar_kanala_girmez(monkeypatch):
+    # dil bölgesinde (|x| > U/2) yalnızca deri bulunur (yan ray oluğu hariç tutulur)
+    monkeypatch.setattr(p, "YAN_KILIT", False)
+    panel.cache_clear()
+    try:
+        y0, _ = panel_y()
+        dil = Pos(p.U / 2, y0, p.T - p.DIL) * Box(p.DIL, p.WALL + p.RIB_D, p.PANEL_H, align=MIN3)
+        assert (panel() & dil).volume == pytest.approx(p.DIL * p.WALL * p.PANEL_H, rel=1e-3)
+    finally:
+        panel.cache_clear()

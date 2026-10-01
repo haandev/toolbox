@@ -29,8 +29,11 @@ def anahtar(z0: float, z1: float) -> Part:
     return Pos(p.ANAHTAR_X - p.ANAHTAR_W / 2, y1, z0) * Box(p.ANAHTAR_W, p.ANAHTAR_T, z1 - z0, align=MIN3)
 
 
-def anahtar_cebi(z0: float, z1: float) -> Part:
-    """Anahtarın oturduğu cep (panel çerçevesi); oluğun iç duvarına açılır."""
+def anahtar_cebi(z0: float, z1: float, x: float = p.ANAHTAR_X) -> Part:
+    """Anahtarın oturduğu cep (panel çerçevesi); oluğun iç duvarına açılır.
+
+    Baş aşağı takılan (batı/kuzey) panelin anahtarı üstte, x = −ANAHTAR_X'tedir.
+    """
     _, y1 = panel_y()
     w = p.ANAHTAR_W + 2 * p.FIT
-    return Pos(p.ANAHTAR_X - w / 2, y1, z0) * Box(w, p.ANAHTAR_T + p.FIT, z1 - z0, align=MIN3)
+    return Pos(x - w / 2, y1, z0) * Box(w, p.ANAHTAR_T + p.FIT, z1 - z0, align=MIN3)

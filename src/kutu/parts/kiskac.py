@@ -11,6 +11,7 @@ from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import yuva
 from kutu.lib.kule import kule
+from kutu.lib import yan_ray
 
 _KULE_Y = (p.CEP_IC + p.K - p.WALL) / 2
 
@@ -25,6 +26,8 @@ def _profil(z0: float, h: float) -> Part:
 @cache
 def kiskac() -> Part:
     govde = _profil(p.T, p.H)
+    if p.YAN_KILIT:                      # komşu dilinin geçeceği oluklar
+        govde -= yan_ray.dis_oluklar(-p.K - 0.01, p.K + 0.01)
 
     c0, c1 = p.CEP_IC, p.K - p.WALL
     cx = p.KISKAC_CEP_YARI

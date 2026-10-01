@@ -11,7 +11,7 @@ from build123d import Align, Box, Cylinder, Part, Pos, Rot
 from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
-from kutu.lib.kilit_yeri import karo_bolgesi, yan_oluk
+from kutu.lib.kilit_yeri import karo_bolgesi
 from kutu.parts.cekmece import durdurucu
 from kutu.parts.mandal import taban_yuvasi
 
@@ -87,20 +87,8 @@ def karo_taban() -> Part:
     cep = Pos(_C, 0, 0) * anahtar_cebi(p.T - p.DIL - p.FIT, p.T)   # güney duvar
     for aci in (0, 90, 180, 270):
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * cep
-    if p.YAN_KILIT:
-        taban -= _yan_centikler()
     for aci in (0, 90, 180, 270):                      # mandal yuvası her kenarda (döndürülmüş istif)
         taban -= Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * taban_yuvasi()
     for aci in (0, 90, 180, 270):                      # çekmece durdurucusu her kenarda (çerçeve üstünde)
         taban += Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * durdurucu(_C, p.T)
     return taban
-
-
-def _yan_centikler() -> Part:
-    """Duvar oluklarının hizasında, komşu dilin geçeceği çentikler (taban yerel = dünya çerçevesi)."""
-    oluk = Pos(_C, 0, 0) * yan_oluk(0, p.T)   # güney duvar
-    tum = None
-    for aci in (0, 90, 180, 270):
-        c = Pos(_C, _C, 0) * Rot(0, 0, aci) * Pos(-_C, -_C, 0) * oluk
-        tum = c if tum is None else tum + c
-    return tum

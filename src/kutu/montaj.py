@@ -23,6 +23,9 @@ class Yerlesim:
     patlat: tuple[float, float, float]
 
 
+_BAS_ASAGI = Pos(0, 0, p.P_Z / 2) * Rot(0, 180, 0) * Pos(0, 0, -p.P_Z / 2)   # kat içinde yüz normali etrafında 180°
+
+
 def _isaret(v: float) -> int:
     return 0 if abs(v) < 1 else (1 if v > 0 else -1)
 
@@ -76,19 +79,21 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
             if ara:
                 ekle(f"k{kat}_kose_dugumu_{ad}", "kose_dugumu", yer * kose_dugumu(), zb)
 
-        def duvar(tur: str, parca: Part, x_listesi, y_listesi, on: bool = True) -> None:
+        def duvar(tur: str, parca: Part, x_listesi, y_listesi, on: bool = True, cevir: bool = False) -> None:
+            """cevir: batı ve kuzey yüzlerinde parça baş aşağı (yatay yan ray yön kuralı)."""
+            ters = _BAS_ASAGI * parca if cevir else parca
             for x in x_listesi:
                 if on:
                     ekle(f"k{kat}_{tur}_g{x:g}", tur, Pos(x, 0, zb) * parca, zb)
-                ekle(f"k{kat}_{tur}_k{x:g}", tur, Pos(x, D, zb) * Rot(0, 0, 180) * parca, zb)
+                ekle(f"k{kat}_{tur}_k{x:g}", tur, Pos(x, D, zb) * Rot(0, 0, 180) * ters, zb)
             for y in y_listesi:
-                ekle(f"k{kat}_{tur}_b{y:g}", tur, Pos(0, y, zb) * Rot(0, 0, -90) * parca, zb)
+                ekle(f"k{kat}_{tur}_b{y:g}", tur, Pos(0, y, zb) * Rot(0, 0, -90) * ters, zb)
                 ekle(f"k{kat}_{tur}_d{y:g}", tur, Pos(W, y, zb) * Rot(0, 0, 90) * parca, zb)
 
         orta = p.P_XY / 2
         duvar("panel", panel(),
               [orta + i * p.P_XY for i in range(nx)],
-              [orta + j * p.P_XY for j in range(ny)], on=not cekmece)
+              [orta + j * p.P_XY for j in range(ny)], on=not cekmece, cevir=True)
         if cekmece:
             alt = zb + p.T + (p.WALL if kat > 0 else 0)        # taban ya da raf üstü
             ust_plaka = zb + p.T + p.H - p.FIT

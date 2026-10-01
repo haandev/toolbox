@@ -16,7 +16,7 @@ def _sayim(liste):
 
 def _yan_tasma():
     """Yan kilit dili, gövdenin her iki yanında kutu yüzünü aşar."""
-    return 2 * p.YAN_DIL_H if p.YAN_KILIT else 0
+    return 2 * p.RAY_T if p.YAN_KILIT else 0
 
 
 def _dis_kutu(liste):
