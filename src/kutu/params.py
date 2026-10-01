@@ -1,0 +1,57 @@
+"""Modüler kutu sistemi — tüm ölçüler (mm). Parça dosyalarında sabit sayı yazılmaz."""
+
+# --- Izgara (girdi) ---
+P_XY = 200.0   # yatay node adımı
+P_Z = 100.0    # dikey node adımı
+U = 160.0      # panel adımı (görünür açıklık)
+H = 80.0       # panel yüksekliği (görünür açıklık)
+GAP = 0.5      # komşu kutular arası taraf başı boşluk
+
+# --- Türetilen ---
+K = (P_XY - U) / 2   # köşe katkısı (20); kıskaç genişliği 2K
+T = (P_Z - H) / 2    # karo katkısı (10)
+
+# --- Kalıp kuralları ---
+WALL = 2.5
+RIB = 0.6 * WALL
+RIB_D = 6.0          # kaburga derinliği (deriden içeri)
+DRAFT_OUT = 1.5      # derece
+DRAFT_IN = 1.0       # derece
+R_IN_MIN = 0.5 * WALL
+FIT = 0.2            # geçme boşluğu, prototiple kalibre edilir
+
+# --- Kanal / dil ---
+LIP = 1.5                  # kanal dış dudağı; panel dış yüzü bu kadar gömük
+DIL = 6.0                  # panel dilinin kanal/oluk içine giriş boyu
+PANEL_L = U + 2 * DIL      # 172
+PANEL_H = H + 2 * DIL      # 92
+PANEL_KABURGA_X = (-55.0, -35.0, 35.0, 55.0)   # dikey kaburga konumları (panel merkezine göre)
+
+# --- Vida / kule ---
+PROTO = True               # True: heat-set insert deliği (prototip)
+VIDA_D = 4.0
+KULE_OD = 8.5
+KULE_DELIK = 0.8 * VIDA_D  # seri üretim, plastik vida (3.2)
+INSERT_DELIK = 4.0         # M3 heat-set insert
+GECIS_DELIK = 4.5          # karo vida geçiş deliği
+
+# --- Köşe / kıskaç cepleri ---
+CEP_IC = GAP + LIP + WALL + FIT + WALL      # dış yüzden cebe mesafe (7.2)
+CEP_BOY = (H - WALL) / 2                     # alt ve üst cep derinliği; ortada WALL kalınlığında ara duvar
+KOSE_R = 5.0                                 # köşe dış yuvarlatma
+KOSE_KULE = (CEP_IC + (K - WALL)) / 2        # köşe kulesinin x=y konumu
+KISKAC_CEP_YARI = K - DIL - FIT - WALL       # kıskaç cebinin yarı genişliği (11.3)
+KISKAC_KULE_X = KISKAC_CEP_YARI - KULE_OD / 2 - 0.5   # kıskaç kuleleri ±x
+
+# --- Karo ---
+KARO_RIB_ARALIK = 40.0
+
+# --- Kilit bölgeleri (bu fazda boş bırakılan hacim) ---
+KILIT_W = 60.0     # panel üzerinde yatay
+KILIT_H = 50.0     # panel üzerinde dikey
+KILIT_KARO = 60.0  # karo üzerinde kare
+
+
+def kutu_dis(n: int, adim: float) -> float:
+    """n node'luk kenarın gerçek dış ölçüsü."""
+    return n * adim - 2 * GAP
