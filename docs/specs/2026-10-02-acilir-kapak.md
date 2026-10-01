@@ -26,7 +26,7 @@ Tavan (`tavan(nx, ny)`) yatayda ikiye ayrılır. Yerel çerçeve aynı: z = 0 ku
 - Eksen x boyunca, kapağın arka üst kenarında: `y = D − GAP − MENTESE_R`, `z = −GAP − MENTESE_R` (`MENTESE_R = 3`).
 - Eksen boyunca sırayla çerçeve ve kapak boğumları (`MENTESE_BOGUM` boyunda, aralarında `FIT`), çerçeve boğumlarından geçen pim (r = 1.5); kapak boğumlarında `pim + FIT` delik.
 - Kapak, eksenin arkasında yalnızca boğumlar kadar malzeme taşır; çerçevenin arka üstü eksenin altında kalır. Böylece kapak 0–100° açılırken çerçeveye sürtmez.
-- Açılma: kapak arka kenarı kutu arkasından en çok `MENTESE_R` kadar taşar (ızgara içinde).
+- Açılma: 90°'de kapağın üstündeki T raylar kutu arkasından ray yüksekliği (`T_BAS_Z1 = 7` mm) kadar taşar.
 
 ## 4. Kapak mandalı
 
@@ -38,14 +38,14 @@ Tavan (`tavan(nx, ny)`) yatayda ikiye ayrılır. Yerel çerçeve aynı: z = 0 ku
 ## 5. Duvar ve istifle ilişki
 
 - Üstünde kutu olan kutunun kapağı açılmaz (T raylar kapağı üst kutuya bağlar); önce kutu öne çekilir, sonra kapak açılır. Çekmeceli kutuların çekmeceleri doğrudan açılır.
-- Kapağın açılırken arkaya taşması `MENTESE_R`'yi geçmez; arkasında kutu olsa bile açılır (kutu önce öne çekildiği için).
+- Kapak açılırken arkaya ray yüksekliği kadar taşar; duvarda kutu önce öne çekildiği için arkadaki kutuya değmez.
 
 ## 6. Kabul kriterleri (testler)
 
 1. Kapalı ve kilitli: çerçeve, kapak, mandallar, kulp ve gövde çakışmaz (1×1, 2×1, 2×2).
 2. Kilitliyken kapak 1 mm kaldırılınca mandal kancası ve menteşe pimi takılır.
 3. Mandal açıkken kapak 0 … 100° açılırken (adımlarla) çerçeveye, gövdeye, panellere çarpmaz; kulp katlı.
-4. Kapak açıkken arkaya taşma ≤ `MENTESE_R`.
+4. 90° açık kapağın arkaya taşması ≤ `T_BAS_Z1` (ray yüksekliği).
 5. Mevcut istif, kayar duvar, kulp, çekmece testleri geçer (tavan → çerçeve + kapak).
 
 ## 7. Önizleme
@@ -58,3 +58,12 @@ Tavan (`tavan(nx, ny)`) yatayda ikiye ayrılır. Yerel çerçeve aynı: z = 0 ku
 2. Kapak 5.3 mm: eski tavandan ince; rijitlik T raylar ve tekne ile sağlanıyor.
 3. Mandalın kendiliğinden açılmasını engelleyen detent modellenmiyor.
 4. Kapak contası (toz/su) kapsam dışı.
+
+## 9. Uygulama notları (2026-10-02)
+
+- Uygulandı: `cerceve(nx, ny)`, `kapak(nx, ny)` (`parts/tavan.py`), `parts/kapak_mandal.py`, `montaj.kapak_ac()`, `kutu(..., kapak_mandal_acik=...)`, önizleme `kutu.export --kapak`.
+- Menteşe: boğumlar sırayla çerçeve/kapak; çerçevede kapak boğumlarının dönme alanı boşaltıldı; pim deliği kapağın tamamında.
+- Kulp teknesi çerçeve iç yüzünden `FIT` içeri alındı (`kulp_x0`).
+- Mandal yuvasının penceresi öne doğru 0.7 mm geniş: kapak açılırken kanca ilk derecelerde hafif öne kayar.
+- Test notu: çakışma testleri sürekli hareketi değil konumu sınar; "kilitliyken açılmaz" ilk 0.5–1°'de doğrulanır.
+- Eski `tavan(nx, ny)` çerçeve + kapak birleşimi olarak kaldı (geriye uyumluluk).

@@ -8,25 +8,28 @@ from build123d import Pos, Rot, export_step, export_stl
 from kutu import params as p
 from kutu.kalip import egimsiz_yuz_sayisi
 from kutu.lib.kilit_yeri import kilit_noktalari
-from kutu.montaj import kutu
+from kutu.montaj import kapak_ac, kutu
 from kutu.parts.karo import karo_taban
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.kulp import kulp
 from kutu.parts.cekmece import cekmece, raf
 from kutu.parts.panel import panel
-from kutu.parts.tavan import tavan
+from kutu.parts.kapak_mandal import mandal as kapak_mandal
+from kutu.parts.tavan import cerceve, kapak
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
 TURLER = {"panel": panel, "kose": kose, "kiskac": kiskac, "taban": karo_taban,
-          "tavan": lambda: tavan(1, 1), "tavan_2x1": lambda: tavan(2, 1),
-          "tavan_3x1": lambda: tavan(3, 1), "tavan_2x2": lambda: tavan(2, 2),
+          "cerceve": lambda: cerceve(1, 1), "kapak": lambda: kapak(1, 1), "kapak_mandal": kapak_mandal,
+          "cerceve_2x1": lambda: cerceve(2, 1), "kapak_2x1": lambda: kapak(2, 1),
+          "cerceve_3x1": lambda: cerceve(3, 1), "kapak_3x1": lambda: kapak(3, 1),
+          "cerceve_2x2": lambda: cerceve(2, 2), "kapak_2x2": lambda: kapak(2, 2),
                     "cekmece": lambda: cekmece(p.T + p.FIT, p.T + p.H - p.FIT, p.T + p.FIT, p.P_Z - p.TEKNE_ALT - p.FIT),
           "raf_1x1": lambda: raf(1, 1, 0), "kulp_1x": lambda: kulp(1), "kulp_2x": lambda: kulp(2), "kulp_3x": lambda: kulp(3),
           "yatay_kiskac": yatay_kiskac, "kose_dugumu": kose_dugumu, "kiskac_dugumu": kiskac_dugumu}
 _Z = (0, 0, 1)
 CEKME = {"panel": (0, 1, 0), "yatay_kiskac": (0, 1, 0)}   # diğerleri Z
-RENKLER = {"taban": "#5b6270", "tavan": "#7a8394", "kose": "#f39c3d", "kiskac": "#f1c40f",
+RENKLER = {"taban": "#5b6270", "cerceve": "#4a5060", "kapak": "#8a94a6", "kapak_mandal": "#8e44ad", "kose": "#f39c3d", "kiskac": "#f1c40f",
            "panel": "#9fb3c8", "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400",
            "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c",
            "cekmece": "#5dade2", "raf": "#95a5a6"}
@@ -160,6 +163,19 @@ def karma_sahnesi_aktar(cikti: Path) -> dict:
                        (4 * p.P_XY, p.P_XY, 3 * p.P_Z))
 
 
+def kapak_sahnesi_aktar(cikti: Path) -> dict:
+    """Kapağı açık kutular: 1×1 (90°), 2×1 (60°), 1×1 kapalı ve kilitli."""
+    def acik(nx, ny, aci):
+        k = kutu(nx, ny, 1, kulp=True, kapak_mandal_acik=True)
+        ust = [y for y in k if y.tur in ("kapak", "kapak_mandal", "kulp")]
+        return [y for y in k if y not in ust] + kapak_ac(ust, nx, ny, 1, aci)
+    return sahne_aktar(cikti, "kapak", [
+        ("a", acik(1, 1, 90), Pos(0, 0, 0), 0),
+        ("b", acik(2, 1, 60), Pos(300, 0, 0), 0),
+        ("c", kutu(1, 1, 1, kulp=True), Pos(800, 0, 0), 0),
+    ], (1000, p.P_XY, 2 * p.P_Z))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Modüler kutu çıktıları")
     ap.add_argument("--nx", type=int, default=1)
@@ -172,7 +188,11 @@ def main() -> None:
     ap.add_argument("--cekmece", action="store_true", help="çekmece önizlemesi (out/cekmece)")
     ap.add_argument("--duvar", action="store_true", help="kayar duvar önizlemesi (out/duvar)")
     ap.add_argument("--karma", action="store_true", help="karma istif önizlemesi (out/karma)")
+    ap.add_argument("--kapak", action="store_true", help="açık kapak önizlemesi (out/kapak)")
     a = ap.parse_args()
+    if a.kapak:
+        print(len(kapak_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/kapak/manifest.json")
+        return
     if a.karma:
         print(len(karma_sahnesi_aktar(a.cikti)["parcalar"]), "parça → out/karma/manifest.json")
         return

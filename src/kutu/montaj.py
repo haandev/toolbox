@@ -10,7 +10,8 @@ from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.kulp import acik, kulp as kulp_parcasi
 from kutu.parts.panel import panel
-from kutu.parts.tavan import kulp_boyu, kulp_yeri, tavan
+from kutu.parts.kapak_mandal import acik_mandal as kapak_acik_mandal, mandal as kapak_mandal
+from kutu.parts.tavan import cerceve, kapak, kulp_boyu, kulp_yeri, mentese_ekseni
 from kutu.parts.yatay_kiskac import yatay_kiskac
 
 
@@ -42,13 +43,13 @@ def kesisim_hacmi(a: Part, b: Part) -> float:
 
 
 def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False,
-         cekmece: bool = False) -> list[Yerlesim]:
+         cekmece: bool = False, kapak_mandal_acik: bool = False) -> list[Yerlesim]:
     W, D = nx * p.P_XY, ny * p.P_XY
     out: list[Yerlesim] = []
 
     def ekle(ad: str, tur: str, parca: Part, zb: float) -> None:
         c = parca.bounding_box().center()
-        if tur in ("taban", "tavan", "kulp"):
+        if tur in ("taban", "cerceve", "kapak", "kapak_mandal", "kulp"):
             yon = (0, 0, _isaret(c.Z - (zb + p.P_Z / 2)))
         elif tur == "cekmece":
             yon = (0, -1, 0)
@@ -62,7 +63,13 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
         for j in range(ny):
             x0, y0 = i * p.P_XY, j * p.P_XY
             ekle(f"taban_{i}{j}", "taban", Pos(x0, y0, 0) * karo_taban(), 0)
-    ekle(f"tavan_{nx}x{ny}", "tavan", Pos(0, 0, nz * p.P_Z) * tavan(nx, ny), (nz - 1) * p.P_Z)
+    ust = Pos(0, 0, nz * p.P_Z)
+    zu = (nz - 1) * p.P_Z
+    ekle(f"cerceve_{nx}x{ny}", "cerceve", ust * cerceve(nx, ny), zu)
+    ekle(f"kapak_{nx}x{ny}", "kapak", ust * kapak(nx, ny), zu)
+    m = kapak_acik_mandal() if kapak_mandal_acik else kapak_mandal()
+    for i in range(nx):
+        ekle(f"kapak_mandal_{i}", "kapak_mandal", ust * Pos(i * p.P_XY, 0, 0) * m, zu)
 
     for kat in range(nz):
         zb = kat * p.P_Z
@@ -119,3 +126,11 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
             parca = acik(parca)
         ekle(f"kulp_{kulp_boyu(nx)}x", "kulp", Pos(xs, yc, nz * p.P_Z - p.GAP) * parca, (nz - 1) * p.P_Z)
     return out
+
+
+def kapak_ac(liste: list[Yerlesim], nx: int, ny: int, nz: int, aci: float) -> list[Yerlesim]:
+    """Kapak grubunu (kapak, mandallar, kulp) menteşe ekseni etrafında aci derece açar."""
+    ya, za = mentese_ekseni(ny)
+    z = nz * p.P_Z + za
+    don = Pos(0, ya, z) * Rot(-aci, 0, 0) * Pos(0, -ya, -z)
+    return [Yerlesim(y.ad, y.tur, don * y.parca, y.patlat) for y in liste]

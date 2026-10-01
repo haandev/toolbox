@@ -1,10 +1,11 @@
-"""Tavan: kutu boyuna göre tek parça (nx × ny node).
+"""Tavan: kutu boyuna göre üst çerçeve + menteşeli kapak (nx × ny node).
 
 Yerel çerçeve: x, y kutu ızgarası (0 … nx·P_XY), z = 0 kutunun nominal üstü.
-Gövde: kenar çerçevesi (altta panel oluğu), altta güverte, üstte kaburgalı cep, kilit yüzü
-z = −GAP. Her node sütununda ön–arka boyunca iki tam boy T ray; üstteki kutunun taban
-karosundaki T kanallara girer (dikey kilit, yan hizalama, öne kayarak takma/çıkarma). Ortada gömme kulp oyuğu (kilit yüzünün altında,
-kutunun içine sarkan tekne) ve mafsal blokları.
+Çerçeve (z −T … −KAPAK_H−GAP): kenar halkası, altta panel oluğu, köşe/kıskaç vida delikleri,
+anahtar cepleri, ön kenarda kapak mandalı yuvaları, arka kenarda menteşe boğumları ve pim.
+Kapak (z −KAPAK_H−GAP … −GAP): tam üst yüzey; altta güverte, üstte kaburgalar; T raylar,
+gömme kulp oyuğu/teknesi, mafsal blokları, mandal cepleri, kapak boğumları. Kapak arka üst
+kenardaki eksen etrafında açılır.
 """
 from functools import cache
 
@@ -15,6 +16,7 @@ from kutu.lib import MIN3
 from kutu.lib.kanal import anahtar_cebi, yuva
 from kutu.parts.karo import delik_noktalari
 from kutu.parts.kulp import EKSEN_Y, KULP_Z0, MAFSAL_Z, kulp_x0
+from kutu.parts.kapak_mandal import cerceve_yuvasi, kapak_cebi
 from kutu.parts.t_kanal import RAY_XLER, ray
 
 
@@ -43,35 +45,81 @@ def _duvar_yerlesimleri(W: float, D: float, nx: int, ny: int):
         yield Pos(W, c + j * p.P_XY, 0) * Rot(0, 0, 90), False
 
 
-def _govde(nx: int, ny: int) -> Part:
+_KAPAK_ALT = -p.GAP - p.KAPAK_H
+
+
+def mentese_ekseni(ny: int) -> tuple[float, float]:
+    """Menteşe ekseninin (y, z)'si; eksen x boyunca."""
+    return ny * p.P_XY - p.GAP - p.MENTESE_R, -p.GAP - p.MENTESE_R
+
+
+def _bogumlar(nx: int):
+    """[(x0, x1, çerçeve mi)] — iki uçta çerçeve boğumu, aralarda FIT."""
+    x0, x1 = p.K, nx * p.P_XY - p.K
+    n = max(3, int((x1 - x0) // p.MENTESE_BOGUM))
+    if n % 2 == 0:
+        n -= 1
+    L = (x1 - x0) / n
+    out = []
+    for i in range(n):
+        a = x0 + i * L + (p.FIT / 2 if i > 0 else 0)
+        b = x0 + (i + 1) * L - (p.FIT / 2 if i < n - 1 else 0)
+        out.append((a, b, i % 2 == 0))
+    return out
+
+
+def _silindir_x(x0: float, x1: float, y: float, z: float, r: float) -> Part:
+    return Pos((x0 + x1) / 2, y, z) * Rot(0, 90, 0) * Cylinder(r, x1 - x0)
+
+
+@cache
+def cerceve(nx: int, ny: int) -> Part:
     g, W, D = p.GAP, nx * p.P_XY, ny * p.P_XY
-    alt, kilit = -p.T, -g
-    t = _kutu(g, W - g, g, D - g, alt, kilit)
-    t -= _kutu(p.K, W - p.K, p.K, D - p.K, alt + p.WALL, kilit)            # üstten kaburgalı cep
+    alt, ust = -p.T, _KAPAK_ALT
+    t = _kutu(g, W - g, g, D - g, alt, ust)
+    t -= _kutu(p.K, W - p.K, p.K, D - p.K, alt - 1, ust + 1)                # iç açıklık
 
-    x = p.K + p.KARO_RIB_ARALIK
-    while x < W - p.K - 1e-6:
-        t += _kutu(x - p.RIB / 2, x + p.RIB / 2, p.K, D - p.K, alt + p.WALL, kilit)
-        x += p.KARO_RIB_ARALIK
-    y = p.K + p.KARO_RIB_ARALIK
-    while y < D - p.K - 1e-6:
-        t += _kutu(p.K, W - p.K, y - p.RIB / 2, y + p.RIB / 2, alt + p.WALL, kilit)
-        y += p.KARO_RIB_ARALIK
-
-    # dış kenarlarda panel oluğu (alttan) ve yan kilit çentiği
     for yer, bas_asagi in _duvar_yerlesimleri(W, D, nx, ny):
         t -= yer * yuva(-p.P_XY / 2, p.P_XY / 2, alt, alt + p.DIL_V + p.FIT)
         if bas_asagi:                    # baş aşağı panelin anahtarı üstte, x = −ANAHTAR_X
             t -= yer * anahtar_cebi(alt, alt + p.DIL_V + p.FIT, x=-p.ANAHTAR_X)
 
-    # köşe ve kıskaç vida delikleri (yalnız dış kenara yakın olanlar)
-    for i in range(nx):
+    for i in range(nx):                  # köşe ve kıskaç vida delikleri (dış kenara yakın olanlar)
         for j in range(ny):
             for hx, hy in delik_noktalari():
                 x, y = hx + i * p.P_XY, hy + j * p.P_XY
                 if min(x, y, W - x, D - y) < p.K:
                     t -= Pos(x, y, alt) * Cylinder(p.GECIS_DELIK / 2, p.T,
                                                    align=(Align.CENTER, Align.CENTER, Align.MIN))
+
+    for i in range(nx):                  # ön kenarda kapak mandalı yuvaları
+        t -= Pos(i * p.P_XY, 0, 0) * cerceve_yuvasi()
+
+    ya, za = mentese_ekseni(ny)          # arka kenarda çerçeve boğumları + pim
+    for a, b, cerceve_mi in _bogumlar(nx):
+        if cerceve_mi:
+            t += _silindir_x(a, b, ya, za, p.MENTESE_R)
+        else:                            # kapak boğumunun dönme alanı
+            t -= _silindir_x(a - p.FIT / 2, b + p.FIT / 2, ya, za, p.MENTESE_R + p.FIT)
+    t += _silindir_x(p.K, W - p.K, ya, za, p.MENTESE_PIM_R)
+    return t
+
+
+def _kapak_govde(nx: int, ny: int) -> Part:
+    g, W, D = p.GAP, nx * p.P_XY, ny * p.P_XY
+    alt, ust = _KAPAK_ALT, -g
+    t = _kutu(g, W - g, g, D - g, alt, ust)
+    t -= _kutu(g + p.WALL, W - g - p.WALL, g + p.WALL, D - g - p.WALL, alt + p.WALL, ust + 1)   # üstten cep
+    x = p.K + p.KARO_RIB_ARALIK
+    while x < W - p.K - 1e-6:
+        t += _kutu(x - p.RIB / 2, x + p.RIB / 2, g, D - g, alt + p.WALL, ust)
+        x += p.KARO_RIB_ARALIK
+    y = p.K + p.KARO_RIB_ARALIK
+    while y < D - p.K - 1e-6:
+        t += _kutu(g, W - g, y - p.RIB / 2, y + p.RIB / 2, alt + p.WALL, ust)
+        y += p.KARO_RIB_ARALIK
+    for y0 in (p.K, D - p.K - p.RIB):    # ön ve arka kenar boyunca kaburga (mandal ve T ray için taşıyıcı)
+        t += _kutu(g, W - g, y0, y0 + p.RIB, alt + p.WALL, ust)
     return t
 
 
@@ -110,16 +158,33 @@ def _kulp_bolgeleri(nx: int, ny: int):
 
 
 @cache
-def tavan(nx: int, ny: int) -> Part:
+def kapak(nx: int, ny: int) -> Part:
     oyuk, zarf, bloklar = _kulp_bolgeleri(nx, ny)
-    # tekne: oyuğun WALL kalınlığında kabuğu, kutunun içine sarkar
-    bb = oyuk.bounding_box()
+    # tekne: oyuğun WALL kalınlığında kabuğu, çerçeve açıklığından kutunun içine sarkar
     tekne = None
     for parca in oyuk.solids():
         b = parca.bounding_box()
         kabuk = _kutu(b.min.X - p.WALL, b.max.X + p.WALL, b.min.Y - p.WALL, b.max.Y + p.WALL,
                       b.min.Z - p.WALL, -p.GAP)
         tekne = kabuk if tekne is None else tekne + kabuk
-    t = _govde(nx, ny) + tekne - oyuk + bloklar
+    t = _kapak_govde(nx, ny) + tekne - oyuk + bloklar
     t += _t_raylar(nx, ny) - zarf - oyuk    # raylar kulbun süpürme bölgesinde kesik
+    for i in range(nx):                     # mandal cepleri
+        t -= Pos(i * p.P_XY, 0, 0) * kapak_cebi()
+
+    # menteşe: eksenin arkasında yalnız kapak boğumları; çerçeve boğumlarının çevresi boş
+    W = nx * p.P_XY
+    ya, za = mentese_ekseni(ny)
+    t -= _kutu(-1, W + 1, ya, ny * p.P_XY + 1, _KAPAK_ALT - 1, 1)
+    for a, b, cerceve_mi in _bogumlar(nx):
+        if cerceve_mi:
+            t -= _silindir_x(a - p.FIT / 2, b + p.FIT / 2, ya, za, p.MENTESE_R + p.FIT)
+        else:
+            t += _silindir_x(a, b, ya, za, p.MENTESE_R)
+    t -= _silindir_x(-1, W + 1, ya, za, p.MENTESE_PIM_R + p.FIT)          # pim deliği
     return t
+
+
+def tavan(nx: int, ny: int) -> Part:
+    """Kapalı tavan (çerçeve + kapak) — eski arayüz için."""
+    return cerceve(nx, ny) + kapak(nx, ny)

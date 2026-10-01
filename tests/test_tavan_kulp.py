@@ -52,7 +52,7 @@ def test_kulplu_kutunun_ustune_istif(nx, ny):
     ust = [type(y)(y.ad, y.tur, Pos(0, 0, p.P_Z) * y.parca, y.patlat) for y in kutu(nx, ny, 1)]
     for a in alt:
         for b in ust:
-            if a.tur in ("kulp", "tavan"):
+            if a.tur in ("kulp", "kapak", "kapak_mandal", "cerceve"):
                 assert kesisim_hacmi(a.parca, b.parca) < 1e-3, f"{a.ad} / {b.ad}"
 
 

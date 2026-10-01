@@ -36,7 +36,7 @@ def _guney_paneli_degistir(donusum):
     guney = next(y for y in k if y.ad.endswith("panel_g100"))
     c = Pos(p.P_XY / 2, 0, p.P_Z / 2)
     yanlis = c * donusum * Pos(-p.P_XY / 2, 0, -p.P_Z / 2) * guney.parca
-    digerleri = [y for y in k if y.tur in ("taban", "tavan")]
+    digerleri = [y for y in k if y.tur in ("taban", "cerceve")]
     return yanlis, digerleri
 
 
@@ -64,7 +64,7 @@ def test_ici_disina_takilan_panel_tabana_carpar():
 def test_bati_paneli_montajdaki_bas_asagi_haliyle_cakismaz():
     k = kutu(1, 1, 1)
     bati = next(y for y in k if y.ad.endswith("panel_b100"))
-    digerleri = [y for y in k if y.tur in ("taban", "tavan")]
+    digerleri = [y for y in k if y.tur in ("taban", "cerceve")]
     assert sum(kesisim_hacmi(bati.parca, d.parca) for d in digerleri) < 1e-3
 
 
@@ -74,5 +74,5 @@ def test_dogu_paneli_bas_asagi_takilirsa_tavana_carpar():
     c = Pos(p.P_XY, p.P_XY / 2, p.P_Z / 2)
     # duvar düzleminde (x = sabit) dikey eksen değil, yüz normali (x) etrafında 180°
     yanlis = c * Rot(180, 0, 0) * Pos(-p.P_XY, -p.P_XY / 2, -p.P_Z / 2) * dogu.parca
-    tavan = next(y for y in k if y.tur == "tavan")
+    tavan = next(y for y in k if y.tur == "cerceve")
     assert kesisim_hacmi(yanlis, tavan.parca) > 1

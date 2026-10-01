@@ -18,7 +18,7 @@ KULP_Z0, KULP_Z1 = -1 - p.KULP_H, -1.0
 
 def kulp_x0() -> float:
     """Kulp kolunun dış yüzü (kulp bölgesi başından)."""
-    return p.K + p.WALL + p.MAFSAL_L + p.FIT
+    return p.K + p.FIT + p.WALL + p.MAFSAL_L + p.FIT    # tekne, çerçeve iç yüzünden FIT içeride
 
 
 @cache

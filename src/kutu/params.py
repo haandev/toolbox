@@ -47,6 +47,13 @@ KISKAC_KULE_X = KISKAC_CEP_YARI - KULE_OD / 2 - 0.5   # kıskaç kuleleri ±x
 # --- Karo ---
 KARO_RIB_ARALIK = 40.0
 
+# --- Açılır kapak (çerçeve + menteşeli kapak) ---
+KAPAK_H = 5.3          # kapak kalınlığı (kilit yüzünün altında); çerçeve T − KAPAK_H − GAP
+MENTESE_R = 3.0        # menteşe boğum yarıçapı; eksen arka üst kenardan R içeride
+MENTESE_PIM_R = 1.5
+MENTESE_BOGUM = 20.0   # yaklaşık boğum boyu (çerçeve ve kapak sırayla)
+KAPAK_MANDAL_YOL = 10.0
+
 # --- Gömme kulp (tek parça tavanın içinde, kilit yüzünün altında) ---
 KULP_W = 24.0          # tutma yeri genişliği
 KULP_H = 14.0          # kulp kesit yüksekliği (kalın tavan: iç hacimden yemeden +2 mm)
