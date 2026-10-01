@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "konsept",
+      "name": "onizleme",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "/private/tmp/claude-501/-Users-haandev-toolbox/0baf263d-98be-4b61-8576-f1323615d007/scratchpad"],
-      "port": 8765
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "/Users/haandev/toolbox"],
+      "port": 8766
     }
   ]
 }

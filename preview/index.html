@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kutu Önizleme</title>
+<style>
+  html,body { margin:0; height:100%; background:#16181d; color:#e8e8ea; font:14px/1.4 system-ui,sans-serif; overflow:hidden; }
+  #ui { position:absolute; top:12px; left:12px; background:#22252c; padding:12px 14px; border-radius:10px; width:240px; box-shadow:0 4px 20px #0006; }
+  #ui h1 { font-size:15px; margin:0 0 6px; }
+  #ui label { display:flex; align-items:center; gap:8px; margin:4px 0; cursor:pointer; }
+  #ui input[type=range] { width:100%; }
+  .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
+  hr { border:0; border-top:1px solid #333; margin:10px 0; }
+  #bilgi { color:#f39c3d; font-weight:600; }
+  #hata { color:#e74c3c; }
+</style>
+</head>
+<body>
+<div id="ui">
+  <h1>Modüler Kutu</h1>
+  <div id="bilgi">yükleniyor…</div>
+  <div id="hata"></div>
+  <hr>
+  <label>Patlatma <input id="patlat" type="range" min="0" max="120" value="0"></label>
+  <label>Kesit (X) <input id="kesit" type="range" min="0" max="100" value="100"></label>
+  <hr>
+  <div id="turler"></div>
+  <label><input type="checkbox" id="kilit" checked><span class="sw" style="background:#e74c3c"></span>Kilit noktaları</label>
+  <label><input type="checkbox" id="izgara" checked><span class="sw" style="background:#3fa7ff"></span>Node ızgarası</label>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+const KOK = '../out/preview/';
+const ADLAR = { karo: 'Karo (taban/tavan)', kose: 'Köşe', kiskac: 'Kıskaç', panel: 'Panel' };
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x16181d);
+const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 1, 20000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 1.4));
+const gunes = new THREE.DirectionalLight(0xffffff, 1.6);
+gunes.position.set(400, -300, 800);
+scene.add(gunes);
+
+const kesitDuzlemi = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+const parcalar = [];   // {mesh, tur, yon: Vector3}
+let kilitGrup, izgaraGrup, W, D, Hh;
+
+function uygula() {
+  const e = +document.getElementById('patlat').value;
+  const gorunur = {};
+  document.querySelectorAll('[data-tur]').forEach(c => gorunur[c.dataset.tur] = c.checked);
+  for (const p of parcalar) {
+    p.mesh.position.copy(p.yon).multiplyScalar(e);
+    p.mesh.visible = gorunur[p.tur];
+  }
+  kilitGrup.visible = document.getElementById('kilit').checked;
+  izgaraGrup.visible = document.getElementById('izgara').checked;
+  kesitDuzlemi.constant = W * (+document.getElementById('kesit').value) / 100 + 0.01;
+}
+
+function izgara(m) {
+  const g = new THREE.Group(), pts = [];
+  const { P_XY, P_Z } = m.kutu;
+  for (let x = 0; x <= W; x += P_XY) pts.push(x, 0, 0, x, D, 0, x, 0, 0, x, 0, Hh);
+  for (let y = 0; y <= D; y += P_XY) pts.push(0, y, 0, W, y, 0, 0, y, 0, 0, y, Hh);
+  for (let z = 0; z <= Hh; z += P_Z) pts.push(0, 0, z, W, 0, z, 0, 0, z, 0, D, z);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  g.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0x3fa7ff, transparent: true, opacity: .4 })));
+  return g;
+}
+
+async function yukle() {
+  const m = await (await fetch(KOK + 'manifest.json', { cache: 'no-store' })).json();
+  const { nx, ny, nz, P_XY, P_Z } = m.kutu;
+  W = nx * P_XY; D = ny * P_XY; Hh = nz * P_Z;
+  document.getElementById('bilgi').textContent =
+    `${W / 10} × ${D / 10} × ${Hh / 10} cm · ${m.parcalar.length} parça`;
+
+  const turler = [...new Set(m.parcalar.map(p => p.tur))];
+  document.getElementById('turler').innerHTML = turler.map(t => {
+    const renk = m.parcalar.find(p => p.tur === t).renk;
+    return `<label><input type="checkbox" data-tur="${t}" checked><span class="sw" style="background:${renk}"></span>${ADLAR[t] ?? t}</label>`;
+  }).join('');
+  document.querySelectorAll('[data-tur]').forEach(c => c.onchange = uygula);
+
+  const loader = new STLLoader();
+  await Promise.all(m.parcalar.map(async p => {
+    const geo = await loader.loadAsync(KOK + p.dosya);
+    geo.computeVertexNormals();
+    const mat = new THREE.MeshStandardMaterial({ color: p.renk, roughness: .7, clippingPlanes: [kesitDuzlemi], side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+    parcalar.push({ mesh, tur: p.tur, yon: new THREE.Vector3(...p.patlat) });
+  }));
+
+  kilitGrup = new THREE.Group();
+  const kilitMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c });
+  for (const k of m.kilit) {
+    const s = new THREE.Mesh(new THREE.SphereGeometry(6, 16, 12), kilitMat);
+    s.position.set(...k.merkez);
+    kilitGrup.add(s);
+  }
+  scene.add(kilitGrup);
+  izgaraGrup = izgara(m);
+  scene.add(izgaraGrup);
+
+  controls.target.set(W / 2, D / 2, Hh / 2);
+  camera.position.set(W / 2 + 1.6 * Math.max(W, 300), D / 2 - 1.8 * Math.max(D, 300), Hh / 2 + 1.4 * Math.max(Hh, 250));
+  uygula();
+}
+
+document.getElementById('patlat').oninput = uygula;
+document.getElementById('kesit').oninput = uygula;
+document.getElementById('kilit').onchange = uygula;
+document.getElementById('izgara').onchange = uygula;
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+yukle().catch(e => {
+  document.getElementById('hata').textContent =
+    'Manifest yüklenemedi. Önce: uv run python -m kutu.export (' + e.message + ')';
+});
+(function dongu() { requestAnimationFrame(dongu); controls.update(); renderer.render(scene, camera); })();
+</script>
+</body>
+</html>
