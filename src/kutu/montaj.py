@@ -1,7 +1,7 @@
 """Parçaları node ızgarasına yerleştirir: kutu(nx, ny, nz)."""
 from dataclasses import dataclass
 
-from build123d import Part, Pos, Rot
+from build123d import Part, Plane, Pos, Rot
 
 from kutu import params as p
 from kutu.parts.cekmece import cekmece as cekmece_parcasi, raf
@@ -74,7 +74,7 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
     zu = (nz - 1) * p.P_Z
     mandal_parca = kapak_acik_mandal() if kapak_mandal_acik else kapak_mandal()
     if tavan == "evrensel":
-        _evrensel_tavan(ekle, nx, ny, nz, kapak_gruplari, mandal_acik)
+        _evrensel_tavan(ekle, nx, ny, nz, kapak_gruplari, mandal_acik, kulp, kulp_acik)
     moduller = tavan_modulleri(nx, ny) if tavan == "modul" else []
     modul_of = {(i, j): m for m, (i0, j0, mx, my) in enumerate(moduller)
                 for i in range(i0, i0 + mx) for j in range(j0, j0 + my)}
@@ -155,7 +155,8 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
 
 
 _EV_TURLER = ("cerceve_hucre", "kapak_hucre", "kam_cerceve", "kam_kapak", "tapa",
-              "mentese_cerceve", "mentese_kapak", "mentese_pimi", "mandal_eki")
+              "mentese_cerceve", "mentese_kapak", "mentese_pimi", "mandal_eki",
+              "kulp_ayagi", "kulp_kolu", "kulp_cubugu")
 
 
 def _kenar_yeri(i: int, j: int, kenar: str):
@@ -165,7 +166,8 @@ def _kenar_yeri(i: int, j: int, kenar: str):
     return Pos(i * p.P_XY + c, j * p.P_XY + c, 0) * Rot(0, 0, aci) * Pos(-c, -c, 0)
 
 
-def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool) -> None:
+def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool,
+                    kulp: bool = False, kulp_acik: bool = False) -> None:
     """Evrensel tavan: tek tip çerçeve/kapak hücreleri + kamlar, tapalar, menteşe ve mandal ekleri."""
     P = p.P_XY
     ust = Pos(0, 0, nz * p.P_Z)
@@ -179,6 +181,12 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool)
     assert len(grup_of) == nx * ny, "kapak grupları tavanı tam ve örtüşmeden kaplamalı"
     u_men_cer, u_men_kap, u_man = P - p.YUVA_U[0], P - p.YUVA_U[1], p.YUVA_U[1]   # x konumları
     arka = {(i, j0 + gy - 1) for (i0, j0, gx, gy) in gruplar for i in range(i0, i0 + gx)}
+    # kulp ayaklarının oturduğu ek yeri yuvaları (2×2 gruplar): kapak kamı yok
+    ayak_ek = set()
+    if kulp:
+        for (i0, j0, gx, gy) in gruplar:
+            if (gx, gy) == (2, 2):
+                ayak_ek |= {(i0, j0, p.YUVA_U[0]), (i0 + 1, j0, p.YUVA_U[1])}
     on = {(i, j0) for (i0, j0, gx, gy) in gruplar for i in range(i0, i0 + gx)}
 
     for i in range(nx):
@@ -200,7 +208,7 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool)
                         continue
                     ekle(f"kam_cerceve_{i}{j}_{di}{dj}_{u:g}", "kam_cerceve",
                          ust * yer * Pos(0, 0, ev.ALT) * ev.kam(), zu)
-                    if u != p.YUVA_ORTA and grup_of[(ni, nj)] == g:
+                    if u != p.YUVA_ORTA and grup_of[(ni, nj)] == g and not (dj and (i, j, u) in ayak_ek):
                         ekle(f"g{g}_kam_kapak_{i}{j}_{di}{dj}_{u:g}", "kam_kapak",
                              ust * yer * Pos(0, 0, ev.CUST) * ev.kam(ev.KAPAK_KAM_H), zu)
             # çevre kenarlarda tapalar (menteşe ve mandal konumları hariç)
@@ -225,9 +233,29 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool)
             if mandal_acik:
                 m = Pos(0, -p.MANDAL_GERI, 0) * m
             ekle(f"g{g}_mandal_eki_{i}", "mandal_eki", ust * Pos(i * P, j0 * P, 0) * m, zu)
+        if kulp and (gx, gy) in ev.KULP_GRUPLARI:
+            _evrensel_kulp(ekle, g, i0, j0, gx, gy, ust, zu, kulp_acik)
         x0 = i0 * P + min(u_men_cer, u_men_kap) - p.KANAT_W / 2
         x1 = (i0 + gx - 1) * P + max(u_men_cer, u_men_kap) + p.KANAT_W / 2
         ekle(f"mentese_pimi_{g}", "mentese_pimi", ust * Pos(0, jb * P, 0) * ev.mentese_pimi(x0, x1), zu)
+
+
+def _evrensel_kulp(ekle, g, i0, j0, gx, gy, ust, zu, acik: bool) -> None:
+    """Paralel kollu katlanır kulp: ayaklar grup kenarlarından KULP_AYAK_U içeride, grup ortası hizasında."""
+    P = p.P_XY
+    yc = (j0 + gy / 2) * P
+    xa, xb = i0 * P + p.KULP_AYAK_U, (i0 + gx) * P - p.KULP_AYAK_U
+    L = p.KULP_KOL_L
+    kol_don = ev.kulp_ac_donusumu() if acik else Pos(0, 0, 0)
+    for n, xf in enumerate((xa, xb)):
+        f = ust * Pos(xf, yc, 0)
+        ekle(f"g{g}_kulp_ayagi_{n}", "kulp_ayagi", f * ev.kulp_ayagi(), zu)
+        kol = kol_don * ev.kulp_kolu()
+        ekle(f"g{g}_kulp_kolu_{n}a", "kulp_kolu", f * kol, zu)
+        ekle(f"g{g}_kulp_kolu_{n}b", "kulp_kolu", f * kol.mirror(Plane.XZ), zu)
+    cubuk = ev.kulp_cubugu(xb - xa)
+    yer = Pos(xa, yc, ev.PIVOT_Z + L) * Pos(0, 0, -ev.PIVOT_Z) if acik else Pos(xa + L, yc, 0)
+    ekle(f"g{g}_kulp_cubugu", "kulp_cubugu", ust * yer * cubuk, zu)
 
 
 def evrensel_grup_ac(liste: list[Yerlesim], g: int, aci: float, nx: int, ny: int, nz: int,

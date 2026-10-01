@@ -68,3 +68,13 @@ Tarih: 2026-10-02
 - Tam boy kenar yuvaları çerçeveyi zayıflatır; çevre kenarlarda tapalar panel oluğunu tamamlamalı.
 - Ön grup açılma sınırı (~40°) T raylar nedeniyle sürer.
 - Kaldırmalı kulbun ayak–kovan boşluğu ve durdurucusu prototipte ayarlanmalı.
+
+## 9. Değişiklik: kaldırmalı kulp yerine paralel kollu katlanır kulp (2026-10-02)
+
+Kaldırmalı kulbun kılavuz kovanları ve ayakları 25 mm kaldırma için kapağın altına ~65 mm sarkıyor (kutu içini ve çekmeceyi işgal ediyor). Yerine:
+- **Kulp ayağı:** yuvaya takılan ek; yuvanın içinde kanalın iki yanında yanaklar, kısa pimler (eksen y, kanal ortası yüksekliğinde).
+- **Kollar:** her ayakta kanalın iki yanında birer yan plaka (`KOL = 25`), ayakta ve uçta pimli.
+- **Tutma çubuğu:** 16×5 mm alüminyum yassı çubuk, kol uçlarına pimli; iki ayak arası boyda.
+- Katlıyken kollar +x yönünde yatık, çubuk kanalda 25 mm kaymış; hiçbir parça kapağın altına sarkmaz.
+- Kaldırınca kollar dikleşir, çubuk paralelkenarla yatay kalarak 25 mm yükselir; iki ayağın tam ortasında = grubun ağırlık merkezinin üstünde.
+- Kanal `KANAL_W = 22`.

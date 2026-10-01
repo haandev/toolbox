@@ -64,8 +64,14 @@ PAPYON_H = 3.0           # yuva derinliği (kam yüksekliği PAPYON_H − FIT)
 
 # --- Evrensel tavan ---
 KAPAK_ICERI = GAP + MENTESE_R    # kapak hücresi her kenardan bu kadar içeride (menteşe her kenarda olabilir)
-KANAL_W = 26.0                   # kaldırmalı kulp tutma çubuğu kanalı (25 mm yassı çubuk)
+KANAL_W = 22.0                   # katlanır kulp kanalı (16 mm çubuk + iki yan kol)
 KANAL_D = 5.5                    # kanal derinliği (5 mm çubuk)
+KULP_CUBUK_W = 16.0              # tutma çubuğu: 16×5 alüminyum yassı çubuk
+KULP_CUBUK_T = 5.0
+KULP_PLAKA_T = 2.5               # yan kol plakası
+KULP_KOL_L = 25.0                # kol boyu = kaldırma yüksekliği
+KULP_PIM_R = 1.5
+KULP_AYAK_U = 40.0               # ayaklar grup kenarlarından bu kadar içeride (yuva konumu)
 KANAT_W = 16.0                   # menteşe boğumu boyu (x)
 MANDAL_GERI = 3.5                # mandal ekinin açılırken öne esneme payı
 

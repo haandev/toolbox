@@ -13,7 +13,7 @@ Ekler güney kenar için tanımlıdır (arka kenar ekleri kuzey kenar); montaj d
 """
 from functools import cache
 
-from build123d import Align, Box, Cylinder, Part, Pos, Rot
+from build123d import Align, Box, Cylinder, Part, Plane, Pos, Rot
 
 from kutu import params as p
 from kutu.lib import MIN3
@@ -179,3 +179,55 @@ def mandal_eki() -> Part:
 def mentese_pimi(x0: float, x1: float) -> Part:
     """Arka kenar menteşe pimi (hücre çerçevesinde)."""
     return _silindir_x(x0, x1, EY, EZ, p.MENTESE_PIM_R)
+
+
+# --- Paralel kollu katlanır kulp ---------------------------------------------------------
+# Kulp çerçevesi: ayak yuvası merkezi (0, 0), kulp ekseni x boyunca, z kutu üstünden.
+PIVOT_Z = KANAL_TABAN + p.KANAL_D / 2
+_PL0 = p.KULP_CUBUK_W / 2 + _F               # yan plakanın iç yüzü
+_PL1 = _PL0 + p.KULP_PLAKA_T
+
+
+def _silindir_y(x, y0, y1, z, r) -> Part:
+    return Pos(x, (y0 + y1) / 2, z) * Rot(90, 0, 0) * Cylinder(r, y1 - y0)
+
+
+@cache
+def kulp_ayagi() -> Part:
+    """Yuvaya takılan kulp ayağı: papyon gövde + kanalın iki yanında yanak + kısa pimler."""
+    govde = _yarim(0, CUST + _F, KANAL_TABAN - _F, 0)
+    govde = govde + Rot(0, 0, 180) * govde
+    yanak_y0 = p.KANAL_W / 2 + _F + _F
+    yanak = _k(-6, 6, yanak_y0, H - _F, KANAL_TABAN - _F - 0.5, KUST - 0.25)
+    pim = _silindir_y(0, _PL0 + _F, yanak_y0 + 0.5, PIVOT_Z, p.KULP_PIM_R)
+    tek = yanak + pim
+    return govde + tek + tek.mirror(Plane.XZ)
+
+
+@cache
+def kulp_kolu() -> Part:
+    """Yan kol plakası (katlı konumda, +y tarafı): ayak pimi x = 0, uç pimi x = KOL."""
+    L, h = p.KULP_KOL_L, 2.5
+    plaka = _k(-h, L + h, _PL0, _PL1, PIVOT_Z - h, PIVOT_Z + h)
+    for x in (0, L):
+        plaka -= _silindir_y(x, _PL0 - 1, _PL1 + 1, PIVOT_Z, p.KULP_PIM_R + _F)
+    return plaka
+
+
+@cache
+def kulp_cubugu(uzunluk: float) -> Part:
+    """Tutma çubuğu (katlı konumda): x = 0 … uzunluk; uçlarda kol pimleri."""
+    e = 3.0
+    z0 = KANAL_TABAN + _F
+    cubuk = _k(-e, uzunluk + e, -p.KULP_CUBUK_W / 2, p.KULP_CUBUK_W / 2, z0, z0 + p.KULP_CUBUK_T)
+    for x in (0, uzunluk):
+        cubuk += _silindir_y(x, -_PL1, _PL1, PIVOT_Z, p.KULP_PIM_R)
+    return cubuk
+
+
+def kulp_ac_donusumu():
+    """Bir kolu ayak pimi etrafında dikleştiren dönüşüm (kulp çerçevesinde, ayak (0,0))."""
+    return Pos(0, 0, PIVOT_Z) * Rot(0, -90, 0) * Pos(0, 0, -PIVOT_Z)
+
+
+KULP_GRUPLARI = {(1, 1), (2, 1), (2, 2)}
