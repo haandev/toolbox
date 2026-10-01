@@ -45,6 +45,8 @@ KISKAC_KULE_X = KISKAC_CEP_YARI - KULE_OD / 2 - 0.5   # kıskaç kuleleri ±x
 
 # --- Karo ---
 KARO_RIB_ARALIK = 40.0
+ERKEK_H = 5.0      # tavan bileziğinin kilit yüzünden taşma yüksekliği (taban cebine girer)
+ERKEK_PAH = 1.5    # bilezik üst dış kenar giriş pahı
 
 # --- Kilit bölgeleri (bu fazda boş bırakılan hacim) ---
 KILIT_W = 60.0     # panel üzerinde yatay

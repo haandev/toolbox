@@ -5,7 +5,7 @@ from kutu.export import disa_aktar
 
 def test_disa_aktar_tek_node(tmp_path):
     m = disa_aktar(tmp_path, 1, 1, 1)
-    for tur in ("panel", "kose", "kiskac", "karo"):
+    for tur in ("panel", "kose", "kiskac", "taban", "tavan"):
         assert (tmp_path / "step" / f"{tur}.step").stat().st_size > 0
         assert (tmp_path / "stl" / f"{tur}.stl").stat().st_size > 0
     disk = json.loads((tmp_path / "preview" / "manifest.json").read_text())
@@ -24,3 +24,10 @@ def test_yeniden_aktarma_eski_onizlemeyi_temizler(tmp_path):
     disa_aktar(tmp_path, 1, 1, 1)
     stl = list((tmp_path / "preview").glob("*.stl"))
     assert len(stl) == 10
+
+
+def test_istif_aktar(tmp_path):
+    from kutu.export import istif_aktar
+    m = istif_aktar(tmp_path)
+    assert len(m["parcalar"]) == 16 + 10
+    assert all((tmp_path / "istif" / x["dosya"]).stat().st_size > 0 for x in m["parcalar"])

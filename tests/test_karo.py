@@ -4,14 +4,14 @@ from kutu import params as p
 from kutu.lib import MIN3
 from kutu.lib.kanal import yuva_y
 from kutu.lib.kilit_yeri import karo_bolgesi
-from kutu.parts.karo import delik_noktalari, karo
+from kutu.parts.karo import delik_noktalari, karo_taban
 
 from conftest import hacim
 
 
 @pytest.fixture(scope="module")
 def kr():
-    return karo()
+    return karo_taban()
 
 
 def test_gecerli_kati(kr):

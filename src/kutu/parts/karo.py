@@ -1,7 +1,13 @@
-"""Karo: 1 node'luk taban/tavan plakası. Tavan, aynı parçanın ters çevrilmiş hâlidir."""
+"""Karo: 1 node'luk taban ve tavan plakaları.
+
+Ortak gövde: oluk yüzü +z, kilit yüzü z = GAP (alttan oyuk, kaburgalı).
+Dikey istif erkek–dişi: tavan kilit yüzünden ERKEK_H taşan içi boş bilezik (erkek);
+taban alt cebi dişi yuvadır, kaburga uçları bilezik bandında kısaltılır.
+Tavan montajda ters çevrilir (kilit yüzü yukarı).
+"""
 from functools import cache
 
-from build123d import Align, Box, Cylinder, Part, Pos, Rot
+from build123d import Align, Axis, Box, Cylinder, Part, Pos, Rot
 
 from kutu import params as p
 from kutu.lib import MIN3
@@ -26,8 +32,7 @@ def delik_noktalari() -> list[tuple[float, float]]:
     return [_dondur(x, y, a) for a in (0, 90, 180, 270) for x, y in gb]
 
 
-@cache
-def karo() -> Part:
+def _govde(kaburga_kes: Part | None) -> Part:
     g = p.GAP
     L = p.P_XY - 2 * g
     plaka = Pos(g, g, g) * Box(L, L, p.T - g, align=MIN3)
@@ -46,6 +51,8 @@ def karo() -> Part:
         kaburga = dx + dy if kaburga is None else kaburga + dx + dy
         x += p.KARO_RIB_ARALIK
     kaburga -= karo_bolgesi()
+    if kaburga_kes is not None:
+        kaburga -= kaburga_kes
     plaka += kaburga
 
     # dört kenarda panel oluğu (üst yüzden DIL+FIT derin)
@@ -59,3 +66,39 @@ def karo() -> Part:
             p.GECIS_DELIK / 2, p.T, align=(Align.CENTER, Align.CENTER, Align.MIN)
         )
     return plaka
+
+
+_IC = p.P_XY - 2 * p.K
+
+
+def _bilezik_bandi() -> Part:
+    """Kilit yüzünden ERKEK_H+FIT derinlikte, çerçeve iç kenarı boyunca halka bant (taban)."""
+    bant = p.WALL + 2 * p.FIT
+    derin = p.ERKEK_H + p.FIT
+    dis = Pos(p.K, p.K, p.GAP) * Box(_IC, _IC, derin, align=MIN3)
+    ic = Pos(p.K + bant, p.K + bant, p.GAP) * Box(_IC - 2 * bant, _IC - 2 * bant, derin, align=MIN3)
+    return dis - ic
+
+
+@cache
+def karo_taban() -> Part:
+    return _govde(_bilezik_bandi())
+
+
+@cache
+def karo_tavan() -> Part:
+    g = p.GAP
+    dis_l = _IC - 2 * p.FIT
+    ic_l = dis_l - 2 * p.WALL
+    boy = (p.T - g - p.WALL) + p.ERKEK_H          # güverte altından kilit yüzünü aşarak
+    z0 = g - p.ERKEK_H
+    a = p.K + p.FIT
+    bilezik = Pos(a, a, z0) * Box(dis_l, dis_l, boy, align=MIN3)
+    bilezik -= Pos(a + p.WALL, a + p.WALL, z0) * Box(ic_l, ic_l, boy, align=MIN3)
+    # giriş pahı: taşan uçtaki dış kenarlar
+    kenarlar = bilezik.edges().filter_by_position(Axis.Z, z0 - 1e-3, z0 + 1e-3)
+    dis_kenarlar = [e for e in kenarlar
+                    if min(abs(e.center().X - a), abs(e.center().X - a - dis_l),
+                           abs(e.center().Y - a), abs(e.center().Y - a - dis_l)) < 1e-3]
+    bilezik = bilezik.chamfer(p.ERKEK_PAH, None, dis_kenarlar)
+    return _govde(None) + bilezik

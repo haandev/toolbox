@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from build123d import Part, Pos, Rot
 
 from kutu import params as p
-from kutu.parts.karo import karo
+from kutu.parts.karo import karo_taban, karo_tavan
 from kutu.parts.kiskac import kiskac, kiskac_dugumu
 from kutu.parts.kose import kose, kose_dugumu
 from kutu.parts.panel import panel
@@ -41,7 +41,7 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
 
     def ekle(ad: str, tur: str, parca: Part, zb: float) -> None:
         c = parca.bounding_box().center()
-        if tur == "karo":
+        if tur in ("taban", "tavan"):
             yon = (0, 0, _isaret(c.Z - (zb + p.P_Z / 2)))
         else:
             yon = (_isaret(c.X - W / 2), _isaret(c.Y - D / 2), 0)
@@ -50,9 +50,9 @@ def kutu(nx: int, ny: int, nz: int = 1) -> list[Yerlesim]:
     for i in range(nx):
         for j in range(ny):
             x0, y0 = i * p.P_XY, j * p.P_XY
-            ekle(f"taban_{i}{j}", "karo", Pos(x0, y0, 0) * karo(), 0)
-            ekle(f"tavan_{i}{j}", "karo",
-                 Pos(x0, y0 + p.P_XY, nz * p.P_Z) * Rot(180, 0, 0) * karo(), (nz - 1) * p.P_Z)
+            ekle(f"taban_{i}{j}", "taban", Pos(x0, y0, 0) * karo_taban(), 0)
+            ekle(f"tavan_{i}{j}", "tavan",
+                 Pos(x0, y0 + p.P_XY, nz * p.P_Z) * Rot(180, 0, 0) * karo_tavan(), (nz - 1) * p.P_Z)
 
     for kat in range(nz):
         zb = kat * p.P_Z

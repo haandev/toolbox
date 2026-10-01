@@ -51,14 +51,15 @@ def k111():
 
 
 def test_tek_node_sayim(k111):
-    assert _sayim(k111) == {"karo": 2, "kose": 4, "panel": 4}
+    assert _sayim(k111) == {"taban": 1, "tavan": 1, "kose": 4, "panel": 4}
 
 
 def test_tek_node_dis_olcu(k111):
     b = _dis_kutu(k111)
     assert b.size.X == pytest.approx(p.kutu_dis(1, p.P_XY))
     assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY))
-    assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z))
+    # tavan erkek bileziği gövdenin ERKEK_H üstüne taşar; istifte üstteki tabana girer
+    assert b.size.Z == pytest.approx(p.kutu_dis(1, p.P_Z) + p.ERKEK_H)
     assert b.min.X == pytest.approx(p.GAP)
 
 
@@ -69,7 +70,7 @@ def test_tek_node_cakisma_yok(k111):
 def test_panel_kanalda_fit_boslugu(k111):
     paneller = [y for y in k111 if y.tur == "panel"]
     koseler = [y for y in k111 if y.tur == "kose"]
-    karolar = [y for y in k111 if y.tur == "karo"]
+    karolar = [y for y in k111 if y.tur in ("taban", "tavan")]
     for pnl in paneller:
         en_yakin_kose = min(pnl.parca.distance_to(k.parca) for k in koseler)
         en_yakin_karo = min(pnl.parca.distance_to(k.parca) for k in karolar)
@@ -79,7 +80,7 @@ def test_panel_kanalda_fit_boslugu(k111):
 
 def test_kare_olmayan_kutu_2x1():
     k = kutu(2, 1, 1)
-    assert _sayim(k) == {"karo": 4, "kose": 4, "panel": 6, "kiskac": 2}
+    assert _sayim(k) == {"taban": 2, "tavan": 2, "kose": 4, "panel": 6, "kiskac": 2}
     b = _dis_kutu(k)
     assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY))
     assert b.size.Y == pytest.approx(p.kutu_dis(1, p.P_XY))
@@ -93,15 +94,15 @@ def k112():
 
 def test_2h_kutu(k112):
     # katlar arası ara raf yok: yatay kıskaç + köşe düğümü
-    assert _sayim(k112) == {"karo": 2, "kose": 8, "panel": 8, "yatay_kiskac": 4, "kose_dugumu": 4}
+    assert _sayim(k112) == {"taban": 1, "tavan": 1, "kose": 8, "panel": 8, "yatay_kiskac": 4, "kose_dugumu": 4}
     b = _dis_kutu(k112)
-    assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z))
+    assert b.size.Z == pytest.approx(p.kutu_dis(2, p.P_Z) + p.ERKEK_H)
     _cakisma_yok(k112)
 
 
 def test_2h_paneller_fit_ile_oturur(k112):
     paneller = [y for y in k112 if y.tur == "panel"]
-    tutucular = [y for y in k112 if y.tur in ("yatay_kiskac", "kose_dugumu", "karo", "kose")]
+    tutucular = [y for y in k112 if y.tur in ("yatay_kiskac", "kose_dugumu", "taban", "tavan", "kose")]
     for pnl in paneller:
         assert min(pnl.parca.distance_to(t.parca) for t in tutucular) == pytest.approx(p.FIT, abs=1e-3)
 
@@ -115,7 +116,7 @@ def test_2x1x2_kiskac_dugumu():
 
 def test_2x2_sayim_ve_olcu():
     k = kutu(2, 2, 1)
-    assert _sayim(k) == {"karo": 8, "kose": 4, "panel": 8, "kiskac": 4}
+    assert _sayim(k) == {"taban": 4, "tavan": 4, "kose": 4, "panel": 8, "kiskac": 4}
     b = _dis_kutu(k)
     assert b.size.X == pytest.approx(p.kutu_dis(2, p.P_XY))
     assert b.size.Y == pytest.approx(p.kutu_dis(2, p.P_XY))
@@ -123,7 +124,23 @@ def test_2x2_sayim_ve_olcu():
 
 def test_patlatma_yonleri(k111):
     for y in k111:
-        if y.tur == "karo":
+        if y.tur in ("taban", "tavan"):
             assert y.patlat[0] == 0 and y.patlat[1] == 0 and y.patlat[2] in (-1, 1)
         else:
             assert y.patlat[2] == 0 and (y.patlat[0], y.patlat[1]) != (0, 0)
+
+
+def _kaydir(liste, dx, dy, dz):
+    return [type(y)(y.ad, y.tur, Pos(dx, dy, dz) * y.parca, y.patlat) for y in liste]
+
+
+@pytest.mark.parametrize("alt,ust,dx", [((1, 1), (1, 1), 0), ((2, 1), (1, 1), 200)])
+def test_istif_erkek_disi_oturur(alt, ust, dx):
+    alttaki = kutu(*alt, 1)
+    ustteki = _kaydir(kutu(*ust, 1), dx, 0, p.P_Z)
+    tavanlar = [y for y in alttaki if y.tur == "tavan"]
+    tabanlar = [y for y in ustteki if y.tur == "taban"]
+    _cakisma_yok(tavanlar + tabanlar)
+    # yanal hizalama boşluğu FIT: erkek bilezik dişi çerçeveye FIT ile oturur
+    for tb in tabanlar:
+        assert min(tb.parca.distance_to(tv.parca) for tv in tavanlar) == pytest.approx(p.FIT, abs=1e-3)

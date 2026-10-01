@@ -97,13 +97,23 @@ Kopolimer PP. Yalnızca klips esneme hesabını etkiler; tek parametre ile deği
 - Taban: oluk yukarı. Tavan: aynı parça ters çevrilmiş, oluk aşağı.
 - Çok hücreli kutularda karolar yan yana birleşir. Kenar ek yerleri kıskaç altına düşer; kıskaç vidası iki karo kenarını birlikte tutar.
 
+### 5.4a Dikey istif: erkek–dişi (taban ≠ tavan)
+Dikeyde her zaman alttaki kutunun tavanı üstteki kutunun tabanıyla buluşur; bu yüzden cinsiyetsizlik
+yalnızca **yan yüzlerde** gereklidir. Dikeyde Gridfinity benzeri erkek–dişi oturma kullanılır:
+- **Tavan karo (erkek):** kilit yüzünden `ERKEK_H = 5` mm taşan, içi boş kare bilezik; dış ölçü `160 − 2·FIT`, üst dış kenarda `ERKEK_PAH` giriş pahı.
+- **Taban karo (dişi):** alt cep dişi yuvadır; kaburga uçları bilezik bandında `ERKEK_H + FIT` kısaltılır.
+- Izgara adımı 100 mm kalır; tavan bileziği gövdenin üstüne taşar ve istifte üstteki tabana girer. Üstteki kutu her node'da kendiliğinden ortalanır, kaydırılmış istif de oturur.
+- Bileziğin içi, ileride takılacak **gömme kulp** için ayrılmış hacimdir (≈155 × 155 × `ERKEK_H` + cep derinliği). Daha derin kulp gerekirse `ERKEK_H` ve taban cep derinliği birlikte artırılır.
+- Bu karar, 5.4'teki "taban = tavan tek parça" kararını değiştirir: taban ve tavan iki ayrı kalıp.
+- Dikey çekme kilidi (üstteki kutudan tutunca alttakinin de kalkması) erkek–dişi oturmadan ayrı bir mandal ister; kilit spec'inde ele alınacak.
+
 ### 5.4b Kat arası bağlantı (nz > 1)
 Kat aralarında karo çifti (ara raf) yok; bunun yerine yatayda kullanılan mantık dikeyde tekrarlanır:
 - **Yatay kıskaç** — 160 × 20 × 20 profil (2T yüksekliğinde). Altta ve üstte panel oluğu; iki uçta düğüm kanalına giren dil. Dil, kanal içinde alt ve üst panel dillerinin arasına `FIT` boşlukla oturur. İçten oyuk, kaburgalı; çekiliş yönü +y.
 - **Köşe düğümü** — köşe kesitinin 20 mm boyu; kule yerine vida geçiş deliği.
 - **Kıskaç düğümü** — kıskaç kesitinin 20 mm boyu; iki vida geçiş deliği.
 - Köşe ve dikey kıskaç her yükseklikte 80 mm kalır; her kutu yüksekliği aynı parçalardan kurulur (yeni kalıp yok).
-- Parça sayısı: 4 + 3 = **7 parça tipi**.
+- Parça sayısı: panel, köşe, kıskaç, taban, tavan + yatay kıskaç, köşe düğümü, kıskaç düğümü = **8 parça tipi**.
 
 ### 5.5 Kurulum sırası
 1. Köşe ve kıskaçlar tabana oturur.
