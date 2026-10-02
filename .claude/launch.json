@@ -4,8 +4,25 @@
     {
       "name": "onizleme",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "/Users/haandev/toolbox"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8766",
+        "--directory",
+        "/Users/haandev/toolbox"
+      ],
       "port": 8766
+    },
+    {
+      "name": "vitrin",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": [
+        "run",
+        "python",
+        "-m",
+        "kutu.vitrin"
+      ],
+      "port": 8767
     }
   ]
 }

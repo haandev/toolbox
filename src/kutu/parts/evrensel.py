@@ -219,10 +219,13 @@ def kulp_kolu() -> Part:
     return plaka
 
 
+KULP_CUBUK_UC = 3.0     # çubuğun pim ekseninden dışarı taşan payı (her uçta)
+
+
 @cache
 def kulp_cubugu(uzunluk: float) -> Part:
     """Tutma çubuğu (katlı konumda): x = 0 … uzunluk; uçlarda kol pimleri."""
-    e = 3.0
+    e = KULP_CUBUK_UC
     z0 = KANAL_TABAN + _F
     cubuk = _k(-e, uzunluk + e, -p.KULP_CUBUK_W / 2, p.KULP_CUBUK_W / 2, z0, z0 + p.KULP_CUBUK_T)
     for x in (0, uzunluk):
