@@ -7,6 +7,7 @@ bu geometrilere 4×4 dönüşüm matrisli örneklerden ve parça listesinden olu
 """
 import hashlib
 import json
+import os
 import tempfile
 import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -36,7 +37,7 @@ KAPAK_ACI = 90.0
 
 
 def kapak_duzeni(nx: int, ny: int, duzen: str) -> list[tuple[int, int, int, int]]:
-    """Kapak grupları. bloklar: önce 2×2, sonra 2×1, kalan 1×1 (kulbun takılabildiği boylar)."""
+    """Kapak grupları. bloklar: önce 2×2, sonra 2×1, kalan 1×1."""
     if duzen == "tek":
         return [(0, 0, nx, ny)]
     if duzen == "satir":
@@ -82,8 +83,10 @@ class Katalog:
             veri = gecici.read_bytes()
         gid = hashlib.sha1(veri).hexdigest()[:12]
         hedef = self.klasor / f"{gid}.stl"
-        if not hedef.exists():
-            hedef.write_bytes(veri)
+        if not hedef.exists():          # paralel üretimde yarım dosya görünmesin
+            gecici = hedef.with_suffix(f".{os.getpid()}.tmp")
+            gecici.write_bytes(veri)
+            os.replace(gecici, hedef)
         self._refs.append((parca, gid))
         self._sekil.setdefault(gid, parca)
         return parca, gid
@@ -129,12 +132,7 @@ def tasarim(katalog: Katalog, nx: int, ny: int, nz: int, kulp: bool, cekmece: bo
         r = satir.setdefault((y.tur, olcu), {"tur": y.tur, "ad": ADLAR.get(y.tur, y.tur), "olcu": olcu,
                                              "hazir": y.tur in HAZIR, "adet": 0})
         r["adet"] += 1
-    uyari = []
-    if kulp:
-        kulpsuz = [(gx, gy) for _, _, gx, gy in gruplar if (gx, gy) not in ev.KULP_GRUPLARI]
-        if kulpsuz:
-            uyari.append("Kulp yalnız 1×1, 2×1, 2×2 kapak gruplarına takılır; "
-                         + ", ".join(f"{a}×{b}" for a, b in kulpsuz) + " grupta kulp yok.")
+    uyari: list[str] = []
     return {"nx": nx, "ny": ny, "nz": nz, "kulp": kulp, "cekmece": cekmece, "duzen": duzen,
             "gruplar": gruplar, "parcalar": parcalar, "liste": list(satir.values()), "uyari": uyari,
             "P_XY": p.P_XY, "P_Z": p.P_Z}

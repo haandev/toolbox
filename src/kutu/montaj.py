@@ -184,9 +184,10 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool,
     # kulp ayaklarının oturduğu ek yeri yuvaları (2×2 gruplar): kapak kamı yok
     ayak_ek = set()
     if kulp:
-        for (i0, j0, gx, gy) in gruplar:
-            if (gx, gy) == (2, 2):
-                ayak_ek |= {(i0, j0, p.YUVA_U[0]), (i0 + 1, j0, p.YUVA_U[1])}
+        for grup in gruplar:
+            ki0, kj0, kx, ky = kulp_blogu(*grup)
+            if ky == 2:
+                ayak_ek |= {(ki0, kj0, p.YUVA_U[0]), (ki0 + kx - 1, kj0, p.YUVA_U[1])}
     on = {(i, j0) for (i0, j0, gx, gy) in gruplar for i in range(i0, i0 + gx)}
 
     for i in range(nx):
@@ -233,11 +234,17 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool,
             if mandal_acik:
                 m = Pos(0, -p.MANDAL_GERI, 0) * m
             ekle(f"g{g}_mandal_eki_{i}", "mandal_eki", ust * Pos(i * P, j0 * P, 0) * m, zu)
-        if kulp and (gx, gy) in ev.KULP_GRUPLARI:
-            _evrensel_kulp(ekle, g, i0, j0, gx, gy, ust, zu, kulp_acik)
+        if kulp:
+            _evrensel_kulp(ekle, g, *kulp_blogu(i0, j0, gx, gy), ust, zu, kulp_acik)
         x0 = i0 * P + min(u_men_cer, u_men_kap) - p.KANAT_W / 2
         x1 = (i0 + gx - 1) * P + max(u_men_cer, u_men_kap) + p.KANAT_W / 2
         ekle(f"mentese_pimi_{g}", "mentese_pimi", ust * Pos(0, jb * P, 0) * ev.mentese_pimi(x0, x1), zu)
+
+
+def kulp_blogu(i0: int, j0: int, gx: int, gy: int) -> tuple[int, int, int, int]:
+    """Grubun kulbu: grubun ortasındaki node'lar (tek sayıda node: 1, çift: 2; x ve y'de ayrı)."""
+    kx, ky = 1 if gx % 2 else 2, 1 if gy % 2 else 2
+    return i0 + (gx - kx) // 2, j0 + (gy - ky) // 2, kx, ky
 
 
 def _evrensel_kulp(ekle, g, i0, j0, gx, gy, ust, zu, acik: bool) -> None:
@@ -252,7 +259,7 @@ def _evrensel_kulp(ekle, g, i0, j0, gx, gy, ust, zu, acik: bool) -> None:
         ekle(f"g{g}_kulp_ayagi_{n}", "kulp_ayagi", f * ev.kulp_ayagi(), zu)
         kol = kol_don * ev.kulp_kolu()
         ekle(f"g{g}_kulp_kolu_{n}a", "kulp_kolu", f * kol, zu)
-        ekle(f"g{g}_kulp_kolu_{n}b", "kulp_kolu", f * kol.mirror(Plane.XZ), zu)
+        ekle(f"g{g}_kulp_kolu_{n}b", "kulp_kolu", f * kol_don * ev.kulp_kolu_ayna(), zu)
     cubuk = ev.kulp_cubugu(xb - xa)
     yer = Pos(xa, yc, ev.PIVOT_Z + L) * Pos(0, 0, -ev.PIVOT_Z) if acik else Pos(xa + L, yc, 0)
     ekle(f"g{g}_kulp_cubugu", "kulp_cubugu", ust * yer * cubuk, zu)

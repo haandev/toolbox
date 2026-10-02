@@ -74,10 +74,10 @@
     </div>
 
     <h2>Kapak</h2>
-    <label class="satir"><input type="checkbox" id="kulp" checked>Kulp</label>
+    <label class="satir"><input type="checkbox" id="kulp" checked>Kulp <span class="ipucu">(her kapakta bir tane, ortada)</span></label>
     <select id="duzen">
       <option value="tek">Tek kapak</option>
-      <option value="bloklar">Kulplu bloklar (2×2 / 2×1 / 1×1)</option>
+      <option value="bloklar">Bloklar (2×2 / 2×1 / 1×1)</option>
       <option value="satir">Satır satır</option>
       <option value="node">Her node ayrı</option>
     </select>
@@ -165,13 +165,33 @@ const malzeme = {};
 const mat = tur => malzeme[tur] ??= new THREE.MeshStandardMaterial({ color: RENKLER[tur] ?? '#888', roughness: .7, side: THREE.DoubleSide });
 const loader = new STLLoader();
 const geolar = new Map();
+const STATIK = !!window.VITRIN_STATIK;          // GitHub Pages: önceden hesaplanmış veri
+const GEO_YOL = STATIK ? 'geo/' : '../out/vitrin/geo/';
 const geo = id => {
-  if (!geolar.has(id)) geolar.set(id, loader.loadAsync(`../out/vitrin/geo/${id}.stl`).then(g => (g.computeVertexNormals(), g)));
+  if (!geolar.has(id)) geolar.set(id, loader.loadAsync(`${GEO_YOL}${id}.stl`).then(g => (g.computeVertexNormals(), g)));
   return geolar.get(id);
 };
 
 const veriler = new Map();
+let dizin = null;
+const dosyalar = new Map();
+async function statikVeri(t) {
+  dizin ??= fetch('data/index.json').then(r => r.json());
+  const d = await dizin;
+  const ad = d.dosya[[t.nx, t.ny, t.nz, +t.kulp, +t.cekmece, t.duzen].join(',')];
+  if (!ad) throw new Error(`web sürümünde en fazla ${d.sinir.nx}×${d.sinir.ny}×${d.sinir.nz}`);
+  if (!dosyalar.has(ad)) dosyalar.set(ad, fetch('data/' + ad).then(r => r.json()));
+  const v = await dosyalar.get(ad);
+  const vk = `${+!!t.kapak_acik}${+!!(t.kulp_acik && t.kulp)}`;
+  const parcalar = v.parcalar.map(p => {
+    const m = [...(p.v?.[vk] ?? p.m)];
+    if (t.cekmece_disari && p.tur === 'cekmece') m[7] -= v.cekmece_disari;
+    return { ...p, m };
+  });
+  return { ...v, parcalar };
+}
 async function veriAl(t) {
+  if (STATIK) return statikVeri(t);
   const q = new URLSearchParams({ nx: t.nx, ny: t.ny, nz: t.nz, kulp: +t.kulp, cekmece: +t.cekmece, duzen: t.duzen,
     kapak_acik: +!!t.kapak_acik, kulp_acik: +!!t.kulp_acik, cekmece_disari: +!!t.cekmece_disari });
   const k = q.toString();
@@ -347,7 +367,7 @@ function vurguyuGuncelle() {
 async function panelIstif() {
   $('tasarimlar').innerHTML = tasarimlar.length ? tasarimlar.map(t => `
     <div class="kart ${t.id === secili ? 'secili' : ''}" data-tid="${t.id}">
-      <div class="ad">${t.ad}<small>${tasarimAdi(t)} · ${({ tek: 'tek kapak', bloklar: 'kulplu bloklar', satir: 'satır kapaklar', node: 'node kapaklar' })[t.duzen]}</small></div>
+      <div class="ad">${t.ad}<small>${tasarimAdi(t)} · ${({ tek: 'tek kapak', bloklar: 'blok kapaklar', satir: 'satır kapaklar', node: 'node kapaklar' })[t.duzen]}</small></div>
       <button data-sil-t="${t.id}" title="Tasarımı sil">×</button>
     </div>`).join('') : '<div class="bos">Henüz kutu yok — "Kutu tasarla" sekmesinden ekle.</div>';
   $('yerlesikler').innerHTML = istif.length ? istif.map(y => {
@@ -465,6 +485,10 @@ function sekme(ad) {
 document.querySelectorAll('#sekmeler button').forEach(b => b.onclick = () => sekme(b.dataset.sayfa));
 
 window.vitrin = { camera, controls, sekme, durum: () => ({ tasarimlar, istif }) };   // inceleme için
+if (STATIK) {
+  for (const [id, mx] of [['nx', 4], ['ny', 4], ['nz', 3]]) $(id).max = mx;
+  $('olcuCm').insertAdjacentHTML('afterend', '<div class="ipucu">Web sürümü: en fazla 4×4×3 node. Tasarımlar bu tarayıcıda saklanır.</div>');
+}
 sekme('kutu'); ciz();
 (function dongu() { requestAnimationFrame(dongu); controls.update(); renderer.render(scene, camera); })();
 </script>

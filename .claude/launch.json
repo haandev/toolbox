@@ -23,6 +23,18 @@
         "kutu.vitrin"
       ],
       "port": 8767
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8768",
+        "--directory",
+        "/Users/haandev/toolbox/site"
+      ],
+      "port": 8768
     }
   ]
 }

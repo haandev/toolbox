@@ -94,3 +94,14 @@ def test_gorunum_kulp_havada_ve_cekmece_disarida(tmp_path):
 def test_ayna_ikiz_kollar_tek_satir(tmp_path):
     liste = tasarim(Katalog(tmp_path), 1, 1, 1, True, False, "tek")["liste"]
     assert [r["adet"] for r in liste if r["tur"] == "kulp_kolu"] == [4]
+
+
+def test_site_verisi_gorunum_varyantlari(tmp_path):
+    from kutu.site import site_verisi
+    k = Katalog(tmp_path)
+    v = site_verisi(k, 1, 1, 1, True, True, "tek")
+    acik = tasarim(k, 1, 1, 1, True, True, "tek", kapak_acik=True, kulp_acik=True)
+    for o, a in zip(v["parcalar"], acik["parcalar"]):
+        assert np.allclose(o.get("v", {}).get("11", o["m"]), a["m"], atol=1e-3), o["ad"]
+    assert "v" not in next(o for o in v["parcalar"] if o["tur"] == "taban")
+    assert v["cekmece_disari"] == pytest.approx(CEKMECE_DISARI)

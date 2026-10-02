@@ -238,4 +238,7 @@ def kulp_ac_donusumu():
     return Pos(0, 0, PIVOT_Z) * Rot(0, -90, 0) * Pos(0, 0, -PIVOT_Z)
 
 
-KULP_GRUPLARI = {(1, 1), (2, 1), (2, 2)}
+@cache
+def kulp_kolu_ayna() -> Part:
+    """Kanalın −y tarafındaki kol (kulp_kolu'nun XZ aynası)."""
+    return kulp_kolu().mirror(Plane.XZ)
