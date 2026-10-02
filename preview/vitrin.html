@@ -75,6 +75,7 @@
 
     <h2>Kapak</h2>
     <label class="satir"><input type="checkbox" id="kulp" checked>Kulp <span class="ipucu">(her kapakta bir tane, ortada)</span></label>
+    <label class="satir" title="Kapak grubunun içindeki çerçeve köprüleri. Sökülünce grup içi tek büyük açıklık olur; grup sınırlarındaki köprüler menteşe ve mandal için kalır."><input type="checkbox" id="kopru" checked>İç köprüler <span class="ipucu">(sök: büyük açıklık)</span></label>
     <select id="duzen">
       <option value="tek">Tek kapak</option>
       <option value="bloklar">Bloklar (2×2 / 2×1 / 1×1)</option>
@@ -125,7 +126,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
-const RENKLER = { taban: '#5b6270', cerceve_hucre: '#4a5060', kapak_hucre: '#8a94a6', kam_cerceve: '#e67e22',
+const RENKLER = { taban: '#5b6270', cerceve_kenari: '#4a5060', cerceve_kenari_cepli: '#4a5060', kapak_hucre: '#8a94a6', kam_cerceve: '#e67e22',
   kam_kapak: '#e67e22', tapa: '#2c3e50', mentese_cerceve: '#16a085', mentese_kapak: '#1abc9c', mentese_pimi: '#7f8c8d',
   mandal_eki: '#8e44ad', kulp_ayagi: '#c0392b', kulp_kolu: '#e74c3c', kulp_cubugu: '#bdc3c7', kose: '#f39c3d',
   kiskac: '#f1c40f', panel: '#9fb3c8', yatay_kiskac: '#2ecc9a', kose_dugumu: '#d35400', kiskac_dugumu: '#b7950b',
@@ -178,7 +179,7 @@ const dosyalar = new Map();
 async function statikVeri(t) {
   dizin ??= fetch('data/index.json').then(r => r.json());
   const d = await dizin;
-  const ad = d.dosya[[t.nx, t.ny, t.nz, +t.kulp, +t.cekmece, t.duzen].join(',')];
+  const ad = d.dosya[[t.nx, t.ny, t.nz, +t.kulp, +t.cekmece, +(t.kopru ?? true), t.duzen].join(',')];
   if (!ad) throw new Error(`web sürümünde en fazla ${d.sinir.nx}×${d.sinir.ny}×${d.sinir.nz}`);
   if (!dosyalar.has(ad)) dosyalar.set(ad, fetch('data/' + ad).then(r => r.json()));
   const v = await dosyalar.get(ad);
@@ -193,6 +194,7 @@ async function statikVeri(t) {
 async function veriAl(t) {
   if (STATIK) return statikVeri(t);
   const q = new URLSearchParams({ nx: t.nx, ny: t.ny, nz: t.nz, kulp: +t.kulp, cekmece: +t.cekmece, duzen: t.duzen,
+    kopru: +(t.kopru ?? true),
     kapak_acik: +!!t.kapak_acik, kulp_acik: +!!t.kulp_acik, cekmece_disari: +!!t.cekmece_disari });
   const k = q.toString();
   if (!veriler.has(k)) veriler.set(k, fetch('/api/tasarim?' + k).then(async r => {
@@ -241,7 +243,7 @@ let sonVeri = null, istek = 0, sayfa = 'kutu';
 function formTasarim() {
   return { nx: +$('nx').value || 1, ny: +$('ny').value || 1, nz: +$('nz').value || 1,
     kulp: $('kulp').checked, cekmece: document.querySelector('[name=on]:checked').value === 'cekmece',
-    duzen: $('duzen').value };
+    duzen: $('duzen').value, kopru: $('kopru').checked };
 }
 function patlat() {
   const e = +$('patlat').value;
@@ -279,7 +281,7 @@ document.querySelectorAll('#s-kutu input, #s-kutu select').forEach(el => {
 });
 
 function tasarimAdi(t) {
-  return `${t.nx}×${t.ny}×${t.nz}` + (t.cekmece ? ' çekmeceli' : '') + (t.kulp ? ' kulplu' : '');
+  return `${t.nx}×${t.ny}×${t.nz}` + (t.cekmece ? ' çekmeceli' : '') + (t.kulp ? ' kulplu' : '') + (t.kopru === false ? ' köprüsüz' : '');
 }
 $('ekle').onclick = () => {
   const t = formTasarim();

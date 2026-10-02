@@ -79,7 +79,7 @@ def test_gorunum_kapak_acik_kapak_parcalarini_dondurur(tmp_path):
     kapali = tasarim(k, 1, 1, 1, True, False, "tek")
     acik = tasarim(k, 1, 1, 1, True, False, "tek", kapak_acik=True)
     assert not np.allclose(_bb(kapali, "g0_kapak_hucre_00"), _bb(acik, "g0_kapak_hucre_00"))
-    assert np.allclose(_bb(kapali, "cerceve_hucre_00"), _bb(acik, "cerceve_hucre_00"))
+    assert np.allclose(_bb(kapali, "cerceve_kenari_00_g"), _bb(acik, "cerceve_kenari_00_g"))
 
 
 def test_gorunum_kulp_havada_ve_cekmece_disarida(tmp_path):
@@ -105,3 +105,10 @@ def test_site_verisi_gorunum_varyantlari(tmp_path):
         assert np.allclose(o.get("v", {}).get("11", o["m"]), a["m"], atol=1e-3), o["ad"]
     assert "v" not in next(o for o in v["parcalar"] if o["tur"] == "taban")
     assert v["cekmece_disari"] == pytest.approx(CEKMECE_DISARI)
+
+
+def test_kopru_secenegi_parca_listesine_yansir(tmp_path):
+    k = Katalog(tmp_path)
+    say = lambda t: sum(r["adet"] for r in t["liste"] if r["tur"].startswith("cerceve_kenari"))
+    assert say(tasarim(k, 2, 2, 1, False, False, "tek")) == 16
+    assert say(tasarim(k, 2, 2, 1, False, False, "tek", kopru=False)) == 8

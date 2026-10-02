@@ -48,9 +48,11 @@ def kesisim_hacmi(a: Part, b: Part) -> float:
 def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = False,
          cekmece: bool = False, kapak_mandal_acik: bool = False, tavan: str = "evrensel",
          kapak_gruplari: list[tuple[int, int, int, int]] | None = None,
-         mandal_acik: bool = False) -> list[Yerlesim]:
+         mandal_acik: bool = False, kopru: bool = True) -> list[Yerlesim]:
     """tavan: "modul" (1×1 / 2×1 / 1×2 / 2×2 tek parça modüller) ya da "evrensel"
-    (tek tip hücreler + yuva ekleri; kapak_gruplari ile gruplanır)."""
+    (tek tip hücreler + yuva ekleri; kapak_gruplari ile gruplanır).
+    kopru: evrensel çerçevenin iç ek yerlerindeki köprüler (False: grup içi tek büyük açıklık;
+    kapak grupları arasındaki köprüler menteşe ve mandal için her zaman takılı)."""
     W, D = nx * p.P_XY, ny * p.P_XY
     out: list[Yerlesim] = []
 
@@ -74,7 +76,7 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
     zu = (nz - 1) * p.P_Z
     mandal_parca = kapak_acik_mandal() if kapak_mandal_acik else kapak_mandal()
     if tavan == "evrensel":
-        _evrensel_tavan(ekle, nx, ny, nz, kapak_gruplari, mandal_acik, kulp, kulp_acik)
+        _evrensel_tavan(ekle, nx, ny, nz, kapak_gruplari, mandal_acik, kulp, kulp_acik, kopru)
     moduller = tavan_modulleri(nx, ny) if tavan == "modul" else []
     modul_of = {(i, j): m for m, (i0, j0, mx, my) in enumerate(moduller)
                 for i in range(i0, i0 + mx) for j in range(j0, j0 + my)}
@@ -154,7 +156,7 @@ def kutu(nx: int, ny: int, nz: int = 1, kulp: bool = False, kulp_acik: bool = Fa
     return out
 
 
-_EV_TURLER = ("cerceve_hucre", "kapak_hucre", "kam_cerceve", "kam_kapak", "tapa",
+_EV_TURLER = ("cerceve_kenari", "cerceve_kenari_cepli", "kapak_hucre", "kam_cerceve", "kam_kapak", "tapa",
               "mentese_cerceve", "mentese_kapak", "mentese_pimi", "mandal_eki",
               "kulp_ayagi", "kulp_kolu", "kulp_cubugu")
 
@@ -167,8 +169,9 @@ def _kenar_yeri(i: int, j: int, kenar: str):
 
 
 def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool,
-                    kulp: bool = False, kulp_acik: bool = False) -> None:
-    """Evrensel tavan: tek tip çerçeve/kapak hücreleri + kamlar, tapalar, menteşe ve mandal ekleri."""
+                    kulp: bool = False, kulp_acik: bool = False, kopru: bool = True) -> None:
+    """Evrensel tavan: çerçeve kenar şeritleri (+ iç köprüler), kapak hücreleri, kamlar, tapalar,
+    menteşe ve mandal ekleri."""
     P = p.P_XY
     ust = Pos(0, 0, nz * p.P_Z)
     zu = (nz - 1) * p.P_Z
@@ -190,11 +193,22 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool,
                 ayak_ek |= {(ki0, kj0, p.YUVA_U[0]), (ki0 + kx - 1, kj0, p.YUVA_U[1])}
     on = {(i, j0) for (i0, j0, gx, gy) in gruplar for i in range(i0, i0 + gx)}
 
+    def koprulu(i, j, ni, nj) -> bool:
+        """(i, j) hücresinin (ni, nj) yönündeki kenarında çerçeve şeridi var mı."""
+        if not (0 <= ni < nx and 0 <= nj < ny):
+            return True                                       # çevre
+        return kopru or grup_of[(i, j)] != grup_of[(ni, nj)]   # grup sınırı: menteşe / mandal
+
     for i in range(nx):
         for j in range(ny):
             g = grup_of[(i, j)]
             o = ust * Pos(i * P, j * P, 0)
-            ekle(f"cerceve_hucre_{i}{j}", "cerceve_hucre", o * ev.cerceve_hucre(), zu)
+            for kenar, (di, dj) in (("g", (0, -1)), ("d", (1, 0)), ("k", (0, 1)), ("b", (-1, 0))):
+                if not koprulu(i, j, i + di, j + dj):
+                    continue
+                cep = kenar in ("k", "b")
+                ekle(f"cerceve_kenari_{i}{j}_{kenar}", "cerceve_kenari_cepli" if cep else "cerceve_kenari",
+                     ust * _kenar_yeri(i, j, kenar) * ev.cerceve_kenari(cep), zu)
             ekle(f"g{g}_kapak_hucre_{i}{j}", "kapak_hucre", o * ev.kapak_hucre(), zu)
             # iç ek yerleri (doğu ve kuzey komşusu)
             for di, dj in ((1, 0), (0, 1)):
@@ -207,8 +221,9 @@ def _evrensel_tavan(ekle, nx: int, ny: int, nz: int, gruplar, mandal_acik: bool,
                     # grup sınırında menteşe/mandal yuvaları dolu
                     if dj and (i, j) in arka and (i, nj) in on and grup_of[(i, nj)] != g and u == u_man:
                         continue
-                    ekle(f"kam_cerceve_{i}{j}_{di}{dj}_{u:g}", "kam_cerceve",
-                         ust * yer * Pos(0, 0, ev.ALT) * ev.kam(), zu)
+                    if koprulu(i, j, ni, nj):
+                        ekle(f"kam_cerceve_{i}{j}_{di}{dj}_{u:g}", "kam_cerceve",
+                             ust * yer * Pos(0, 0, ev.ALT) * ev.kam(), zu)
                     if u != p.YUVA_ORTA and grup_of[(ni, nj)] == g and not (dj and (i, j, u) in ayak_ek):
                         ekle(f"g{g}_kam_kapak_{i}{j}_{di}{dj}_{u:g}", "kam_kapak",
                              ust * yer * Pos(0, 0, ev.CUST) * ev.kam(ev.KAPAK_KAM_H), zu)

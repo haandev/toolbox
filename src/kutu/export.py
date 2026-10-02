@@ -34,7 +34,7 @@ RENKLER = {"taban": "#5b6270", "cerceve": "#4a5060", "kapak": "#8a94a6", "kapak_
            "panel": "#9fb3c8", "yatay_kiskac": "#2ecc9a", "kose_dugumu": "#d35400",
            "kiskac_dugumu": "#b7950b", "kulp": "#e74c3c", "papyon_kapak": "#e67e22",
            "kulp_ucu": "#e74c3c", "kulp_cubugu": "#bdc3c7",
-           "cerceve_hucre": "#4a5060", "kapak_hucre": "#8a94a6", "kam_cerceve": "#e67e22",
+           "cerceve_kenari": "#4a5060", "cerceve_kenari_cepli": "#4a5060", "kapak_hucre": "#8a94a6", "kam_cerceve": "#e67e22",
            "kam_kapak": "#e67e22", "tapa": "#2c3e50", "mentese_cerceve": "#16a085",
            "mentese_kapak": "#1abc9c", "mentese_pimi": "#7f8c8d", "mandal_eki": "#8e44ad",
            "kulp_ayagi": "#c0392b", "kulp_kolu": "#e74c3c",
@@ -202,7 +202,7 @@ def baski_aktar(cikti: Path) -> list[Path]:
         d = klasor / f"kulp_2x_{ad}.stl"
         export_stl(parca, str(d))
         dosyalar.append(d)
-    evrensel = {"cerceve_hucre": ev.cerceve_hucre(), "kapak_hucre": ev.kapak_hucre(),
+    evrensel = {"cerceve_kenari": ev.cerceve_kenari(), "cerceve_kenari_cepli": ev.cerceve_kenari(True), "kapak_hucre": ev.kapak_hucre(),
                 "kam_cerceve": ev.kam(), "kam_kapak": ev.kam(ev.KAPAK_KAM_H), "tapa": ev.tapa(),
                 "mentese_cerceve": ev.mentese_cerceve(), "mentese_kapak": ev.mentese_kapak(),
                 "mandal_eki": ev.mandal_eki(), "kulp_ayagi": ev.kulp_ayagi(), "kulp_kolu": ev.kulp_kolu()}

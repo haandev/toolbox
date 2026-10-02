@@ -23,7 +23,7 @@ from kutu.parts import evrensel as ev
 KOK = Path(__file__).resolve().parents[2]
 GEO = KOK / "out" / "vitrin" / "geo"
 
-ADLAR = {"taban": "Taban karosu", "cerceve_hucre": "Çerçeve hücresi", "kapak_hucre": "Kapak hücresi",
+ADLAR = {"taban": "Taban karosu", "cerceve_kenari": "Çerçeve kenarı", "cerceve_kenari_cepli": "Çerçeve kenarı (anahtar cepli)", "kapak_hucre": "Kapak hücresi",
          "kam_cerceve": "Kam (çerçeve)", "kam_kapak": "Kam (kapak)", "tapa": "Tapa",
          "mentese_cerceve": "Menteşe eki (çerçeve)", "mentese_kapak": "Menteşe eki (kapak)",
          "mentese_pimi": "Menteşe pimi", "mandal_eki": "Mandal eki", "kulp_ayagi": "Kulp ayağı",
@@ -109,11 +109,11 @@ def _olcu(tur: str, sekil: Part) -> str:
 
 def tasarim(katalog: Katalog, nx: int, ny: int, nz: int, kulp: bool, cekmece: bool,
             duzen: str = "tek", kapak_acik: bool = False, kulp_acik: bool = False,
-            cekmece_disari: bool = False) -> dict:
+            cekmece_disari: bool = False, kopru: bool = True) -> dict:
     """Görünüm seçenekleri (kapak_acik, kulp_acik, cekmece_disari) yalnız konumları değiştirir."""
     gruplar = kapak_duzeni(nx, ny, duzen)
     liste = kutu(nx, ny, nz, kulp=kulp, kulp_acik=kulp_acik, cekmece=cekmece, kapak_gruplari=gruplar,
-                 mandal_acik=kapak_acik)
+                 mandal_acik=kapak_acik, kopru=kopru)
     if kapak_acik:          # bütün gruplar açıkken her grup tam açılır
         yeni = {}
         for g in range(len(gruplar)):
@@ -133,7 +133,7 @@ def tasarim(katalog: Katalog, nx: int, ny: int, nz: int, kulp: bool, cekmece: bo
                                              "hazir": y.tur in HAZIR, "adet": 0})
         r["adet"] += 1
     uyari: list[str] = []
-    return {"nx": nx, "ny": ny, "nz": nz, "kulp": kulp, "cekmece": cekmece, "duzen": duzen,
+    return {"nx": nx, "ny": ny, "nz": nz, "kulp": kulp, "cekmece": cekmece, "duzen": duzen, "kopru": kopru,
             "gruplar": gruplar, "parcalar": parcalar, "liste": list(satir.values()), "uyari": uyari,
             "P_XY": p.P_XY, "P_Z": p.P_Z}
 
@@ -168,6 +168,7 @@ class _Isleyici(SimpleHTTPRequestHandler):
                 _KATALOG = _KATALOG or Katalog()
                 bayrak = {k: q.get(k) == "1" for k in ("kulp", "cekmece", "kapak_acik", "kulp_acik",
                                                     "cekmece_disari")}
+                bayrak["kopru"] = q.get("kopru", "1") == "1"
                 veri = tasarim(_KATALOG, nx, ny, nz, duzen=duzen, **bayrak)
             govde, kod = json.dumps(veri, ensure_ascii=False).encode(), 200
         except Exception as e:  # noqa: BLE001 — hatayı arayüze ilet

@@ -91,3 +91,11 @@ Kaldırmalı kulbun kılavuz kovanları ve ayakları 25 mm kaldırma için kapa�
   - Mandal eki çerçevenin altına takılan dudakla kilitler; açmak için öne `MANDAL_GERI` esnetilir.
   - Kulp yalnız 1×1, 2×1, 2×2 gruplarına takılır; diğer grup boylarında kulp yok (kullanıcı grubu buna göre seçer).
 - Testler: `test_evrensel.py`, `test_evrensel_kulp.py` (+ tüm mevcut testler evrensel varsayılanla), toplam 308.
+
+## 11. Değişiklik: çerçeve kenar şeritleri ve sökülebilir köprüler (2026-10-02)
+
+Çerçeve hücresi her node'un çevresinde halka olduğundan büyük kutularda iç ek yerlerinde 40 mm'lik kirişler kalıyor, büyük eşya üstten girmiyordu. Yerine:
+- **Çerçeve kenar şeridi** (`cerceve_kenari`): hücre halkasının bir kenarı; K genişliğinde, uçları hücre köşesinden 45° pahlı (dört şerit = eski halka). Panel oluğu, yuvalar, köşe vida delikleri. Anahtar cepli çeşidi (`cep=True`) kuzey ve batı kenarlarda.
+- **Çevre** kenarlarda şerit her zaman; **iç ek yerlerinde** sırt sırta iki şerit = **köprü**, kamlarla birleşir. `kutu(..., kopru=False)`: grup içi köprüler yok → kapak grubunun altı tek büyük açıklık. Kapak grupları arasındaki köprüler menteşe ve mandal için her zaman takılı.
+- Bedel: köprüsüz büyük kapak, üstteki kutunun yükünü alttan desteksiz taşır (kapak hücreleri yalnız kamlarla bağlı); ağır istifte köprüler takılı kalmalı. Köprüsüz çevre ek yerlerinde şerit uçları arasında kıskaç üstünde küçük üçgen boşluk kalır.
+- Vitrinde "İç köprüler" seçeneği.
